@@ -1,0 +1,882 @@
+Abort Recursive Edit
+ Abnormal exit from recursive editing command.
+ The recursive edit is exited and the command that invoked it is aborted.
+ For a normal exit, you should use Control-Meta-Z, NOT this command.
+
+ADA Mode
+ Set up for editing ADA code.
+ "-- " become Comment Start, there is no Comment End.
+
+ALGOL Mode
+ Set up for editing ALGOL-like code.
+ "!" and ";" become comment delimiters.
+
+Apropos
+ List all functions apropos a keyword.  You type the keyword.
+ Example:  To list all functions with the string "character" in
+ them, give the command M-X Apropos$Character
+
+Auto Fill Mode
+ Turn Auto Fill mode on or off.
+ No arg or argument of 1 turns the mode on; any other arg turns it off.
+ When it is on, lines are broken at the right margin
+ (position controlled by Fill Column) at spaces, or by doing a LF.
+
+BLISS Mode
+ Set up for editing BLISS (yeach) code.
+
+C Mode
+ Set up for editing C code.
+ "/* " and " */" become comment delimiters.
+
+Compile
+ <<Documentation not ready yet, sorry>>
+
+Connect to Directory
+ You ought to be able to guess this one by yourself.
+
+Date Edit
+ Write standard format edit message at start of file.
+ Inserts name of presumed output file, time and date of edit and user.
+
+Describe
+ M-X Describe$FOO<cr> documents function FOO.
+ Prints the full name and full documentation
+ of the specified function.
+
+Detach
+ <<Documentation not ready yet, sorry>>
+
+Find File
+ Visit a file in its own buffer.
+ If the file is already in some buffer, select that buffer.
+ Otherwise, make a buffer named after the file's FN1 and
+ visit the file there.
+
+Fundamental Mode
+ Return to AMIS' initial mode.
+
+Hackmatic Terminal
+ <<Documentation not ready yet, sorry>>
+
+How Many
+ Counts occurrences of a pattern, after point.
+ The format is: M-X How Many$<pattern>.
+
+Indent Tabs Mode
+ Enables or disables use of Tabs as indentation.
+ An argument of 1, or no argument, enables (that is also the default).
+ An explicit argument other than 1 disables.
+
+Insert Buffer
+ Insert contents of another buffer into existing text.
+ Specify buffer name as string argument.
+
+Insert Date
+ Insert the current time and date after point.
+ The mark is put after the inserted text, and
+ point is left before.
+
+Insert File
+ Read file, inserting within existing text.
+ File name is string argument.  Example:  M-X Insert File$FOO.BAR<cr>
+ The pointer is left at the beginning, and the mark at the end.
+
+Kill Buffer
+ Kill the buffer with specified name.
+ Reads name from terminal.  Alternatively, the buffer number
+ may be given as a numeric argument.
+ If the buffer has changes in it, we offer to write it out.
+
+LISP Mode
+ Set things up for editing LISP code.
+ Puts ^R Indent for LISP on Tab, puts tab-hacking rubout on Rubout.
+ Paragraphs are delimited only by blank lines.
+
+List Buffers
+ List numbers, names, files and modes of all buffers.
+
+List Files
+ <<Documentation yet to be written>>
+
+List Matching Lines
+ Displays text lines which contain a given string.
+ M-X List Matching Lines$FOO<cr> shows all following
+ lines which contain FOO.
+
+MACRO Mode
+ Set things up for editing MACRO (-10) code.
+ ";" become Comment Start, there is no Comment End.
+
+Modula-2 Mode
+ Set up for editing Modula-2 code.
+ "(* " and " *)" become comment delimiters.
+
+Name Kbd Macro
+ Give a name to the last kbd macro defined.
+ A function is created with the name you specify,
+ which when invoked runs that keyboard macro.
+
+Overwrite Mode
+ Enters or leaves overwrite mode.
+
+PASCAL mode
+ Set up for editing PASCAL code.
+ "(* " and " *)" become comment delimiters.
+
+Phase Of Moon
+ Insert the current moon phase in the buffer, at dot.
+
+PL/1 Mode
+ Set up for editing PL/1 code.
+
+Push to EXEC
+ <<Documentation not ready yet, sorry>>
+
+Query Replace
+ Replace string, asking about each occurrence.
+ M-X Query replace$FOO$BAR displays each occurrence of FOO;
+   you then type a character to say what to do.
+ Space => replace it with BAR and show next FOO.
+ Rubout => don't replace, but show next FOO.
+ Comma => replace this FOO and show result, waiting for next command.
+ ^ => return to site of previous FOO (actually, jump to mark).
+ ^W => kill this FOO and enter recursive editing level.
+ ^R => enter recursive editing level.  ^L => redisplay screen.
+ Exclamation mark => replace all remaining FOOs without asking.
+ Period => replace this FOO and exit.  Altmode => just exit.
+ Any other character exits and is read again.
+ Numeric arg means only replace FOO when bounded on both sides
+ by delimiter characters.
+
+Rename Buffer
+ Change the name of the current buffer.
+ New name is suffix string arg.
+
+Replace String
+ Replace one string with another, globally.
+ M-X Replace String$FOO$BAR<cr> replaces each FOO after point with BAR.
+ A numeric argument means replace only FOOs which are
+ surrounded by delimiter characters.  Works by calling Query Replace
+ and pretending you typed a !.
+
+Select Buffer
+ Select or create buffer, given its name.
+ If called from a ^R character, read the buffer name from the terminal
+ or should be given a buffer number as a numeric arg.
+ If there is a buffer with that name, it is selected.
+ Otherwise, a buffer with that name is created and selected.
+
+Set Comment End
+ Change the variable Comment End.
+ Argument is suffix string.
+ The change affects current Major Mode, ONLY.
+
+Set Comment Start
+ Change the varaible Comment Start.
+ Argument is suffix string.
+ The change affects current Major Mode, ONLY.
+
+Set Flags
+ Tailor some things.  See documentation (if You have any) for further
+ description.
+
+Set Indent Level
+ Sets the block indent level to its numeric argument.
+
+Set Key
+ Put a function on a key.
+ Asks for the function name.
+ If there is a numeric argument, it is used to decide what
+ key to set, else the key is read from the terminal.
+ It may contain metizers and other prefix characters.
+
+Set Visited File Name
+ Change visited filename, without writing file.
+ What AMIS believes to be the name of the visited file
+ is set from a string argument.  No file's name is actually changed.
+
+Strip SOS Line Numbers
+ Remove SOS line numbers from the current buffer.
+ Deletes all line numbers, and flushes all nulls.
+ If a line starts with five digits, followed by a <tab>,
+ it is concidered a line number.
+
+Swedish Mode
+ Turn Swedish mode on or off.
+ No arg or argument of 1 turns the mode on; any other arg turns it off.
+ When it is on, the characters "[", "\" and "]" are regarded as upper
+ case letters, while the characters "{", "|", and "}" represent lower.
+
+Tabify
+ Convert spaces after point to tabs.
+ Groups of more than two spaces which
+ could be transparently replaced with a tab are.
+
+TeX Mode
+ Set things up to edit TeX source.
+
+Text Mode
+ Set things up to edit text.
+
+Undo
+ Undo last major change, kill, or undo.
+ Point is left before the undone change and the mark is left after.
+ Insertion cannot be undone, nor deletion (as opposed to killing).
+ If you change the buffer by insertion or deletion before you undo,
+ you will get slightly wrong results, but probably still useful.
+ A nonzero arg means don't query, just do it.
+
+Untabify
+ Converts all tabs after point to spaces.
+
+View File
+ View a file sequentially on the screen.
+ Type space to see the next screenful.  Anything else exits.
+
+View Kbd Macro
+ Print definition of a keyboard macro.
+ Supply a suffix string argument containing the command name.
+ If the string argument is null, you will be asked to type
+ the character which runs the macro.
+
+View Q-register
+ Type out contents of q-register.
+ Asks for the name.
+
+Wall Chart
+ Make a wall chart describing ^R commands.
+ A wall chart is a list of ^R command characters, in alphabetical
+ order, with the names of the functions they run. It is written out
+ on the file AMIS.CHA.
+
+What Cursor Position
+ Print various things about where cursor is.
+ Print the X position, the Y position,
+ the octal code for the following character,
+ point absolutely and as a percentage of the total file size,
+ and the virtual boundaries, if any.
+
+What Date
+ Print current date and time in the echo area.
+
+What Page
+ Print the current page and line number in the file.
+
+What Version
+ Print version information in the echo area.
+ This tells you what implementation and version of AMIS you are using.
+
+Where Is
+ List the commands that run a given function.
+ M-X Where Is$^R Forward Word<cr> will tell which character
+ moves forward one word.
+
+Write File
+ Change buffer filenames and write out.
+ Follow by filename as string argument.
+
+Write Region
+ Write region to file.
+ Specify filename with a suffix string argument.
+
+XonXoff Mode
+ Toggle the use of ^S and ^Q as flow control.
+
+^R Append Next Kill
+ Make following kill commands append to last batch.
+ Thus, C-K C-K, cursor motion, this command, and C-K C-K,
+ generate one block of killed stuff, containing two lines.
+
+^R Argument Digit
+ <<Documentation not ready yet, sorry>>
+
+^R Auto-Fill Space
+ Insert space, but CRLF at margin.
+ Fill Column controls where the margin is considered to be.
+ With arg > 1, inserts several spaces and doesn't break line.
+
+^R Autoargument
+ Digit or "-" starts numeric argument.
+ Place this function on the digits or Minus (with or without meta bits)
+ to make them start arguments.  If the digit or Minus has control or
+ meta, it always starts an argument.  Otherwise, it starts an argument
+ only if the terminator has control or meta or is Altmode;
+ other terminators insert the digits instead.
+
+^R Back to Indentation
+ Move to end of this line's indentation.
+
+^R Backward Character
+ Move back one character.
+ With argument, move that many characters backward.
+ Negative args make sense.
+
+^R Backward Delete Character
+ Delete character before point.
+ With argument, kills several characters (saving them).
+ Negative args kill characters forward.
+
+^R Backward Delete Hacking Tabs
+ Delete character before point, turning tabs into spaces.
+ Rather than deleting a whole tab, the tab is converted into the
+ appropriate number of spaces and then one space is deleted.
+
+^R Backward Kill Word
+ Kill last word.
+
+^R Backward Kill Sentence
+ Kills back to beginning of sentence.
+
+^R Backward List
+ Move backward past one list (or several).
+
+^R Backward Paragraph
+ Move to start of this (or last) paragraph.
+
+^R Backward Sentence
+ Move to beginning of sentence.
+ A sentence is ended by a ., ? or ! followed by
+ two spaces or a CRLF (with optional space), with
+ any number of "closing characters" ", ', ) and ] between.
+ A sentence also starts after a blank line.
+
+^R Backward Word
+ Move backward over one word
+
+^R Beginning of Line
+ Go to beginning of line.
+
+^R Buffer Not Modified
+ Pretend that this buffer hasn't been altered.
+
+^R Center Line
+ Center this line's text within the line.
+ With argument, centers that many lines and moves past.
+ The width is taken from Fill Column.
+
+^R Character Extend
+ <<Documentation not ready yet, sorry>>
+
+^R Copy Region
+ Stick region into kill-ring without killing it.
+ Like killing and getting back, but doesn't mark buffer modified.
+
+^R Count Lines Page
+ Type number of lines on this page.
+ Also add, in parentheses, the number of lines on the page
+ before point, and the number of lines after point.
+
+^R CRLF
+ Insert CRLF, or move onto blank line.
+ A blank line is one containing only spaces and tabs
+ (which are killed if we move onto it).  Single blank lines
+ (followed by nonblank lines) are not eaten up this way.
+ In auto-fill mode, we may break the line before the last word.
+
+^R Delete Blank Lines
+ Kill all blank lines around this line's end.
+ If done on a non-blank line, kills all spaces and tabs
+ at the end of it, and all following blank lines
+ (Lines are blank if they contain only spaces and tabs).
+ If done on a blank line, deletes all preceding blank lines as well.
+
+^R Delete Character
+ Delete character after point.
+ With argument, delete that many characters.
+ Negative args make sense.
+
+^R Delete Horizontal Space
+ Delete all spaces and tabs around point.
+
+^R Delete Indentation
+ Kill CRLF and indentation at front of line.
+ Leaves one space in place of them.  With argument,
+ moves down one line first (killing CRLF after current line).
+
+^R Describe
+ Prints the documentation of a command (not a function).
+ The command character is read from the terminal.
+
+^R Documentation
+ General source of helpful information.
+
+^R Down Comment Line
+ Move to start of next line's comment.
+ Equivalent to ^R Down Real Line followed by ^R Indent For Comment.
+
+^R Down Real Line
+ Move down vertically to next real line.
+ Continuation lines are skipped.  If given after the
+ last LF in the buffer, makes a new one at the end.
+
+^R End of Line
+ Go to end of line.
+
+^R End Kbd Macro
+ Terminate definition of a keyboard macro.
+ All that you have typed since starting the definition,
+ except this command itself, becomes the definition.
+ An argument means re-execute the macro immediately, with the
+ argument as repeat count, counting defining the macro as once.
+ Control-X E re-executes the last macro defined.
+
+^R Exchange Point and Mark
+ Exchange pointer and mark.
+
+^R Execute Kbd Macro
+ Run the last defined temporary keyboard macro.
+ A numeric argument is a repeat count.
+
+^R Exit
+ Exit from a level of editing.
+
+^R Extended Command
+ Read an extended command from the terminal with completion.
+ This command reads the name of a function, with completion,
+ followed by the string arguments for the function.  Then the
+ function is called.  Completion is done as the function name is typed
+ (for more information type the HELP key while entering the name).
+ Follow the function name with a $ and then the arguments; end with <cr>.
+
+^R Fill Paragraph
+ Fill (or adjust) this (or next) paragraph.
+ Point stays the same (but text may move past it due to filling).
+ A positive numeric argument says adjust rather than fill.
+ Not allowed in programming language major modes (whenever comments
+ are defined).
+
+^R Fill Region
+ Fill text from point to mark.
+ Fill Column specifies the desired text width.
+ Fill Prefix if nonzero is a string that goes
+ at the front of each line and is not included in the filling.
+ See ^R Set Fill Column and ^R Set Fill Prefix.
+ An explicit positive argument causes adjusting instead of filling.
+
+^R Forward Character:
+ Move forward one character.
+ With argument, move that many characters forward.
+ Negative args make sense.
+
+^R Forward List
+ Move forward past one list (or several).
+
+^R Forward Paragraph
+ Move to start of next paragraph.
+
+^R Forward Sentence
+ Move to end of this sentence.
+ A sentence is ended by a ., ? or ! followed by
+ two spaces or a CRLF (with optional space), with
+ any number of "closing characters" ", ', ) and ] between.
+ A sentence also ends before a blank line.
+
+^R Forward Word
+ Move forward over one word
+
+^R Get Q-reg
+ Get contents of Q-reg (reads name from tty).
+ Usually leaves the pointer before, and the mark after, the text.
+ With argument, puts point after and mark before.
+
+^R Goto Beginning
+ Go to beginning of buffer (leaving mark behind).
+ With arg from 0 to 10, goes that many tenths of the file
+ down from the beginning.
+
+^R Goto End
+ Go to end of buffer (leaving mark behind).
+ With arg from 0 to 10, goes up that many tenths of the file
+ from the end.
+
+^R Grow Window
+ Make this window use more lines.
+ Argument is number of extra lines (can be negative).
+
+^R Incremental Search
+ Search for character string.
+ As characters are typed in, the accumulated string is
+ searched for.  Characters may be rubbed out.
+ ^Q quotes special characters.
+ ^S repeats the search, forward, and ^R repeats it backward.
+ If the accumulated string is empty, ^R or ^S either
+ reverses the direction of search or gobbles the previous
+ search string and searches for it again.
+ Altmode or any random control character exits
+ (anything but altmode is then executed).
+ If the accumulated string fails to be found,
+ you will be notified with one bell.  You can then exit,
+ rub the bad characters out (or ^G them all away),
+ or try searching in the opposite direction.
+ Quitting a successful search goes back to the starting
+ point of the search;  quitting a failing search rubs out
+ enough characters to make it successful again.
+ Altmode when the string is empty makes the search
+ non-incremental by calling ^R String Search.
+
+^R Indent Algol Stm
+ <<Documentation not ready yet, sorry>>
+
+^R Indent ADA Stm
+ <<Documentation not ready yet, sorry>>
+
+^R Indent BLISS stm
+ Try to indent a BLISS (yeach) statement...
+
+^R Indent C stm
+ Try to indent a C statement...
+
+^R Indent for Comment
+ Move to or create comment.
+ Finds start of existing comment, or creates one at end of line.
+ Indents the comment to Comment Column.
+ With argument <n>, aligns the existing comments in the
+ next <n> lines, but does not create comments.
+ Comment Begin holds the string inserted to start a comment.
+ Comment Start holds the string recognized as starting an old one.
+ Comment End holds the string inserted to end a comment.
+
+^R Indent For LISP
+ Indent this line for a Lisp-like language.
+
+^R Indent Modula-2 Stm
+ <<Documentation not ready yet, sorry>>
+
+^R Indent New Comment Line
+ Inserts CRLF, then starts new comment.
+ If done when not in a comment, acts like ^R Indent New Line.
+
+^R Indent New Line
+ Inserts CRLF, then indents the second line.
+ Any spaces before the inserted CRLF are deleted.
+ Uses the definitions of CR and Tab to do the work,
+ except that if there is a Fill Prefix it is used to indent.
+ An argument is passed on to the definition of Tab.
+
+^R Indent Pascal Stm
+ <<Documentation not ready yet, sorry>>
+
+^R Indent PL/1 Stm
+ <<Documentation not ready yet, sorry>>
+
+^R Indent Region
+ Indent all lines between point and mark.
+ With argument, indents each line to exactly that column.
+ A line is processed if its first character is in the region.
+ The mark is left after the last line processed.
+
+^R Indent Rigidly
+ Shift text in region sideways as a unit.
+ All the lines in the region (first character between point and mark)
+ have their indentation incremented by the numeric argument
+ of this command (which may be negative).
+
+^R Indent SEXP
+ Lisp Indent each line contained in the next s-expr.
+
+^R Interpret CSI Sequence
+ Interprets VT220 function keys.
+
+^R Interpret VT100 Keypad
+ Keypad chars for VT100 do nice things...
+ 0-9 and minus sign accumulate arg.
+ Dot runs ^R documentation
+ Arrow keys run up, down, right, and left movement macros.
+ Enter begins a Keyboard Macro definition.
+
+^R Kbd Macro Query
+ Query and continue macro execution.
+ If called from a macro, reads a character:
+ Space continues execution.
+ Rubout terminates this repetition of the macro.
+ Altmode terminates all repetitions of the macro.
+ . terminates after the end of this repetition of the macro.
+ ^R enters a recursive edit;  when you exit, you are asked again.
+ ^L clears the screen and asks you again.
+ Anything else exits all macros and is reread as a command.
+ With an argument, we unconditionally enter a recursive editing level
+ and proceed with the macro when it is exited.
+
+^R Kill Comment
+ Kills the comment (if any) on the current line.
+ With argument, applies to specified number of lines,
+ and moves past them.
+
+^R Kill Line
+ Kill to end of line, or kill an end of line.
+ At the end of a line (only blanks following) kill through the CRLF.
+ Otherwise, kill the rest of the line but not the CRLF.
+ With argument (positive or negative), kill specified number of lines.
+ Killed text is pushed onto the kill ring for retrieval.
+
+^R Kill Region
+ Kill from pointer to mark.
+ Killed text is pushed onto kill ring for retrieval.
+
+^R Kill Sentence
+ Kills back to beginning of sentence.
+
+^R Kill Word
+ Kill next word.
+
+^R Lowercase Region
+ Convert point to mark to lower case.
+
+^R Lowercase Word
+ Convert one word to lower case, moving past it.
+ With arg, applies to that many words backward or forward.
+ If backward, the cursor does not move.
+
+^R Make ()
+ Insert () putting point between them.
+ With argument, put the ) after the specified number
+ of already existing words.  Thus, with argument 1,
+ puts parens around the following word.
+
+^R Mark Beginning
+ Set mark at beginning of buffer.
+
+^R Mark End
+ Set mark at end of buffer.
+
+^R Mark Page
+ <<Documentation not ready yet, sorry>>
+
+^R Mark Paragraph
+ <<Documentation not ready yet, sorry>>
+
+^R Mark Whole Buffer
+ <<Documentation not ready yet, sorry>>
+
+^R Mark Word
+ <<Documentation not ready yet, sorry>>
+
+^R Move to Screen Edge
+ Jump to top or bottom of screen.
+ Like ^R New Window except that point is changed instead of the window.
+ With no argument, jumps to the center, according to FS %CENTER.
+ An argument specifies the number of lines from the top,
+ (negative args count from the bottom).
+
+^R Negative Argument
+ <<Documentation not ready yet, sorry>>
+
+^R New Window
+ Choose new window putting point at center, top or bottom.
+ With no argument, chooses a window to put point at the center.
+ An argument gives the line to put point on;  negative args
+ count from the bottom.
+ ^U as argument redisplays the line containing point.
+
+^R Next Page
+ Move to next page delimiter.
+ See the description of ^R Mark Page.
+
+^R Next Screen
+ Move down to display next screenful of text.
+ With argument, moves window down <arg> lines.
+
+^R One Window
+ Display only one window.
+ Normally, we display what used to be in the top window,
+ but a numeric argument says to display what was in the bottom one.
+
+^R Other Window
+ Switch to the other window.
+ If both windows are showing, the pointer moves into the
+ other one.  If only window 1 is visible, then the
+ windows are exchanged:  what used to be in window 2
+ (invisible) is now in window 1 (visible), and vice versa.
+ An argument means switch windows but select the same
+ buffer in the other window.
+
+^R Open Line
+ Insert a CRLF after point.
+ Differs from ordinary insertion in that point remains
+ before the inserted characters.
+ With argument, inserts several CRLFs.
+
+^R Prefix Control
+ Sets Control-bit of following character.
+ It followed by an = is equivalent to a Control-=.
+
+^R Prefix Control-Meta
+ Sets Control- and Meta-bits of following character.
+ It, followed by an A is equivalent to a Control-Meta-A.
+
+^R Prefix Meta
+ Sets Meta-bit of following character. 
+ It followed by an A is equivalent to a Meta-A.
+
+^R Previous Page
+ Move to previous page delimiter.
+ See the description of ^R Mark Page.
+
+^R Previous Screen
+ Move up to display previous screenful of text.
+ With arg, move window back <arg> lines.
+
+^R Put Q-reg
+ Put point to mark into q-reg (reads name from tty).
+ With an argument, the text is also deleted.
+
+^R Quit
+ Abort execution of any command.
+ Can abort it while running or while reading arguments.
+ Discards any numeric argument, prefix characters, etc.
+
+^R Quoted Insert
+ Reads a character and inserts it.
+
+^R Read File
+ <<Documentation not ready yet, sorry>>
+
+^R Return to Superior
+ Go back to whatever is controlling AMIS.
+
+^R Reverse Search
+ Incremental Search Backwards.
+ Calls Incremental Search with a negative argument.
+
+^R Save File
+ <<Documentation not ready yet, sorry>>
+
+^R Scroll Other Window
+ Scroll other window up several lines.
+ Specify the number as a numeric argument, negative for down.
+ The default is a whole screenful up.  Just Meta-Minus as argument
+ means scroll a whole screenful down.
+
+^R Self Insert
+ Insert the character used to invoke this.
+ With an argument, insert the character that many times.
+ The precise operation is affected by whether Overwrite mode is in effect.
+
+^R Set Comment Column
+ Set comment column to current hpos.
+ An argument, if present, is used as the value instead of current hpos.
+
+^R Set Fill Column
+ Set fill column to current hpos.
+
+^R Set Fill Prefix
+ Defines Fill Prefix from current line.
+ All of the current line up to point becomes the value
+ of the Fill Prefix.  Auto Fill Mode and ^J insert the
+ prefix on each line;  Fill Region assumes that each
+ non-blank line starts with the prefix (which is ignored
+ for filling purposes).
+ To stop using a Fill Prefix, do ^R Set Fill Prefix
+ at the front of a line.
+
+^R Set/Pop Mark
+ Sets or pops the ^R-mode mark.
+ With no ^U's, pushes . as the mark.
+ With one ^U, pops the mark into .
+ With two ^U's, pops the mark and throws it away.
+
+^R Start Kbd Macro
+ Begin defining keyboad macro.
+ After you type this command, everything you type becomes
+ part of the accumulating keyboard macro as well as being executed.
+
+^R String Search
+ <<Documentation not ready yet, sorry>>
+
+^R Tab to Tab Stop
+ Go to next tab stop.
+
+^R Transpose Characters
+ Interchange the characters before and after the cursor.
+ With a positive argument it interchanges the characters before and
+ after the cursor, moves right, and repeats the specified number of
+ times, dragging the character to the left of the cursor right.  With a
+ negative argument, it interchanges the two characters to the left of
+ the cursor, moves between them, and repeats the specified number of
+ times, exactly undoing the positive argument form.  With a zero
+ argument, it interchanges the characters at point and mark.
+ No argument is like an argument of 1, except at the end of a line
+ the previous two characters are interchanged.
+
+^R Transpose Lines
+ Transpose the lines before and after the cursor.
+ For more details, see ^R Transpose Words, reading "Line" for "Word".
+
+^R Transpose Regions
+ Transpose regions defined by cursor and last 3 marks.
+ To transpose two non-overlapping regions, set the mark successively at three
+ of the four boundaries, put point at the fourth, and call this function.
+ On return, the cursor and saved marks retain their original order, but are
+ adjusted to delineate the interchanged regions.  Thus two consecutive
+ calls to this function will leave the buffer unchanged.
+
+^R Transpose Words
+ Interchange the words before and after the cursor.
+ With a positive argument it interchanges the words before and
+ after the cursor, moves right, and repeats the specified number of
+ times, dragging the word to the left of the cursor right.  With a
+ negative argument, it interchanges the two words to the left of
+ the cursor, moves between them, and repeats the specified number of
+ times, exactly undoing the positive argument form.  With a zero
+ argument, it interchanges the words at point and mark.
+
+^R Two Windows
+ Show two windows and select window two.
+ An argument > 1 means give window 2 the same buffer as in Window 1.
+
+^R Un-kill
+ Re-insert the last stuff killed.
+ Puts point after it and the mark before it.
+ An argument n says un-kill the n'th most recent
+ string of killed stuff (1 = most recent).  A null
+ argument (just C-U) means leave point before, mark after.
+
+^R Un-kill pop
+ Correct after ^R Un-kill to use an earlier kill.
+ Requires that the region contain the most recent killed stuff,
+ as it does immediately after using ^R Un-kill.
+ It is deleted and replaced with the previous killed stuff,
+ which is rotated to the front of the kill ring.
+ With 0 as argument, just deletes the region with no replacement,
+ but the region must still match the last killed stuff.
+
+^R Universal Argument
+ Sets argument or multiplies it by four.
+ Followed by digits, uses them to specify the
+ argument for the command after the digits.
+ If not followed by digits, multiplies the argument by four.
+
+^R Up Comment Line
+ Move to start of previous line's comment.
+ Equivalent to ^R Up Real Line followed by ^R Indent For Comment.
+
+^R Up Real Line
+ Move up vertically to next real line.
+ Continuation lines are skipped.
+
+^R Uppercase Initial
+ Put next word in lower case, but capitalize initial.
+ With arg, applies to that many words backward or forward.
+ If backward, the cursor does not move.
+
+^R Uppercase Region
+ Convert point to mark to upper case.
+
+^R Uppercase Word
+ Convert one word to upper case, moving past it.
+ With arg, applies to that many words backward or forward.
+ If backward, the cursor does not move.
+
+^R Visit File
+ Visit file, asking about writing back changes.
+ If you alter the file, then the next attempt to read in a file
+ will ask whether you want this one written back out.
+
+^R Visit in Other Window
+ Find buffer or file in other window.
+ Follow this command by B or C-B and a buffer name, or F or C-F
+ and a file name. We find the buffer or file in the other window,
+ creating the other window if necessary.
+
+This line intentionally left non-blank...

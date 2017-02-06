@@ -1,0 +1,8 @@
+.r link
+*/set:.high.:400000
+*  TTYIO.REL, ROOT.REL, MAIN.REL, UTILIT.REL, -
+*  INPUT.REL, BUFFER.REL, MBUF.REL, SCREEN.REL, -
+*  TERM.REL, DSKIO.REL, SEARCH.REL, POM.REL
+*/version:1B('A)-5
+*/go
+.ssave AMISKA

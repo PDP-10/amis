@@ -1,0 +1,664 @@
+; Terminal declaration file for AMIS.				-*-Text-*-
+; ===================================
+;
+;----------------------------------------------------------------------
+;
+Terminal Name:	"ACTIV"
+Cursor Up:	^Z
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^X
+Cursor Home:	^]
+Erase from cursor to end of line:  ^^
+Clear Screen:	Formfeed
+DCA Lead In String: ^T
+DCA Column First: No
+DCA Row Offset: 48
+DCA Column Offset: 0
+DCA Exception Begin: 0
+DCA Exception End: 31
+DCA Exception Offset: 80
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;---------------------------------------------------------------------
+;
+;  Lear Seigler ADM-3A.
+;
+Terminal Name:	"ADM3A"
+Cursor Up:	^K
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^L
+Cursor Home:	^^
+Clear Screen:	^Z
+DCA Lead In String:  Escape "="
+DCA Column First:    No
+DCA Column Offset:   32
+DCA Row Offset:	     32
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  No
+;---------------------------------------------------------------------
+;
+; Lear Seigler ADM-31
+;
+Terminal Name:	"ADM31"
+Cursor Up:	^K
+Cursor Down:	Linefeed
+Cursor Left:	BackSpace
+Cursor Right:	^L
+Cursor Home:	^^
+Erase from cursor to end of line:  Escape "T"
+Clear Screen:  Escape ";"
+DCA Lead In String:  Escape "="
+DCA Column First:    No
+DCA Column Offset:   32
+DCA Row Offset:	     32
+Insert Character mode ON:   Escape "Q"
+Delete Character:	    Escape "W"
+Insert Line:	Escape "E"
+Delete Line:	Escape "R"
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;
+; The previous parameter ought to be "unknown", but due to
+; a bug in the AMPEX 210 terminal, ...
+;
+;---------------------------------------------------------------------
+;
+;  Ann Arbor Ambassador.
+;
+Terminal Name:	"AMBASS"
+Cursor Up:	Escape "[A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "[C"
+Cursor Home:	Escape "[H"
+Erase from cursor to end of line:  Escape "[K"
+Clear Screen:	Escape "[H" Escape "[J"
+DCA Lead In String:  Escape "["
+DCA Intermediate String: ";"
+DCA Trailing String: "H"
+DCA Coordinates Decimal: Yes
+DCA Column First: No
+DCA Column Offset: 1
+DCA Row Offset: 1
+Insert Character mode ON:  Escape "[@"
+Delete Character:  Escape "[P"
+Insert Line:  Escape "[L"
+Delete Line:  Escape "[M"
+Time Needed to Insert/Delete Line:  15
+Highlight mode on:  Escape "[1m"
+Highlight mode off: Escape "[7m"
+Terminal initialization string: -
+	Escape "[60;;;30p" -	;Screen size.
+	Escape "[>37;30l" -	;No Xon/Xoff, nondestructive backspace.
+	Escape "[1Q"		;????????????
+Terminal deactivation string: -
+	Escape "7" -		;Save cursor.
+	Escape "[60;;;30p" -	;Set screen sizes.
+	Escape "[>37h" -	;Turn on Xon/Xoff protocol.
+	Escape "8"		;Restore cursor.
+Terminal width:		80
+Terminal page length:	30
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Unknown
+Fill Character:  Rubout
+;---------------------------------------------------------------------
+;
+;  An ANSI standard terminal.
+;
+Terminal Name:	"ANSI"
+Cursor Up:	Escape "[A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "[C"
+Cursor Home:	Escape "[H"
+Erase from cursor to end of line:  Escape "[K"
+Clear Screen:	Escape "[H" Escape "[J"
+DCA Lead In String:  Escape "["
+DCA Intermediate String: ";"
+DCA Trailing String: "H"
+DCA Coordinates Decimal: Yes
+DCA Column First: No
+DCA Column Offset: 1
+DCA Row Offset: 1
+Insert Line:	Escape "[L"
+Delete Line:	Escape "[M"
+Time Needed to Insert/Delete Line:  60
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Unknown
+Fill Character:  Rubout
+;---------------------------------------------------------------------
+;
+;  Beehive 100.
+;
+Terminal Name:	"BE100"
+Cursor Up:	Escape "A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "C"
+Cursor Home:	Escape "H"
+Erase from cursor to end of line:  Escape "K"
+Clear Screen:	Escape "E"
+DCA Lead In String:  Escape "F"
+DCA Column First: No
+DCA Column Offset: 32
+DCA Row Offset: 32
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;---------------------------------------------------------------------
+;
+;  Comex 3380, model 1, without insert/delete line.
+;
+Terminal Name:		"CO3380"
+Cursor Up:		^\
+Cursor Down:		^]
+Cursor Left:		Backspace
+Cursor Right:		^Y
+Cursor Home:		^Z
+Clear Screen:	Formfeed
+DCA Lead In String:  ^W
+DCA Column First:  Yes
+DCA Column Offset: 32
+DCA Row Offset: 32
+Insert Character mode ON: ^V "]"
+Delete Character:	^V "\"
+Highlight mode on:	^V "B"
+Highlight mode off:	^V "R"
+Terminal initialization string:  ^V "}"
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;---------------------------------------------------------------------
+;
+;  Comex 3380, model 2, with insert/delete line.
+;
+Terminal Name:		"CO3381"
+Cursor Up:		^\
+Cursor Down:		^]
+Cursor Left:		Backspace
+Cursor Right:		^Y
+Cursor Home:		^Z
+Clear Screen:		Formfeed
+DCA Lead In String:  ^W
+DCA Column First:  Yes
+DCA Column Offset: 32
+DCA Row Offset: 32
+Insert Character mode ON: ^V "]"
+Delete Character:	^V "\"
+Insert Line:		^V "M"
+Delete Line:		^V "L"
+Highlight mode on:	^V "B"
+Highlight mode off:	^V "R"
+Terminal initialization string:  ^V "}"
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;---------------------------------------------------------------------
+;
+;  Datamedia Elite 1520/1521.
+;
+Terminal Name:	"EL1521"
+Cursor Up:	^_
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^\
+Cursor Home:	^Y
+Erase from cursor to end of line:  ^]
+Clear Screen:	Formfeed
+Terminal initialization string: ^N
+Terminal deactivation string: ^O
+DCA Lead In String:  ^^
+DCA Column First:  Yes
+DCA Column Offset: 32
+DCA Row Offset: 32
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;---------------------------------------------------------------------
+;
+;  Datamedia Elite 2500.
+;
+Terminal Name:	"EL2500"
+Cursor Up:	^Z
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^\
+Cursor Home:	^B
+Erase from cursor to end of line:  ^W
+Clear Screen:	^^
+DCA Lead In String: ^L
+DCA Column First: Yes
+DCA Row Offset: 96
+DCA Column Offset: 96
+DCA Exception Begin: 32
+DCA Exception End: 63
+DCA Exception Offset: 32
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  No
+;---------------------------------------------------------------------
+;
+;  Datamedia Elite 3045.
+;
+Terminal Name:	"EL3045"
+Cursor Up:	Escape "A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "C"
+Cursor Home:	Escape "H"
+Erase from cursor to end of line:  Escape "K"
+Clear Screen:	Escape "H" Escape "J"
+DCA Lead In String:  Escape "Y"
+DCA Column First:  No
+DCA Column Offset: 32
+DCA Row Offset: 32
+Insert Character mode ON:  Escape "R"
+Delete Character:  Escape "C" Escape "P" Backspace Escape "P"
+Time Needed to Insert/Delete Character:  20
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+Fill Character:  Rubout
+;---------------------------------------------------------------------
+;
+;  Heath H-19
+;
+Terminal Name:	"H19"
+Cursor Up:		Escape "A"
+Cursor Down:		Linefeed
+Cursor Left:		Backspace
+Cursor Right:		Escape "C"
+Cursor Home:		Escape "H"
+Erase from cursor to end of line:  Escape "K"
+Clear Screen:		Escape "H" Escape "J"
+DCA Lead In String:	Escape "Y"
+DCA Column First:	No
+DCA Column Offset:	32
+DCA Row Offset:		32
+Insert Line:		Escape "[L"
+Delete Line:		Escape "[M"
+Time Needed to Insert/Delete Line:  60
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  No
+;---------------------------------------------------------------------
+;
+;  Hazeltine 1500.
+;
+Terminal Name:	"HA1500"
+Cursor Up:	"~" FormFeed
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^P
+Cursor Home:	"~" ^R
+Erase from cursor to end of line:  "~" ^O
+Clear Screen:	"~" ^\
+DCA Lead In String: "~" ^Q
+DCA Column First: Yes
+DCA Row Offset: 96
+DCA Column Offset: 0
+DCA Exception Begin: 0
+DCA Exception End: 31
+DCA Exception Offset: 96
+Insert Line:  "~" ^Z
+Delete Line:  "~" ^S
+Time Needed to Insert/Delete Line:  140
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+Fill Character:  Rubout
+;---------------------------------------------------------------------
+;
+Terminal Name:	"HP2648"
+Cursor Up:	Escape "A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "C"
+Cursor Home:	Escape "H"
+Erase from cursor to end of line:  Escape "K"
+Clear Screen:	Escape "H" Escape "J"
+DCA Lead In String: Escape "&a"
+DCA Intermediate String: "r"
+DCA Trailing String: "C"
+DCA Coordinates Decimal: Yes
+DCA Column First: No
+Insert Character mode ON:  Escape "Q"
+Insert Character mode OFF: Escape "R"
+Delete Character:	   Escape "P"
+Time Needed to Insert/Delete Character:  65
+Insert Line:  Escape "L"
+Delete Line:  Escape "M"
+Time Needed to Insert/Delete Line:  150
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+Fill Character:  ^_
+;---------------------------------------------------------------------
+;
+;  Beehive MicroBee 1.
+;
+Terminal Name:	"MICBEE"
+Cursor Up:	Escape "A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "C"
+Cursor Home:	Escape "H"
+Erase from cursor to end of line:  Escape "K"
+Clear Screen:	Escape "E"
+DCA Lead In String:  Escape "F"
+DCA Column First:  No
+DCA Column Offset: 32
+DCA Row Offset: 32
+Highlight mode on:  Escape "dQ"
+Highlight mode off: Escape "d@"
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;---------------------------------------------------------------------
+;
+;  Beehive MicroBee 2.
+;
+Terminal Name:	"MICBE2"
+Cursor Up:	Escape "A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "C"
+Cursor Home:	Escape "H"
+Erase from cursor to end of line:  Escape "K"
+Clear Screen:	Escape "E"
+DCA Lead In String:  Escape "F"
+DCA Column First:  No
+DCA Column Offset: 32
+DCA Row Offset: 32
+Insert Character mode ON:  Escape "Q"
+Insert Character mode OFF: Escape "S"
+Delete Character:   Escape "P"
+Highlight mode on:  Escape "dQ"
+Highlight mode off: Escape "d@"
+Terminal initialization string:  Escape "#"
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;---------------------------------------------------------------------
+;
+;  Minitec.
+;
+Terminal Name:	"MINITE"
+Cursor Up:	^K
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^_
+Cursor Home:	^^
+Clear Screen:	^\
+DCA Lead In String: Escape "F"
+DCA Column First: Yes
+DCA Row Offset: 127
+DCA Column Offset: 127
+DCA Row Negate: Yes
+DCA Column Negate: Yes
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;---------------------------------------------------------------------
+;
+;  Perkin-Elmer 550.
+;
+Terminal Name:	"PE550"
+Cursor Up:	Escape "A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "C"
+Cursor Home:	Escape "H"
+Erase from cursor to end of line:  Escape "I"
+Time needed for erasing to end of line:  40
+Clear Screen:	Escape "H" Escape "J"
+Time needed to clear screen:  40
+DCA Lead In String: Escape "X"
+DCA Intermediate String: Escape "Y"
+DCA Column First: No
+DCA Row Offset: 32
+DCA Column Offset: 32
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+Fill Character:  Rubout
+;---------------------------------------------------------------------
+;
+;  Teletec.  This one is quite dumb...
+;
+Terminal Name:	"TELETE"
+Cursor Up:	^K
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^_
+Cursor Home:	^^
+Clear Screen:	Formfeed
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+;---------------------------------------------------------------------
+;
+;  Tektronix model 4025.
+;
+Terminal Name:	"TE4025"
+Cursor Up:	^K
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^\ "RIG" Return LineFeed
+Cursor Home:	Return ^\ "UP99" Return LineFeed LineFeed
+Clear Screen:	^\ "ERA M" Return LineFeed LineFeed
+Time needed to clear screen:  20
+Insert Line:	^K ^\ "ILI"
+Terminate Insert Line:	Return LineFeed
+Delete Line:	^\ "DLI"
+Terminate Delete Line:	Return LineFeed
+I/D Multiple Lines:	Yes
+I/D Line Argument Decimal: Yes
+Terminal initialization string:  ^\ "MON34" Return LineFeed
+Terminal width:		80
+Terminal page length:	33
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+Fill Character:  Rubout
+;---------------------------------------------------------------------
+;
+;  Volker-Craig 404.
+;
+Terminal Name:	"VC404"
+Cursor Up:	^Z
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^U
+Cursor Home:	^Y
+Erase from cursor to end of line:  ^V
+Time needed for erasing to end of line:  20
+Clear Screen:	^X
+Time needed to clear screen:  40
+DCA Lead In String:  ^P
+DCA Column First:  No
+DCA Column Offset: 32
+DCA Row Offset: 32
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+Fill Character:  Rubout
+;---------------------------------------------------------------------
+;
+;  Volker-Craig 414
+;
+Terminal Name:	"VC414"
+Cursor Up:	Escape ^L
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^P
+Cursor Home:	Escape ^R
+Erase from cursor to end of line:  Escape ^O
+Time needed for erasing to end of line:  40
+Clear Screen:	Escape ^\
+Time needed to clear screen:  60
+DCA Lead In String: Escape ^Q
+DCA Column First: Yes
+DCA Row Offset: 64
+DCA Column Offset: 0
+DCA Exception Begin: 0
+DCA Exception End: 30
+DCA Exception Offset: 96
+Insert Character mode ON:  Escape ":"
+Delete Character:  Escape "3"
+Time Needed to Insert/Delete Character:  100
+Insert Line:  Escape ^Z
+Delete Line:  Escape ^S
+Time Needed to Insert/Delete Line:  250
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+Fill Character:  Rubout
+;---------------------------------------------------------------------
+;
+;  Volker-Craig 415  (APL terminal)
+;
+Terminal Name:	"VC415"
+Cursor Up:	^Z
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	^U
+Cursor Home:	^Y
+Erase from cursor to end of line:  ^V
+Time needed for erasing to end of line:  20
+Clear Screen:	Formfeed
+Time needed to clear screen:  40
+DCA Lead In String:  ^P
+DCA Column First:  No
+DCA Column Offset: 32
+DCA Row Offset: 32
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  Yes
+Fill Character:  Rubout
+;---------------------------------------------------------------------
+;
+; Infoton VISTA.
+;
+Terminal Name:	"VISTA"
+Cursor Up:	^\
+Cursor Down:	Linefeed
+Cursor Left:	^Z
+Cursor Right:	^Y
+Cursor Home:	Backspace
+Erase from cursor to end of line:  ^K
+Clear Screen:	Formfeed
+Terminal width:		80
+Terminal page length:	20
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  No
+;---------------------------------------------------------------------
+;
+;  This one is real slow -- you can't use it above 300 baude.
+;
+Terminal Name:		"VT05"
+Cursor Up:		^Z Rubout Rubout
+Cursor Down:		^K Rubout Rubout
+Cursor Left:		Backspace Rubout Rubout
+Cursor Right:		^X Rubout Rubout
+Cursor Home:		^] Rubout Rubout
+Clear Screen:		^] ^_
+Time needed to clear screen: 200
+Erase from cursor to end of line: ^^
+Time needed for erasing to end of line: 200
+DCA Lead In String:  Escape "Y"
+DCA Trailing String:  Rubout Rubout Rubout
+DCA Column First:  No
+DCA Column Offset: 32
+DCA Row Offset: 32
+Terminal width:		72
+Terminal page length:	20
+Fixed TAB stops every 8 columns: Yes
+Wrap around from last column: No
+;---------------------------------------------------------------------
+;
+;  Digital equipment VT52.
+;
+Terminal Name:	"VT52"
+Cursor Up:	Escape "A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "C"
+Cursor Home:	Escape "H"
+Erase from cursor to end of line:  Escape "K"
+Clear Screen:	Escape "H" Escape "J"
+DCA Lead In String:  Escape "Y"
+DCA Column First:  No
+DCA Column Offset: 32
+DCA Row Offset: 32
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column:  No
+;---------------------------------------------------------------------
+;
+;  Digital equipment VT100.
+;
+Terminal Name:	"VT100"
+Cursor Up:	Escape "[A"
+Cursor Down:	Linefeed
+Cursor Left:	Backspace
+Cursor Right:	Escape "[C"
+Cursor Home:	Escape "[H"
+Erase from cursor to end of line:  Escape "[K"
+Clear Screen:	Escape "[H" Escape "[J"
+Time needed to clear screen:  100; Milliseconds.
+DCA Lead In String:  Escape "["
+DCA Intermediate String: ";"
+DCA Trailing String: "H"
+DCA Coordinates Decimal: Yes
+DCA Column First: No
+DCA Column Offset: 1
+DCA Row Offset: 1
+VT100 Region Scroll: Yes
+Time Needed to Insert/Delete Line: 15
+Highlight mode on:  Escape "[7m"
+Highlight mode off: Escape "[m"
+Terminal initialization string: -
+	Escape "<" -		;Set terminal in ANSI mode
+	Escape "=" -		;Enter alternate keypad mode
+	Escape "[?1h" -		;Cursor application
+	Escape "[?4l" -		;Select jump scroll
+	Escape "[?6l" -		;Select absolute origin
+	Escape "[1q" -		;Light LED # 1
+	Escape "[r"		;And finally, reset scrolling region.
+Terminal deactivation string: -
+	Escape "[0q" -		;Extinguish all LED's
+	Escape ">" -		;Exit alternate keypad mode
+	Escape "[?1l"		;Cursor key
+Terminal width:		80
+Terminal page length:	24
+Fixed tab stops every 8 columns:  No
+Wrap around from last column: Unknown
+Fill Character:  Rubout

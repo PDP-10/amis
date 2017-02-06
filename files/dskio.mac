@@ -1,0 +1,1757 @@
+TITLE	DSKIO - Disk I/O routines for editor AMIS	-*-Macro-*-
+
+SEARCH	UUOSYM,MACTEN
+
+t0==0
+t1==1
+t2==2
+t3==3
+t4==4
+t5==5
+t6==6
+t7==7
+t8==8
+p==17
+
+dsk==2				;Channel for disk I/O.
+
+dsksize==^D640			;Size of disk block, in chars.
+
+strsize==^D40
+
+opdef	call[	pushj	p,]
+
+define	bugerr(msg),<
+	jrst[	movei	2,[
+			asciz	"'msg'"]
+		pushj	p,bug##]
+>;End of bugerr macro.
+
+define	DBP(ac,%lbl),<		;Decrement Byte Pointer
+	caml	ac,[35b5]
+	 jrst[	sub  ac,[340000,,1]
+		jrst  %lbl]
+	add	ac,[7b5]
+%lbl:
+>;End of DBP macro
+
+TWOSEG	600000			;make a shareable highsegment
+
+
+;=============================================================================
+;PROCEDURE dskinit;
+;
+;(* Initialises the DSKIO-module *)
+
+dskini::SETZM	ds.opn		; no files open yet
+	SETZM	proflg		; no funny renameing done yet
+	SETZM	notdir		; no device checks yet
+	SETZM	tcrflg		; we haven't fiddled
+	SETZM	tcrdev		;  with TMPCORE yet
+	setzm	prsarg		; No parameters from TMP:EDS yet.
+
+; Make a temporary filename based on the jobnumber.
+
+	PJOB	t1,			; get our job number
+	IDIVI	t1,^D100		; I don't really want to explain..
+	IDIVI	t2,^D10			; ..this code sequence...
+	ROT	t2,-6
+	ROTC	t1,-6
+	TLO	t2,'000'(t3)
+	TRO	t2,'AMI'		; ...
+	MOVEM	t2,tmpnam		; store it
+	POPJ	P,
+
+
+
+;=============================================================================
+;PROCEDURE blankstring (VAR txt: STRING);
+;
+;(*	Blanks the string 'txt' *)
+
+txt==2
+
+blanks:	push	p,t1		;Save T1.
+	move	t1,[BYTE (7) " "," "," "," "," "]
+	movem	t1,(txt)	;Blank first word
+	HRLZ	t1,txt		;get pointer to string
+	HRRI	t1,1(txt)
+	BLT	t1,strsiz/5-1(txt)	; blank the string
+	POP	p,t1
+	POPJ	P,
+
+
+;==============================================================================
+; This routine is called upon initialization to rescan the command line.
+
+rrspar::setzm	rsccnt		;No chars rescanned yet.
+	rescan	1		;Try rescan the command line.
+	 skipa			; OK, start parsing.
+	  popj	p,		;  Not OK, just return.
+	setz	t4,		;Clear word.
+	move	t5,[point 6,t4]	;Load byte pointer.
+	movei	t6,6		;Load char count.
+rrs.2:	pushj	p,rrsgch	;Try get a character.
+	 popj	p,		; No more, give up.
+	caie	t1," "		;Loop until some non-blank char.
+	 cain	t1,.chtab
+	  jrst	rrs.2
+rrs.3:	cail	t1,"0"		;While char is alphanumeric, collect word.
+	 caile	t1,"9"
+	cail	t1,"A"
+	 caile	t1,"Z"
+	cail	t1,"a"
+	 caile	t1,"z"
+	  jrst	rrs.5
+	sojl	t6,rrs.4
+	cail	t1,"a"
+	 subi	t1,40
+	subi	t1,40
+	idpb	t1,t5
+rrs.4:	pushj	p,rrsgch	;Get next char of word.
+	 tdza	t1,t1		; No more, flag in T1 and skip.
+	  jrst	rrs.3
+rrs.5:	came	t4,['A     ']	;Do we know this initial command?
+	 camn	t4,['AM    ']
+	  jrst	rrs.8
+	came	t4,['AMI   ']
+	 camn	t4,['AMIS  ']
+	  jrst	rrs.8
+	jumpe	t1,.popj	;No, quit if this was eol.
+rrs.6:	caie	t1,"!"		;Not eol, scan for comment start or "-".
+	 cain	t1,";"
+	  jrst	read6c
+	cain	t1,"-"
+	 jrst	rrs.7
+	pushj	p,rrsgch
+	 popj	p,
+	jrst	rrs.6
+
+read6c:	pushj	p,rrsgch	;We found a command, skip to eol.
+	 popj	p,
+	jrst	read6c
+
+rrs.7:	pushj	p,rrsgch	;Found a hyphen, eat it and use rest.
+	 popj	p,
+rrs.8:	setom	offset##	;'AMIS' started command, flag it.
+	jumpe	t1,.popj	;Allow eol after command.
+	caie	t1," "		;Start of arguments -- skip leading blanks.
+	 cain	t1,.chtab
+	  jrst	rrs.7
+	move	t5,[point 7,tcrbuf+1]
+rrs.9:	idpb	t1,t5
+	aos	rsccnt
+	pushj	p,rrsgch
+	 skipa	t1,[ascii "AMIS "]
+	  jrst	rrs.9
+	movem	t1,tcrbuf+0	;Store initial part of TMP:EDS
+	movei	t1,^D13		;Terminate file with CRLF.
+	idpb	t1,t5
+	movei	t1,^D10
+	idpb	t1,t5
+	setzm	offset##	;No need to read the file we just wrote...
+	movsi	t0,'EDS'	;Load tempcore file name.
+	move	t1,rsccnt	;Get count of bytes rescanned.
+	addi	t1,5+4+2	;Add one word, two chars and adjustment.
+	idivi	t1,5		;Compute number of words.
+	movn	t1,t1		;Negate.
+	hrl	t1,t1		;Put in left half.
+	hrri	t1,tcrbuf-1	;Make IOWD to buffer.
+	movx	t2,<.tcrwf,,t0>
+	tmpcor	t2,		;Write TMP:EDS
+	 jfcl			; Oh well...
+	popj	p,		;Done with all this junk.
+
+rrsgch:	inchwl	t1		;Get a character.
+	movei	t0,1B35		;Load a bit.
+	lsh	t0,(t1)		;Shift according to character.
+	trne	t0,^B10000000000001;Ignore CR and NULL.
+	 jrst	rrsgch
+	tdnn	t0,[^B1100000101000001110010001000]
+	 aos	(p)
+	popj	p,
+
+;=============================================================================
+;function GetParameters: boolean;
+;
+;(* Reads TMP:EDS and prepares for special things. *)
+
+getpar::skipe	offset##	;Check runoffset.
+	 jrst	getpa0		; Set, look for and read TMP:EDS
+	hrlz	t1,rsccnt	;Zero, check what we rescanned.
+	jumpe	t1,retf		;Nothing, tell MAIN the fact.
+	hrri	t1,tcrbuf+1	;Something, make len,,addr.
+	movem	t1,prsarg	;Set up for DSKOPEN
+	jrst	rett		;Return true.
+
+getpa0:	MOVSI	t3,'EDS'	; read from TMP:EDS
+	HRLZI	t4,-50		; negative count of words in buffer
+	HRRI	t4,tcrbuf-1	; addr-1 to buffer
+	MOVE	t1,[.TCRRF,,t3]
+	TMPCOR	t1,
+	 jrst	retf		; No tmp:eds maybe.
+	MOVE	t3,[POINT 7,tcrbuf]
+	IMULI	t1,5
+;come here to find first blank or <TAB>
+getpa1:	jumple	t1,retf		;Abort now if no chars left.
+	ILDB	t4,t3
+	CAIE	t4," "
+	 CAIN	t4,.CHTAB
+	  SOJA	t1,getpa2
+	   soja	t1,getpa1
+;now scan past all blanks or <TAB>s
+getpa2:	jumple	t1,retf
+	ILDB	t4,t3
+	CAIE	t4,.CHTAB
+	 CAIN	t4," "
+	  SOJA	t1,getpa2
+;come here to shift the string to the left
+	move	t5,[POINT 7,tcrbuf]
+	tdza	t6,t6
+getpa3:	ildb	t4,t3
+	caie	t4,.chcnv	;^V?
+	 cail	t4," "		; No, other control char?
+	  cail	t4,177		;  or rubout?
+	   jrst	quit		;   Terminator.
+	idpb	t4,t5
+	addi	t6,1		;Count chars moved.
+	sojg	t1,getpa3
+
+quit:	jumpe	t6,retf		;No chars moved means no parameters.
+	hrli	t6,tcrbuf	;set up swapped pointer.
+	movsm	t6,prsarg	;store.
+	jrst	rett
+
+retf:	tdza	t1,t1
+rett:	movei	t1,1
+	movem	t1,1(p)
+	popj	p,
+
+
+;=============================================================================
+;FUNCTION filprs(n: STRING; lkb:LOOKUP/ENTER/RENAME-block): INTEGER;
+; 
+;(*	Local function to parse a filespec.
+;	Returns the following "error" codes in ac0: *)
+ 
+	errnoe==101	; no error, success
+	erricf==102	; illegal character in filspec.
+	errtlf==103	; too long field in filespec.
+	errdfn==104	; duplicate filename
+	errdex==105	; duplicate extension
+	errddr==106	; double directory
+	errcnd==107	; colon, but no device
+	errddv==110	; duplicate device
+	errils==111	; illegal separator in directory
+	errtms==112	; too many sfds
+	errnls==113	; null sfd
+	errilf==114	; illegal format for directory
+	errilp==115	; illegal protection code
+	errdpr==116	; duplicate protection
+	errnw8==117	; cant write 8-bit files.
+ 
+;parameters
+	n==2
+	lkb==3
+ 
+;locals
+	flags==0
+	pos==4
+	separ==5
+	word==6
+	sfdpnt==7
+	pth==10
+	err==11
+
+	X==7			;Duplicate use of these.
+	NUMB==10
+ 
+;filespec. flags
+	f.dev==1B35			; device found
+	f.nam==1B34			; file name found
+	f.ext==1B33			; extension found
+	f.dir==1B32			; directory found
+	f.pro==1B31			; protection found
+
+
+filprs: SETZ	flags,			; clear flag word
+	PUSH	p,pos			; save some accumulators
+	PUSH	p,separ
+	PUSH	p,word
+	PUSH	p,sfdpnt
+	PUSH	p,pth
+	PUSH	p,err
+	SETZM	cvseen			; no CTRL-V seen yet
+	SETZM	PG.VAL		;[JE] No /Page yet.
+	SETZM	LN.VAL		;[JE] No /Line yet.
+	SETZM	CH.VAL		;[JE] No /Char yet.
+	SETZM	FLAG8		;[JE] No bytesize yet.
+	HLRZM	n,prslen	;[JE] save string length.
+	HRLI	n,(POINT 7,0)		; set up bytepointer to string
+	MOVEI	pos,1			; pos points to first char in n
+filpr1: CALL	nxtsix			; get next sixbit char
+	 JRST	.firet			; illegal character
+	JUMPL	separ,.finrt		; end of string
+filpr2:	DBP	n			; decrement byte pointer
+	SUBI	pos,1			; reset pos to last read char
+	CALL	nxtwrd			; get a sixbit word
+	 JRST	.firet			; too long field
+	CAIN	separ,':'		; is it device?
+	 JRST	fildev			; yes
+	JUMPE	word,filpr3		; if null, not filename
+	MOVEI	err,errdfn		; assume double filenam error
+	TROE	flags,f.nam		; check double filename error
+	 JRST	.firet			; yes, duplicate filename error
+	MOVEM	word,.RBNAM(lkb)	; save filename
+
+filpr3: CAIN	separ,'.'		; is it extension?
+	 JRST	filext			; yes
+	CAIN	separ,'<'		; protection or directory?
+	 JRST	filpro			; see if protection
+	CAIN	separ,'['		; directory?
+	 JRST	fildir			; yes
+	JUMPLE	separ,.finrt		; at end of string?
+	MOVEI	err,erricf		; no, we don't recognise it
+	 JRST	.firet
+ 
+; here if "<" seen - check if it is protection
+filpro:	MOVEM	n,save.n		; save position in
+	MOVEM	pos,savpos		;  name string
+	CALL	nxtoct			; get prortection code
+	 JRST	.firet			; error
+	CAIE	separ,'>'		; was it protection?
+	 JRST[	MOVE	n,save.n	; no, try directory instead
+		MOVE	pos,savpos
+		JRST	fildir]
+	MOVEI	err,errdpr		; assume duplicate protection
+	TROE	flags,f.pro		; duplicate?
+	 JRST	.firet			; yep
+	MOVEI	err,errilp
+	CAILE	word,777		; check if legal
+	 JRST	.firet			; illegal
+	DPB	word,[POINT ^D9,dslkbk+.RBPRV,^D8]	; store protection code
+	JRST	filpr1			; back for next field
+
+
+; here if colon seen - we should have a device
+fildev:	MOVEI	err,errilf		; assume illegal format
+	TRNE	flags,f.nam+f.ext+f.dir	; device must be first in spec.!!
+	 JRST	.firet
+	JUMPE	word,[
+		MOVEI	err,errcnd	; no device before colon, error
+		JRST	.firet]
+	MOVEI	err,errddv		; assume double device error
+	TROE	flags,f.dev
+	 JRST	.firet			; yes, duplicate device
+	MOVEM	word,dsopbk+.OPDEV	; save device
+	DEVCHR	word,			; what kind of device?
+	TXNE	word,DV.DIR		; directory device?
+	 JRST	filpr1			; yes, go back for more
+	SETOM	notdir			; it was not a directory device
+	JUMPN	word,filpr1		; but it was a device
+	MOVE	word,dsopbk+.OPDEV	; see if it was TMP:
+	CAXN	word,SIXBIT /TMP/	; tmpcore?
+	 SETOM	tcrdev			; yes, remember it
+	JRST	filpr1
+
+; here if period seen - next word should be extension
+filext: MOVEI	err,errdex		; assume duplicate extension
+	TROE	flags,f.ext		; check for double extension
+	 JRST	.firet			; yes, double extension
+	CALL	nxtwrd			; get next sixbit word
+	 JRST	.firet			; too long field
+	HLLM	word,.RBEXT(lkb)	; save extension
+	JUMPG	separ,filpr2		; go back for more, if there is any
+	JRST	.finrt			; ok, we're finished
+ 
+; here if left bracket seen - directory should come next
+fildir:	SKIPE	notdir			; directory device?
+	 JRST	fild.1			; no, don't check default path
+	MOVE	pth,.RBPPN(lkb)		; get pointer to PATH.-block
+	MOVE	separ,dsopbk+1		; get device
+	MOVEM	separ,.PTFCN(pth)	; put device in PATH.-block
+	HRLI	pth,.PTMAX
+	MOVEI	err,ERDNA%		; assume device not available
+	PATH.	pth,			; find out default path for this device
+	 JRST	.firet			; yep, it wasn't there
+	GETPPN	word,			; get job's PPN			(*JMR*)
+	 JFCL				;				(*JMR*)
+	MOVEM	word,.PTPPN(pth)	; save PPN
+fild.1:	MOVEI	err,errddr		; assume duplicate directory
+	TROE	flags,f.dir		; check duplicate directory error
+	 JRST	.firet			; yes, duplicate directory
+	CALL	nxtoct			; read an octal number (project)
+	 JRST	.firet			; error, too long field
+	CAIE	separ,'-'		; default directory?
+	 JRST	fildr1			; no, proceed
+	CALL	nxtsix			; get next char
+	 JRST	.firet			; error, illegal char
+	JRST	fildr3			; finish directory parsing
+
+
+fildr1: SKIPE	word			; null project?
+	 HRLM	word,.PTPPN(pth)	; no, save project
+	MOVEI	err,errils		; assume illegal separator in directory
+	CAIE	separ,','		; check it
+	 JRST	.firet			; yes, illegal separator
+	CALL	nxtoct			; read an octal number (programmer)
+	 JRST	.firet			; error, too long field
+	SKIPE	word			; null programmer?
+	 HRRM	word,.PTPPN(pth)	; no, save programmer
+	MOVEI	sfdpnt,.PTSFD(pth)	; set pointer to first sfd
+fildr2: CAIE	separ,','		; sfd next?
+	 JRST	fildr3			; no, finish directory parsing
+	MOVEI	err,errtms		; assume too many sfds
+	CAIL	sfdpnt,.PTMAX(pth)	; how many sfds now?
+	 JRST	.firet			; too many
+	CALL	nxtwrd			; get next sixbit word
+	 JRST	.firet			; too long field
+	MOVEM	word,(sfdpnt)		; save the sfd
+	ADDI	sfdpnt,1		; increment sfd-pointer
+	JUMPN	word,fildr2		; if not null sfd, get next
+	MOVEI	err,errnls		; null sfd, illegal
+	 JRST	.firet
+
+fildr3: SETZM	(sfdpnt)		; null word must be last in path
+	MOVEI	err,errilf		; assume illegal format for directory
+	JUMPLE	separ,filpr1		; hack to allow missing right bracket
+	CAIE	separ,']'		; must be at end of directory
+	 CAIN	separ,'>'		; check end of 2741 directory too
+	  JRST	filpr1			; back for next field
+	JRST .firet			; yep, it was error all right
+
+.finrt: MOVEI	err,errnoe		; return success
+	SKIPE	notdir			; is it a directory device?
+	 JRST	.firet			; no
+	TRNN	flags,f.dir		; directory found?
+	 SETZM	.RBPPN(lkb)		; directory wasn't seen, use default
+	TRNE	flags,f.pro		; protection found?
+	 JRST	.firet			; yep
+	MOVX	t1,<-1,,.GTDFL>
+	GETTAB	t1,			; find out default protection
+	 SETZ	t1,			; that should give us default later
+	TXNN	t1,JD.SDP		; did user set default prot?
+	 JRST[	MOVX	t1,%LDSTP	; no, get system default
+		GETTAB	t1,
+		 MOVX	t1,057B8	; well...
+		JRST	.+1]
+	LDB	t1,[POINT ^D9,t1,^D8]	; extract prot.
+	DPB	t1,[POINT ^D9,dslkbk+.RBPRV,^D8]	; store it
+.firet:	MOVE	t0,err			; return error code
+	POP	p,err			; restore some accumulators
+	POP	p,pth
+	POP	p,sfdpnt
+	POP	p,word
+	POP	p,separ
+	POP	p,pos
+	POPJ	P,
+
+;get next sixbit char
+
+;skip return if succesful, with char in ac 'separ',
+; negative "char" if end of string.
+;nonskip return if failure, with error code in 'err'
+
+nxtsix: CAMLE	pos,prslen	; past last char?
+	 JRST[	SETO	separ,	; yes, return negative "char"
+		JRST	.nsret]
+	ILDB	separ,n 	; get next ascii char
+	CAIL	separ,"a"
+	 CAILE	separ,"z"
+	  SKIPA
+	   SUBI separ," "	; convert to capitals
+	CAIL	separ," "	; is char in sixbit range?
+	 CAILE	separ,"_"
+	  JRST[ MOVEI	err,erricf	; assume it's illegal
+		CAIE	separ,"V"-"@"	; is it CTRL-V?
+		 POPJ	P,	; no it isn't, sorry
+		SKIPE	cvseen	; CTRL-V already typed?
+		 JRST[	SETZM	cvseen	; yes, sorry
+			POPJ	P,]
+		SETOM	cvseen	; set the CTRL-V flag
+		ADDI	pos,1	; we have read on more char
+		JRST	nxtsix	; ignore this char and get next
+		]
+	SUBI	separ," "	; convert to sixbit
+	ADDI	pos,1		; increment pos
+	CAIE	separ,'/'	;[JE] Attempt to read switches.
+	 JRST	.nsret		;[JE]  Normal char, return.
+	PUSHJ	P,SWTCHK	;[JE] Check for switches.
+	SETO	separ,		;[JE] Call this end of string.
+.nsret: AOS	(p)		; bump return address
+	POPJ	P,
+ 
+; Here to check for switches.  Don't look too close...
+
+swtchk:	push	p,word		;Save current word.
+	push	p,t7		;Save this one too.
+swtlup:	pushj	p,atom		;Read an atom.
+	camn	word,['8     ']	;Want eight bit bytes?
+	 jrst	sw.8bt		; Yes, go handle.
+	camn	word,['I     ']	;Want I*M eight bits?
+	 jrst	sw.ibm		; Yes, go handle.
+	caie	separ,':'	;Terminated by colon?
+	 jrst	swtret		; No, then we don't know about it.
+	came	word,['P     ']	;/P?
+	 camn	word,['PA    ']	; /Pa?
+	  jrst	sw.page		;  Yes, go handle.
+	came	word,['PAG   ']	;/Pag?
+	 camn	word,['PAGE  ']	; /Page?
+	  jrst	sw.page		;  Yes, go handle.
+	came	word,['L     ']	;/L?
+	 camn	word,['LI    ']	; /Li?
+	  jrst	sw.line		;  Yes, go handle.
+	came	word,['LIN   ']	;/Lin?
+	 camn	word,['LINE  ']	; /Line?
+	  jrst	sw.line		;  Yes, go handle.
+	came	word,['C     ']	;/C?
+	 camn	word,['CH    ']	; /Ch?
+	  jrst	sw.char		;  Yes, go handle.
+	came	word,['CHA   ']	;/Cha?
+	 camn	word,['CHAR  ']	; /Char?
+	  jrst	sw.char		;  Yes, go handle.
+	came	word,['R     ']	;/R?
+	 camn	word,['RU    ']	; /Ru?
+	  jrst	sw.run		;  Yes, go handle.
+	camn	word,['RUN   ']	;/Run?
+	 jrst	sw.run		; Yes, go handle.
+
+swtret:	pop	p,t7
+	pop	p,word
+	popj	p,
+
+; Here to handle /8 and /I
+
+sw.ibm:	skipa	numb,["I"]
+sw.8bt:	movei	numb,"8"
+	movem	numb,flag8
+	jrst	swtlup
+
+; Here to decode /Page
+
+sw.pag:	pushj	p,decnum	;Get decimal argument.
+	movem	numb,pg.val	;Store argument.
+	jrst	swtlup		;Loop for more.
+
+; Here to decode /Line
+
+sw.lin:	pushj	p,decnum	;Get decimal argument.
+	movem	numb,ln.val	;Store argument.
+	jrst	swtlup		;Loop for more.
+
+; Here to decode /Char.
+
+sw.cha:	pushj	p,decnum	;Get decimal argument.
+	movem	numb,ch.val	;Store argument.
+	jrst	swtlup		;Loop for more.
+
+; Here to decode /Run.
+
+sw.run:	MOVEI	X,6		;Load a loop counter.
+	SETZM	RUNBLK-1(X)	;Clear a word.
+	SOJG	X,.-1		;Loop over them all.
+RUNLUP:	PUSHJ	P,ATOM		;The rest should be obvious.
+	CAIN	SEPAR,':'
+	 MOVEI	X,4
+	XCT	STATE(X)
+	 TDZA	X,X
+	  MOVEM	WORD,RUNFIL
+	JUMPLE	SEPAR,swtret	;Restore and return after all is done.
+	CAIN	SEPAR,'.'
+	 AOJA	X,RUNLUP
+	CAIE	SEPAR,'<';'>'
+	 CAIN	SEPAR,'[';']'
+	  MOVEI	X,2
+	CAIN	SEPAR,','
+	 MOVEI	X,3
+	JRST	RUNLUP
+
+STATE:	SKIPE	RUNFIL
+	HLLZM	WORD,RUNEXT
+	HRLM	NUMB,RUNPPN
+	HRRM	NUMB,RUNPPN
+	MOVEM	WORD,RUNDEV
+
+ATOM:	SETZB	NUMB,WORD
+	PUSH	P,[POINT 6,WORD]
+ATOM.2:	PUSHJ	P,GETCHR
+	CAIG	SEPAR,'Z'
+	 CAIGE	SEPAR,'A'
+	  CAIG	SEPAR,'9'
+	   CAIGE SEPAR,'0'
+	    JRST ATOM.4
+	LSH	NUMB,3
+	TRO	NUMB,-'0'(SEPAR)
+	TRNN	WORD,77
+	 IDPB	SEPAR,(P)
+	JRST	ATOM.2
+
+ATOM.4:	POP	P,(P)
+.POPJ:	POPJ	P,
+
+decnum:	movei	numb,0		;Start with zero.
+decn.2:	pushj	p,getchr	;Get next char.
+	cail	separ,'0'	;In range?
+	 caile	separ,'9'
+	  popj	p,		;  No, return now.
+	imuli	numb,^D10	;Shift...
+	addi	numb,-'0'(separ);Add...
+	jrst	decn.2		;Loop...
+
+GETCHR:	CAMLE	POS,PRSLEN	;More to take?
+	 JRST[	SETO	SEPAR,	; No, return -1.
+		POPJ	P,]
+	ILDB	SEPAR,N		;Yes, get next char.
+	ADDI	POS,1
+	CAIL	SEPAR,141
+	 SUBI	SEPAR,40
+	SUBI	SEPAR,40
+	POPJ	P,
+
+;get next sixbit word
+
+;skip return if succesful,
+; with sixbit value in ac 'word' and break char in ac 'separ' 
+;nonskip return if failure, with error code in 'err'
+
+nxtwrd: PUSH	p,t7		; save an ac
+	SETZ	word,		; clear result
+	MOVEI	t7,6		; max 6 chars in a sixbit word
+nxtwr1: CALL	nxtsix		; get next char
+	 JRST[	POP	p,t7	; unsave an ac
+		POPJ	P,]		; error, illegal char
+	JUMPL	separ,.nwret	; end of string
+	SKIPN	separ		; null char?
+	 JRST	nwillc		; yes, just return
+	CAIGE	separ,'0'	; legal char?
+	 JRST	nwillc		; no
+	CAIG	separ,'9'	; try again
+	 JRST	nxtwr2		; yes, definitely legal
+	CAIL	separ,'A'	; last chance
+	 CAILE	separ,'Z'
+nwillc:	  JRST[	SKIPN	cvseen	; have we seen a CTRL-V?
+		 JRST	.nwret	; sorry, illegal char
+		SETZM	cvseen	; yes, clear the CTRL-V flag
+		JRST	nxtwr2	; and pretend it's a legal char
+		]
+nxtwr2: JUMPE	t7,nxtwr1	; t7 = 0 means word is full -- don't store...
+	LSH	word,6		; shift left SIX BITs
+	IOR	word,separ	; append next char
+	SOJA	t7,nxtwr1	; get next char, if room for more
+.nwret: IMULI	t7,6
+	LSH	word,(t7)	; left justify
+	POP	p,t7		; restore an ac
+	AOS	(p)		; bump return pc
+	POPJ	P,
+ 
+
+;read an octal number
+
+;skip return if succesful,
+; with octal value in ac 'word' and break char in ac 'separ' 
+;nonskip return if failure, with error code in 'err'
+
+nxtoct: PUSH	p,t7		; save an ac
+	SETZ	word,		; clear result
+	MOVEI	t7,6		; max six digits in an octal halfword
+nxtoc1: CALL	nxtsix		; get next char
+	 JRST[	POP	p,t7	; error, illegal char (error code -2)
+		POPJ	P,]
+	SKIPN	separ		; null char?
+	 JRST	.noret		; yes, just return
+	CAIL	separ,'0'	; legal digit?
+	 CAILE	separ,'7'
+	  JRST	.noret		; no
+	JUMPE	t7,[		; yes, but halfword is full
+		MOVEI	err,errtlf
+		POP	p,t7
+		POPJ	P,]
+	LSH	word,3		; shift left one octal digit
+	SUBI	separ,'0'	; convert to octal
+	IOR	word,separ	; append next digit
+	SOJA	t7,nxtoc1
+.noret: POP	p,t7		; restore an ac
+	AOS	(p)		; bump return pc
+	POPJ	P,
+
+;------------------------------------------------------------------------------
+; Routines to handle "List Files".  Currently just dummies.
+;
+; function LsFOpen(s: string; l: integer): boolean;
+; function LsFMore: boolean;
+; function LsFChar: char;
+; function LsFClose: boolean;
+
+LSFOPE::movei	1,[[ASCIZ "LSF? List Files not yet implemented"]]
+	movem	1,errtab
+	setzm	lsterr
+	movni	1,2
+	movem	1,1(p)
+	popj	p,
+
+LSFMORE::
+LSFCHAR::
+LSFCLOSE::
+	movei	2,[ASCIZ "DSKIO: LSFxxx routine called."]
+	pushj	p,bug##
+
+;============================================================================= 
+;FUNCTION dskopen(n: STRING; a: CHAR): INTEGER;
+; 
+;(*	Opens the file "n" in access "a". Returns 0 if success,
+;	otherwise -1 if file wasn't found, and -2 on all other errors *)
+ 
+;parameters
+n==2
+a==3
+ 
+dskope::HRLI	n,strsize	;Load default string length.
+	skipe	prsarg		;Special case?
+	 move	n,prsarg	; Yes, use another argument.
+	setzm	prsarg		;... but only once.
+	SKIPE	ds.opn			; check if we already have an open file
+	 bugerr <DSKOPEN: File is already open>
+	cain	a,"R"		;Map new access codes to old.
+	 movei	a,1
+	cain	a,"W"
+	 movei	a,2
+	cail	a,1		;Range check the new access code.
+	 caile	a,2
+	  bugerr <DSKOPEN: Illegal access code>
+	DMOVE	t0,[
+		EXP	.IOASC		; use ascii mode
+		SIXBIT	'DSK']		; default device
+	DMOVEM	t0,dsopbk+.OPMOD
+	MOVEI	t1,dslkln		; length of LOOKUP-block
+	MOVEM	t1,dslkbk+.RBCNT	; it might be clobberd
+	MOVEI	t0,dslkpt		;Pointer to path.
+	SETZ	t1,			;Empty file name.
+	DMOVEM	t0,dslkbk+.RBPPN
+	MOVE	t1,[
+		dslkbk+.RBEXT,,dslkbk+.RBPRV]; set up to clear lookup block
+	SETZM	dslkbk+.RBEXT		; clear first word
+	BLT	t1,dslkbk+.RBDEV	; clear the block
+	PUSH	p,3			; save ac3
+	MOVEI	3,dslkbk		; prepare to parse for lookup-block
+	CALL	filprs			; parse the filename
+	POP	p,3			; unsave ac3
+	CAIE	t0,errnoe		; check if no error
+	 JRST	fatal
+	SKIPE	tcrdev			; tmpcore?
+	 JRST	@[
+		tcropn			; yes, go read in from TMP:
+		opnret			; yes, but nothing special when writing
+		]-1(A)
+	MOVEI	t0,ERDNA%		; assume device not available
+	OPEN	dsk,dsopbk		; open device
+ 	 JRST	fatal
+	MOVE	t1,dsopbk+.OPDEV
+	DEVTYP	t1,			; ask monitor what kind of device
+	 bugerr	<DSKOPEN: DEVTYP failed>
+	JRST	@[
+		opread			; open for read
+		opwrit			; open for write
+		]-1(a)
+
+tcropn:	HLLZ	t4,dslkbk+.RBNAM	; no, read from TMP:
+	MOVE	t5,[IOWD dsksiz/5,dsbuf1+3]
+	MOVE	t3,[.TCRRF,,t4]
+	TMPCOR	t3,
+	 JRST[	MOVEI	t0,ERFNF%	; wasn't there
+		JRST	warn]
+	MOVEM	t3,tcrsiz		; save number of read words
+	JRST	opnret
+
+
+; come here if open for read
+opread:
+	TXNN	t1,DV.IN		; can device can do input?
+	 JRST	fatal
+	MOVX	t0,.INFIN		; infinitely large
+	MOVEM	t0,blknum		;  file assumed
+	SKIPE	notdir			; is it a directory device?
+	 JRST	opre10			; no, don't do LOOKUP
+	LOOKUP	dsk,dslkbk
+	 JRST[	HRRZ	t0,dslkbk+.RBEXT; failed, return with error code
+		SKIPE	t0		; fatal error?
+		 JRST	fatal		; yes
+		JRST	warn]		; no, just warning
+	MOVE	t0,dslkbk+.RBSIZ	; get size in words
+	IDIVI	t0,dsksiz/5		; how many blocks?
+	SKIPE	t1			; exact?
+	 ADDI	t0,1			; no, but we still want the last block
+	MOVEM	t0,blknum		; save it
+	MOVEI	t1,dsk			; disk channel
+	MOVEM	t1,dslkpt+.PTFCN	; to path-block
+	MOVE	t1,[.PTMAX,,dslkpt]
+	PATH.	t1,			; get real path to the file
+	 bugerr	<Can't get real path to file> ; should never happen
+	PUSHJ	P,FFIXUP	;[JE]
+opre10:	MOVEI	t1,dsbfih		; use buffers for input
+	CALL	bufbld			; build buffers
+	JRST	opnret
+
+; Routine to get file name and extension from Tops-10.  (7.02)
+
+FFIXUP:	MOVE	T1,[
+		XWD	2,[
+			XWD	DSK,.FOFIL
+			XWD	^D11,EXPFIL]]
+	FILOP.	T1,		;Try get Name and Ext. from Topsy.
+	 POPJ	P,		; Nope, just ignore this.
+	MOVE	T1,EXPFIL+.FOFFN;Get file name, and store in LOOKUP block.
+	MOVEM	T1,DSLKBK+.RBNAM
+	MOVE	T1,EXPFIL+.FOFEX;Get extension, and store in LOOKUP block.
+	HLLM	T1,DSLKBK+.RBEXT
+	POPJ	P,		;Return, with LOOKUP/ENTER block updated.
+
+
+; come here if open for write
+opwrit:
+	TXNN	t1,DV.OUT		;  can device do output?
+	 JRST	fatal
+	movei	t0,errnw8	;Assume /8 set.
+	skipe	flag8		;Is it?
+	 jrst	fatal		; Yes, then we cannot write.
+	MOVEI	t1,<.PTSLJ>B29+<.PTSCN>B35
+	MOVEM	t1,dslkpt+.PTSWT	; don't use fishy switches
+	LDB	t1,[POINT ^D9,dslkbk+.RBPRV,^D8]	; save original prot.
+	MOVEM	t1,orgpro
+	SKIPN	notdir			; is it a directory device?
+	LOOKUP  dsk,dslkbk		; see if it is an existing file
+	 JRST	nfound			; no open a new one
+	MOVEI	t1,dslkpt
+	MOVEM	t1,dslkbk+.RBPPN	; set pointer to path block
+	MOVEI	t1,dsk
+	MOVEM	t1,dslkpt+.PTFCN	; channel
+	MOVE	t1,[11,,dslkpt]		; length,,arg
+	PATH.	t1,			; find out path to this file
+	 bugerr	<Can't get path to file>
+	PUSHJ	P,FFIXUP	;[JE]
+	SETOM	xxbak			; yes, indicate that we're using backup
+	SKIPE	orgpro			; do we have an original prot already?
+	 JRST	opwr05			; yes
+	LDB	t1,[POINT ^D9,dslkbk+.RBPRV,^D8]	; save original prot.
+	MOVEM	t1,orgpro
+opwr05:	HLLZ	t1,dslkbk+.RBEXT	; save original extension
+	MOVEM	t1,orgext
+	MOVE	t1,dslkbk+.RBNAM	; save original filename
+	MOVEM	t1,orgnam
+	MOVE	t1,tmppro		; use temporary protection
+	DPB	t1,[POINT ^D9,dslkbk+.RBPRV,^D8]
+	MOVE	t1,tmpnam		; use the temporary name
+	MOVEM	t1,dslkbk+.RBNAM
+	MOVE	t1,tmpext		; use temporary fileextension
+	HLLM	t1,dslkbk+.RBEXT
+	MOVEI	t0,ERDNA%		; assume device not available
+	OPEN	dsk,dsopbk		; open device again
+ 	 JRST	fatal
+nfound: HLLZS	dslkbk+.RBEXT		; clear creation-date (high order bits)
+	SETZ	t1,
+	DPB	t1,[POINT ^D23,dslkbk+.RBPRV,^D35]	; and low bits
+	MOVE	t1,[dslkbk+.RBSIZ,,dslkbk+.RBVER]
+	push	p,dslkbk+.rbspl	;*****
+	push	p,dslkbk+.rbver	;***
+	SETZM	dslkbk+.RBSIZ
+	BLT	t1,dslkbk+.RBDEV	; clear rest of LOOKUP block
+	pop	p,dslkbk+.rbver	;***
+	pop	p,dslkbk+.rbspl	;*****
+	ENTER	dsk,dslkbk		; create a file
+	 JRST[	HRRZ	t0,dslkbk+.RBEXT ; error
+		JRST	fatal]
+	SKIPE	notdir			; is it a directory device?
+	 JRST	opwr10			; no, don't try to get path
+	MOVEI	t1,dsk			; disk channel
+	MOVEM	t1,dslkpt+.PTFCN	; to path-block
+	MOVE	t1,[.PTMAX,,dslkpt]
+	PATH.	t1,			; get real path to the file
+	 bugerr	<Can't get real path to the file>
+	PUSHJ	P,FFIXUP	;[JE]
+opwr10:	MOVEI	t1,dsbfoh		; use buffers for output
+	CALL	bufbld			; build buffers
+	OUT	dsk,			; try a dummy OUT
+	 SKIPA
+	bugerr	<DSKOPEN: Dummy OUT failed>
+opnret: MOVE	t1,a
+	MOVEM	t1,ds.opn		; the file is now open
+	SETZM	1(P)
+	POPJ	P,			; all's well, return with 0
+
+
+;build buffers, arg is pointer to buffer header control block in t1
+bufbld:
+	PUSH	p,t0
+	MOVX	t0,<BF.VBR+dsbuf1+.BFHDR>; pointer to current buffer
+	MOVEM	t0,.BFADR(t1)		; put it in buffer-header
+	MOVE	t0,[POINT 7,0,35]
+	MOVEM	t0,.BFPTR(t1)		; set up byte-pointer
+	SETZM	.BFCTR(t1)		; clear byte-counter
+	HRLZI	t0,dsksiz/5+1		; buffer size + 1
+	HRRI	t0,dsbuf2+.BFHDR
+	MOVEM	t0,dsbuf1+.BFHDR	; set up first buffer
+	HRRI	t0,dsbuf3+.BFHDR
+	MOVEM	t0,dsbuf2+.BFHDR	; set up second buffer
+	HRRI	t0,dsbuf4+.BFHDR
+	MOVEM	t0,dsbuf3+.BFHDR	; set up third buffer
+	HRRI	t0,dsbuf5+.BFHDR
+	MOVEM	t0,dsbuf4+.BFHDR	; set up fourth buffer
+	HRRI	t0,dsbuf6+.BFHDR
+	MOVEM	t0,dsbuf5+.BFHDR	; set up fifth buffer
+	HRRI	t0,dsbuf1+.BFHDR
+	MOVEM	t0,dsbuf6+.BFHDR	; set up sixth buffer
+	POP	p,t0
+	POPJ	P,
+ 
+
+;=============================================================================
+;PROCEDURE truename (VAR namstr: string; fields: char);
+;
+;(*	Gives the name of the opened file. *)
+
+;parameters
+namstr==2
+fields==3
+
+;locals
+sixwrd==6
+number==5
+char==5
+
+x1==7
+x2==10
+
+;flags to decide what fields to return
+devp==1B35			; 1
+namep==1B34			; 2
+typep==1B33			; 4
+dirp==1B32			; 8
+attrp==1B31			; 16
+nodep==1B30			; 32
+
+truena::cain	fields,"B"	;Map from new calling standard...
+	 movei	fields,<namep>
+	cain	fields,"D"
+	 movei	fields,<nodep+devp+namep+typep+dirp>
+	cain	fields,"F"
+	 movei	fields,<devp+namep+typep+dirp+attrp>
+	push	p,namstr	;Save argument, for retry.
+	pushj	p,.truen	;First try...
+	jumpge	t1,tnret	;All OK, return.
+	trz	fields,<nodep+attrp>
+	move	namstr,(p)
+	pushj	p,.truen	;second try...
+	jumpge	t1,tnret	;Did it without protection, good.
+	trz	fields,dirp
+	move	namstr,(p)
+	pushj	p,.truen	;Last try...
+tnret:	pop	p,(p)		;restore stack.
+	popj	p,		;return.
+
+.truen:	CALL	blanks			; blank the string
+	HRLI	namstr,(POINT 7,0)	; make a bytepointer
+	MOVEI	t1,strsiz		; length of string
+	txnn	fields,nodep	;Node name wanted?
+	 jrst	no.nod		; Nope, skip a bit.
+	movei	x1,2		;Set up argument list length.
+	movei	x2,.gtloc
+	gettab	x2,		;Get number of local node.
+	 jrst	no.nod		; Oops...
+	movx	sixwrd,<.ndrnn,,x1>
+	node.	sixwrd,		;Convert to node name.
+	 jrst	no.nod		; Oops...
+	call	trusix		;Store in string.
+	movei	char,":"	;Store double colon.
+	call	putnam
+	call	putnam
+no.nod:	SKIPN	sixwrd,dslkbk+.RBDEV	; if nothing there
+	 SKIPA	sixwrd,dsopbk+1		;  then try here
+	  TRZ	sixwrd,007777		;   only first 4 chars, thank you
+	MOVEM	sixwrd,dsopbk+1 	; save device name
+	TXNN	fields,devp
+	 JRST	no.dev
+	CALL	trusix			; output to the namestring
+	MOVEI	char,":"		; colon finishes
+	CALL	putnam
+no.dev:	MOVE	t7,dsopbk+1		; get device name again
+	HLRZ	t6,t7			; we need it once more
+	DEVTYP	t7,			; get charcteristics
+	 bugerr	<TRUNAME: DEVTYP failed>
+	TXNE	t7,TY.MAN+TY.SPL	; directory device or spooled device?
+	 JRST	trufil			; yes, print at least filename
+	CAIE	t6,'TMP'		; no, is it TMP: ?
+	 POPJ	P,			; no, don't do anything more
+	SETO	t7,			; make sure we don't go past filename
+trufil:	TXNN	fields,namep
+	 JRST	no.nam
+	MOVE	sixwrd,dslkbk+.RBNAM	; filename
+	CALL	trusix
+no.nam:	TXNE	t7,TY.SPL		; spooled device?
+	 POPJ	P,			; yes, don't print any more junk
+	TXNN	fields,typep
+	 JRST	no.typ
+	MOVEI	char,"."		; separates from extension
+	CALL	putnam
+	HLLZ	sixwrd,dslkbk+.RBEXT	; get extension
+	CALL	trusix			; print the extension
+no.typ:	TXNN	fields,dirp
+	 JRST	no.dir
+trudir:	MOVEI	char,"["		; here comes directory
+	CALL	putnam
+	SKIPE	dslkbk+.RBPPN		; null pointer
+	 JRST	trudi1			; no, proceed
+	MOVE	t8,dsopbk+1
+	MOVEM	t8,dslkpt+.PTFCN	; device
+	MOVE	t7,[.PTMAX,,dslkpt]
+	PATH.	t7,			; get default path
+	 bugerr	<TRUENAME: Can't get path of device>
+trudi1:	HLRZ	number,dslkpt+.PTPPN	; get project
+	CALL	truoct
+	MOVEI	char,","		; separate with comma
+	CALL	putnam
+	HRRZ	number,dslkpt+.PTPPN	; get programmer
+	CALL	truoct
+
+	MOVEI	t7,dslkpt+.PTSFD	; get first sfd
+trudi2:	SKIPN	(t7)			; null sfd?
+	 JRST	trudi3			; yes, end of directory
+	MOVEI	char,","		; separator
+	CALL	putnam
+	MOVE	sixwrd,(t7)		; get sfd-name
+	CALL	trusix
+	AOJA	t7,trudi2		; get next sfd
+trudi3:	MOVEI	char,"]"		; finishes the directory
+	CALL	putnam
+no.dir:	TXNN	fields,attrp
+	JRST	no.att
+trupro:	MOVEI	char,"<"		; start of protection field
+	CALL	putnam
+	MOVEI	t8,3			; three digits in protection code
+	MOVE	t7,[POINT 3,dslkbk+.RBPRV]	; pointer to protection code
+trupr1:	ILDB	char,t7			; get a digit
+	ADDI	char,"0"		; convert to ascii
+	CALL	putnam			; put it in string
+	SOJG	t8,trupr1		; get next digit
+	MOVEI	char,">"		; end of protection field
+	CALL	putnam
+	skipn	flag8		;[JE] Eight bit?
+	 jrst	no.att		;[JE]  Nope, skip this.
+	movei	char,"/"	;[JE] Yes, add "/" to string.
+	pushj	p,putnam
+	move	char,flag8	;[JE] Add kind of eight-bit.
+	pushj	p,putnam
+no.att:	popj	p,
+
+
+; put a sixbit word in the string.
+; sixbit word in ac 'sixwrd'.
+
+trusix:	JUMPE	sixwrd,[POPJ P,]	; null word
+trusi1:	SETZ	char,
+	LSHC	char,6			; get a sixbit byte
+	ADDI	char," "		; convert to ascii
+	CAIGE	char,"0"		; legal char?
+	 JRST	trusi2			; no
+	CAIG	char,"9"		; try again
+	 JRST	trusi3			; yes, definitely legal
+	CAIL	char,"A"		; last chance
+	 CAILE	char,"Z"
+trusi2:	  JRST[	HRLZ	char,char	; save char in left half of ac
+		HRRI	char,.CHCNV	; CTRL-V
+		CALL	putnam		; put the ^V
+		HLRZ	char,char	; get back the char
+		JRST	trusi3]		; go put the char too
+trusi3:	CALL	putnam			; put it in namestring
+	JUMPN	sixwrd,trusi1		; get next byte
+	POPJ	P,
+
+; put an octal number in the string.
+; number in ac 'number'. number+1 is destroyed.
+
+truoct:	IDIVI	number,^D8		; get quotient and remainder
+	PUSH	p,number+1		; push remainder
+	SKIPE	number			; IF quotient /= 0 THEN
+	 CALL	truoct			;   trueoct (quotient)
+	POP	p,char			; ELSE fall thru to put-routine
+	ADDI	char,"0"		; but first convert to ascii
+
+; put a character in the string..
+; character in ac 'char'.
+
+putnam:	SUBI	t1,1		;[JE]Decrement char counter
+	SKIPL	t1		;[JE]Room left in string?
+	 IDPB	char,namstr	;[JE] No, deposit the byte
+	POPJ	P,
+
+;=============================================================================
+;FUNCTION TrueMode: majors;
+;(* Return our opinion of what major mode this buffer shall have, *)
+;(* based on what extension we have. *)
+
+TRUEMO::HLRZ	T1,DSLKBK+.RBEXT ;Get extension from lookup/enter block
+	MOVEI	T2,MODLEN	;Get length of mode table
+TMOD.2:	HRRZ	T3,MODTAB(T2)	;Get next extension from table
+	CAIN	T3,(T1)		;Is this it?
+	 JRST	TMOD.4		; Yes, go return corresponding mode
+	SOJGE	T2,TMOD.2	;No, decrement counter, and maybe loop back
+	MOVEI	T1,MD%FUN	;No table left, assume fundamental mode
+	MOVEM	T1,1(P)		;Return value for pascal
+	POPJ	P,
+
+TMOD.4:	HLRZ	T1,MODTAB(T2)	;We found a match, get the mode from table
+	MOVEM	T1,1(P)		;Return it for pascal
+	POPJ	P,		;All done!
+
+;*** NOTE *** These must agree with the type 'majors' in MAIN.PAS
+
+MD%FUN==1
+MD%TXT==2
+MD%ALG==3
+MD%MAC==4
+MD%PAS==5
+MD%LSP==6
+MD%C==  7
+MD%TEX==10
+MD%ADA==11
+MD%MOD==12
+MD%PL1==13
+MD%BLI==14
+
+MODTAB:	XWD	MD%TXT,'DOC'	;Documentation files
+	XWD	MD%TXT,'HLP'	;Help files
+	XWD	MD%TXT,'MAN'	;Manuals
+	XWD	MD%TXT,'MEM'	;Memos
+	XWD	MD%TXT,'MSS'	;Scribe something
+	XWD	MD%TXT,'PL '	;Prolog (NIL says text mode is best...)
+	XWD	MD%TXT,'RFC'	;Request For Comments...
+	XWD	MD%TXT,'TXT'	;General text files
+	XWD	MD%ALG,'ALG'	;Algol-60
+	XWD	MD%ALG,'SAI'	;Sail
+	XWD	MD%ALG,'SIM'	;Simula
+	XWD	MD%MAC,'MAC'	;Macro-10
+	XWD	MD%MAC,'MID'	;Midas
+	XWD	MD%MAC,'P11'	;Macro-11
+	XWD	MD%PAS,'PAS'	;Pascal
+	XWD	MD%LSP,'LSP'	;Lisp
+	XWD	MD%C,  'C  '	;C
+	XWD	MD%C,  'H  '	;C 'include' files
+	XWD	MD%TEX,'TEX'	;TeX sources
+	XWD	MD%ADA,'ADA'	;Frog code.
+	XWD	MD%BLI,'BLI'	;Bliss (yeach) code.
+	XWD	MD%BLI,'B36'	; -""-
+	XWD	MD%BLI,'R36'	; -""-
+	XWD	MD%BLI,'REQ'	; -""-
+MODLEN==.-MODTAB
+
+;=============================================================================
+;PROCEDURE TruePos(var pagenumber, linenumber, charnumber: bufpos);
+;(* Give back information about where in the file to start. *)
+
+TRUEPO::move	1,pg.val
+	movem	1,(2)		;Give page #.
+	move	1,ln.val
+	movem	1,(3)		;Give line #.
+	move	1,ch.val
+	movem	1,(4)		;Give char #.
+	popj	p,		;Return.
+
+;=============================================================================
+;FUNCTION dskcd(d: string): integer;
+;(* This implements the function "Connect to Directory". *)
+
+dskcd::	SETZM	dslkpt		;Clear first word of PATH. block.
+	MOVE	1,[dslkpt,,dslkpt+1]
+	BLT	1,dslkpt+.PTMAX	;Clear rest of block.
+	HRLI	2,strsize	;Load string size.
+	MOVEI	3,dslkbk	;Load stupid argument pointer.
+	CALL	filprs		;Call parser to fill in data.
+	CAIE	t0,errnoe	;Any error?
+	 JRST	fatal		; Yes, conplain.
+	HRROI	1,.PTFSD
+	MOVEM	1,dslkpt+.PTFCN	;Set up function code.
+	MOVE	1,[.PTMAX,,dslkpt]
+	MOVEI	t0,errccd	;Assume error.
+	PATH.	1,		;Try change default path.
+	 JRST	fatal		; Bad, propagate error.
+	SETZM	1,1(p)		;Give good return.
+	POPJ	p,
+
+;=============================================================================
+;FUNCTION dskrecognition(VAR f: string; VAR len: integer; ch: char): boolean;
+;(* This is the file name recognition routine.  It just returns FALSE *)
+;(* in this implementation. *)
+
+DSKREC::SETZM	1(P)		;Clear return value.  (Means FALSE)
+	POPJ	P,		;Return and show that this did not work.
+
+;=============================================================================
+;FUNCTION dskread(VAR x: ^DSKBLOCK): INTEGER;
+; 
+;(*	Reads data from the file into x. 
+;	Returns number of read characters if success, -1 if EOF and
+;	-2 if other error. *)
+ 
+;parameters
+x==2
+ 
+dskrea::SKIPN	ds.opn			; check if file is open
+	 bugerr <DSKREAD: File is not open>
+	SKIPE	tcrdev			; tmpcore?
+	 JRST	tcrrea			; yes
+	IN	dsk,
+	 JRST	dskr10
+	STATZ	dsk,IO.EOF		; check for end-of-file
+	 JRST[	SETOM	1(P)		; return -1 in case of EOF 
+		POPJ	P,]
+	STATZ	dsk,IO.ERR		; hard error?
+	 bugerr <DSKREAD: Hard error. Please reboot>
+	 bugerr <DSKREAD: Strange error>
+	POPJ	P,
+
+dskr10:	HRRZ	t1,dsbfih+.BFADR	; address to current buffer
+	ADDI	t1,2			; get pointer to start of buffer
+	SETAM	t1,(x)			; to where it should end up
+	MOVE	t3,dsbfih+.BFCTR	; get number of read bytes
+	skipe	flag8		;[JE] Eight-bit bytes?
+	 jrst	dskr.8		;[JE]  Yes, have to convert block.
+	SOSLE	blknum			; last block?
+	 JRST	.inret			; no, just return count
+	pushj	p,getlwd	;[JE] Get last word in buffer.
+	TXNN	t5,000000000377		; [BD] Ends with <NUL> ?
+	 SUBI	t3,1			; [BD] yes, decrement count
+	TXNN	t5,000000077777		; [BD] Ends with <NUL> <NUL> ?
+	 SUBI	t3,1			; [BD] yes, decrement count
+	TXNN	t5,000017777777		; [BD] Ends with <NUL> <NUL> <NUL> ?
+	 SUBI	t3,1			; [BD] yes, decrement count
+	TXNN	t5,003777777777		; [BD] Ends <NUL> <NUL> <NUL> <NUL> ?
+	 SUBI	t3,1			; [BD] yes, decrement count
+.inret:	MOVEM	t3,1(p)			; return count
+	POPJ	P,
+
+; Get last data word in buffer.
+
+getlwd:	move	t2,dsbfih+.bfptr;Get byte pointer.
+	movei	t4,-1(t3)	;Get number of 7-bit bytes, minus one.
+	idivi	t4,5		;Get number of words minus one.
+	add	t2,t4		;Increment byte pointer.
+	ibp	t2		;... to last word somewhere.
+	move	t5,(t2)		;Fetch last word.
+	popj	p,		;return.
+
+dskr.8:	move	t1,t3		;Get number of bytes.
+	imuli	t1,4		;Convert to 8-bit bytes.
+	idivi	t1,5
+	sosle	blknum		;Last block?
+	 jrst	dskr8b		; Nope, just convert buffer.
+	pushj	p,getlwd	;Get last word in buffer.
+	txnn	t5,000000007777	;Check for one null.
+	 subi	t1,1
+	txnn	t5,000003777777	;Check for two nulls.
+	 subi	t1,1
+	txnn	t5,001777777777	;Check for three nulls.
+	 subi	t1,1
+dskr8b:	movem	t1,1(p)		;Set return value.
+	jumple	t1,.popj	;Save some work for empty buffers.
+	movei	t6,[jrst (t3)]	;Default to no conversion.
+	move	t2,flag8	;What kind of eight-bit?
+	cain	t2,"I"		;I*M specials?
+	 movei	t6,cvtibm	; Yes, load conversion routine.
+	cain	t2,"A"		;ANSI eight bit?
+	 movei	t6,cvtansi	; Yes, load conversion routine.
+	move	t7,dsbfih+.bfptr;Get seven-bit byte pointer.
+	move	t8,t7		;Copy it.
+	tlc	t8,001700	;Convert to eight-bit pointer.
+dskr8c:	ildb	t2,t8		;Get eight-bit byte.
+	jsp	t3,(t6)		;Possibly convert it.
+	idpb	t2,t7		;Store seven-bit byte.
+	sojg	t1,dskr8c	;Decrement and loop.
+	popj	p,
+
+; Routine to convert eight-bit char in T2 to suitable seven-bit character.
+
+define	convert(c8,c7),<
+	cain	t2,100+c8
+	 movei	t2,c7
+>;convert macro
+
+cvtibm:	caig	t2,200		;High bit set?
+	 jrst	(t3)		; No, save compares.
+	convert "A","~"
+	convert "B","`"
+	convert "D","{"
+	convert "F","}"
+	convert "N","["
+	convert "O","]"
+	convert "P","@"
+	convert "T","|"
+	convert "Y","\"
+	convert "Z","^"
+	jrst	(t3)		;Return from JSP call.
+
+cvtansi:jrst	(t3)		;Just return for now.
+
+
+tcrrea:	skipe	tcrflg		; have we read a block already?
+	 jrst[	setom	1(p)	; yes, return EOF
+		popj	p,]
+	move	t3,tcrsiz	; get number of words read
+	subi	t3,1		; minus one
+	move	t4,t3		; compute number..
+	imuli	t3,5		; ..of bytes
+	movei	t0,dsbuf1+3	; get pointer to buffer
+	movem	t0,(x)		; give to caller
+	hrli	t0,(POINT 7,0)	; make a bytepointer to the buffer
+	add	t4,t0		; adjust to last word - 1
+tcrr10:	ildb	t5,t4		; get that byte
+	skipe	t5		; <NUL>?
+	 aoja	t3,tcrr10	; no, get next
+	movem	t3,1(p)		; give number of read bytes to caller
+	setom	tcrflg		; indicate we've read from TMP:
+	popj	p,
+ 
+
+;=============================================================================
+;FUNCTION dsknext: ^DSKBLOCK;
+;
+;(*	Returns the address of the next available diskbuffer. *)
+
+dsknex::HRRZ	t1,dsbfoh+.BFADR	; address of buffer header
+	SKIPE	tcrdev			; tmpcore?
+	 MOVEI	t1,dsbuf1+.BFHDR	; yes, use predefined buffer
+	ADDI	t1,2			; offset to get beginning of text
+	MOVEM	t1,1(p)
+	POPJ	p,
+
+
+;=============================================================================
+;FUNCTION dskwrite(count: INTEGER) INTEGER;
+; 
+;(*	Writes count bytes of data on the file from x.
+;	Returns 0 if success, -2 otherwise. *)
+ 
+;parameters
+count==2
+ 
+dskwri::SKIPN	ds.opn			; check if file is open
+	 bugerr <DSKWRITE: File is not open>
+	CAILE	count,dsksiz
+	 bugerr	<DSKWRITE: Too large diskblock>
+	MOVE	t3,count		; get number of bytes to write
+	IDIVI	t3,5
+;[je] n'th try to get the correct byte pointer...
+	movei	t5,dsbuf1+3
+	hrli	t5,(point 7)
+	skipn	tcrdev
+	 move	t5,dsbfoh+.bfptr
+	add	t3,t5
+
+dskw10:	JUMPE	t4,dskw20
+	IBP	t3
+	SOJA	t4,dskw10
+
+dskw20:	SETAM	t3,dsbfoh+.BFPTR
+	CAIE	count,dsksize		; check if disk block full	(*JMR*)
+	 CALL	filnul
+	MOVNI	t3,9(count)		; calculate number of full words(*JMR*)
+	IDIVI	t3,5			;  in the buffer		(*JMR*)
+	HRLZ	t3,t3			; make an AOBJN pointer out of	(*JMR*)
+	HRR	t3,dsbfoh+.BFADR	;  it				(*JMR*)
+	ADDI	t3,1			;				(*JMR*)
+	MOVEI	t4,1			; bit to clear			(*JMR*)
+dskw30:	AOBJP	t3,dskw40		; more words to clear bit in?	(*JMR*)
+	ANDCAM	t4,(t3)			; yes, clear least significant	(*JMR*)
+	JRST	dskw30			;  bit and loop			(*JMR*)
+
+dskw40:	SKIPE	tcrdev			; tmpcore?
+	 JRST	tcrwri			; yes
+	OUT	dsk,
+	 JRST[	SETZM	1(p)	; all's well
+		POPJ	p,]
+	STATZ	dsk,IO.ERR		; hard error?
+	 bugerr <DSKWRITE: Hard error.Error code later>
+	 bugerr <DSKWRITE: Strange error>
+
+tcrwri:	HLLZ	t4,dslkbk+.RBNAM	; get filename
+	MOVN	t5,count		; negative number of bytes to write
+	IDIVI	t5,5			; convert
+	JUMPE	t6,tcrw10		;  into
+	SUBI	t5,1			;  words
+tcrw10:	HRLZ	t5,t5			; make an
+	HRRI	t5,dsbuf1+2		;  IOWD
+	MOVE	t3,[.TCRWF,,t4]
+	TMPCOR	t3,			; write the TMP: file
+	 JRST[	MOVEI	t0,ERNRM%	; too large possibly
+		JRST	fatal]
+	SETZM	1(p)			; all's well
+	POPJ	p,
+
+filnul:	SETZ	t0,			; if not, nullpad last word	(*JMR*)
+	TLNN	t3,37B22		; check if thru last word	(*JMR*)
+	 POPJ	p,			; done, exit from small loop	(*JMR*)
+	IDPB	t0,t3			; store a null in buffer ring	(*JMR*)
+	JRST	filnul			; and loop back for next byte	(*JMR*)
+ 
+
+;=============================================================================
+;FUNCTION dskclose: INTEGER;
+; 
+;(*	Closes the open file. Returns 0 if succesful,
+;	-1 if file not found, -2 otherwise. *)
+ 
+dskclo::SKIPN	ds.opn			; check if file is open
+	 bugerr <DSKCLOSE: File is not open>
+	SKIPE	tcrdev			; tmpcore?
+	 JRST	dskcl1			; yes
+	RELEAS	dsk,			; release the channel
+	SKIPN	xxbak			; do we have backup?
+	 JRST	dskcl1			; no we're finished
+	MOVE	t1,orgnam		; get original name
+	SETAM	t1,dslkbk+.RBNAM
+	MOVE	t1,bakext		; get backupextension
+	HLLM	t1,dslkbk+.RBEXT
+	MOVEI	t0,ERDNA%		; assume device not available
+	OPEN	dsk,dsopbk		; open the device
+	 JRST	fatal			; sorry...
+	LOOKUP	dsk,dslkbk		; do we have an old backup file?
+	 JRST	newbak			; no
+	SETZ	t0,			; yes
+	RENAME	dsk,t0			; delete old backup file
+	 JRST[	MOVEI	t0,errbkd	; can't delete old backup
+		JRST	fatal]
+newbak:	MOVE	t1,orgnam		; get original name back
+	SETAM	t1,dslkbk+.RBNAM
+	MOVE	t1,orgext		; get original extension back
+	HLLM	t1,dslkbk+.RBEXT
+	MOVEI	t0,ERDNA%		; assume device not available
+	OPEN	dsk,dsopbk		; try open a device
+	 JRST	fatal
+	LOOKUP  dsk,dslkbk		; lookup the original file
+	 JRST	rentmp			; never mind, perhaps we don't have one
+
+	SETOM	proflg
+	HRRZ	t2,dslkbk+.RBEXT	; get creation date 
+	HLL	t2,bakext		; get backup extension
+tobakr:	MOVEM	t2,dslkbk+.RBEXT
+	RENAME  dsk,dslkbk		; rename original file
+	 JRST[	MOVEI	t0,errbkr
+		SKIPN	proflg		; have we tried before?
+		 JRST	fatal		; yes, tell'm we're sorry
+		LDB	t1,[POINT 3,dslkbk+.RBPRV,2]
+		MOVEI	t0,errbkr
+		CAIE	t1,2		; is it protection code 2 ?
+		 JRST	fatal		; no we can't rename
+		MOVE	t1,orgext
+		HLLM	t1,dslkbk+.RBEXT
+		MOVEI	t1,1
+		DPB	t1,[POINT 3,dslkbk+.RBPRV,2]
+		MOVEI	t0,errbkr
+		RENAME	dsk,dslkbk	; try to change the protection
+		 JRST	fatal		; can't lower prot, sorry
+		MOVEI	t1,2
+		MOVE	t1,orgpro
+		ANDI	t1,477		; safety measure in case of FILE DAEMON
+		DPB	t1,[POINT ^D9,dslkbk+.RBPRV,^D8]
+		SETZM	proflg		; don't try this again
+		JRST	tobakr		; go try rename to backup name again
+		]
+
+rentmp:	MOVE	t1,tmpnam		; get name of tmp-file
+	SETAM	t1,dslkbk+.RBNAM
+	MOVE	t1,tmpext		; get extension of tmp-file
+	HLLM	t1,dslkbk+.RBEXT
+	MOVEI	t0,ERDNA%		; assume device not available
+	OPEN	dsk,dsopbk		; try open a device
+	 JRST	fatal
+	LOOKUP  dsk,dslkbk		; lookup the tmp-file
+	 JRST[  HRRZ	t0,dslkbk+.RBEXT ; error
+		SKIPN	t0
+		JRST	warn
+		JRST	fatal]
+	MOVE	t1,orgnam		; get name of original file
+	SETAM	t1,dslkbk+.RBNAM
+	MOVE	t1,orgext		; get extension of original file
+	HLLM	t1,dslkbk+.RBEXT
+	MOVE	t1,orgpro		; get original protection
+	DPB	t1,[POINT ^D9,dslkbk+.RBPRV,^D8]
+	RENAME  dsk,dslkbk		; rename tmp-file to original file
+	 JRST[	HRRZ	t0,dslkbk+.RBEXT; failed, return with error code
+		SKIPN	t0
+		JRST	warn
+		JRST	fatal]
+	RELEAS  dsk,			; don't need device any more
+	SETZM	xxbak			; reset backup flag
+dskcl1: SETZM	ds.opn			; file isn't open any more
+	SETZM	tcrflg
+	SETZM	tcrdev
+	SETZM	notdir
+	setzm	1(p)
+	popj	p,
+ 
+ 
+
+;=============================================================================
+;PROCEDURE dskmessage (VAR errstr: STRING);
+;
+;(*	Returns latest disk-error. *)
+
+;parameters
+errstr==2
+
+dskmes::CALL	blanks			; blank the string
+	MOVE	t1,errtab		; get what table
+	ADD	t1,lsterr		; add offset into table
+	MOVE	t1,(t1)			; get address of errorstring
+	HRLI	t1,(POINT 7,0)		; make a bytepointer
+	MOVEI	t4,strsiz		; max length of a string
+	MOVE	t6,[POINT 7,(errstr)]	; make byte pointer to dest.
+dskme1:	ILDB	t5,t1			; get next char
+	JUMPE	t5,dskme2		; break on <NUL>
+	IDPB	t5,t6			; put byte in dest.
+	SOJG	t4,dskme1		; get next char, if room for more
+dskme2:	MOVEI	t1,otherr
+	CAME	t1,errtab		; misc. error?
+	 popj	p,			; no, just return
+	MOVEI	t1,errbkr-errmis
+	CAME	t1,lsterr		; errbkr error-code?
+	 popj	p,			; no, return
+	MOVE	t6,[POINT 7,jobpos/5(errstr),<jobpos-jobpos/5*5>*7-1]
+	MOVE	t1,[pOiNT 6,tmpnam]	; pointer to jobnumber in SIXBIT
+	MOVEI	t4,3			; mAx 3 digits in jobnumber
+dskm10:	ILDB	t5,t1			; get next digit
+	ADDI	t5," "			; convert to ascii
+	IDPB	t5,t6			; store it
+	SOJG	t4,dskm10		; get next digit
+	popj	p,
+
+
+; routine to set latest error, argument in ac0, which is preserved on exit
+seterr:
+	PUSH	p,t0
+	PUSH	p,t1
+	PUSH	p,t2
+	CAILE	t0,1000			; misc. error?
+	 JRST[	SUBI	t0,errmis	; subtract to get offset
+		MOVEI	t1,otherr	; use misc. error table
+		MOVEI	t2,othmax	; check
+		JRST	setchk		;  boundaries
+		]
+	CAILE	t0,100			; parsing error codes are > 100
+	 JRST[	SUBI	t0,errnoe	; subtract first error to get offset
+		MOVEI	t1,prserr	; use parsing error table
+		MOVEI	t2,prsmax	; check
+		JRST	setchk		;  boundaries
+		]
+	MOVEI	t1,monerr		; use monitor error table
+	MOVEI	t2,monmax
+setchk:	JUMPL	t0,setch1		; IF offset < 0 OR
+	CAMG	t0,t2			;   offset > max allowed
+	 JRST	seter1			; THEN
+setch1:	MOVEI	t1,errset		;   use special error-error
+	SETZ	t0,			; FI
+seter1:	SETAM	t1,errtab		; set what table to use
+	SETAM	t0,lsterr		; set latest error
+	CLOSE	dsk,			; close the file
+	SETZM	tcrflg
+	SETZM	tcrdev
+	SETZM	notdir
+	SETZM	ds.opn			; and remember it
+	SETZM	xxbak			; clear backup-flag too
+	POP	p,t2
+	POP	p,t1
+	POP	p,t0
+	popj	p,
+
+
+fatal:	CALL	seterr			; set latest error
+	movx	t1,-2
+	movem	t1,1(p)
+	popj	p,
+
+warn:	CALL	seterr			; set latest error
+	setom	1(p)
+	popj	p,
+
+
+;=============================================================================
+;High segment data and literals
+
+tmppro:	EXP	100			; temporary protection
+tmpext:	SIXBIT	'TMP'			; temporary extension
+bakext:	SIXBIT	'BAK'			; backup extension
+
+;special error-error
+errset:	[ASCIZ	"UNK? Unknown error in DSKIO"]
+
+;error table, misc. errors
+otherr:
+	errmis==1001
+	[ASCIZ	"IOF? This is no error"]
+	errbkd==1002
+	[ASCIZ	"IOF? Can't delete old backup file"]
+	errbkr==1003
+	[ASCIZ	"IOF? Backup failed, saving as nnnAMI.TMP"]
+;		 123456789012345678901234567890^
+	jobpos==^D31-1
+	errccd==1004
+	[ASCIZ	"CCD? Can't change directory"]
+othmax==.-otherr-1
+
+;error table, parsing errors.
+prserr:	
+;40 chars:	"                                        "
+	[ASCIZ	"FSE? No error, success"]			;errnoe==101
+	[ASCIZ	"FSE? Illegal character in filespec."]		;erricf==102
+	[ASCIZ	"FSE? Too long field in filespecification"]	;errtlf==103
+	[ASCIZ	"FSE? Duplicate filespec"]			;errdfn==104
+	[ASCIZ	"FSE? Duplicate extension"]			;errdex==105
+	[ASCIZ	"FSE? Double directory"]			;errddr==106
+	[ASCIZ	"FSE? Colon, but no device"]			;errcnd==107
+	[ASCIZ	"FSE? Duplicate device"]			;errddv==110
+	[ASCIZ	"FSE? Illegal separator in directory"]		;errils==111
+	[ASCIZ	"FSE? Too many sfds"]				;errtms==112
+	[ASCIZ	"FSE? Null sfd"]				;errnls==113
+	[ASCIZ	"FSE? Illegal format for directory"]		;errilf==114
+	[ASCIZ	"FSE? Illegal protection code"]			;errilp==115
+	[ASCIZ	"FSE? Duplicate protection"]			;errdpr==116
+	[ASCIZ	"FOO? Cannot write 8-bit files"]		;errnw8==117
+prsmax==.-prserr-1
+
+
+;LOOKUP/ENTER/RENAME/GETSEG/RUN ERROR CODES		 "
+monerr:	
+	[ASCIZ	"IOE? File not found"]				;ERFNF%==0
+	[ASCIZ	"IOE? Incorrect ppn"]				;ERIPP%==1
+	[ASCIZ	"IOE? Protection failure"]			;ERPRT%==2
+	[ASCIZ	"IOE? File being modified"]			;ERFBM%==3
+	[ASCIZ	"IOE? Already existing file name"]		;ERAEF%==4
+	[ASCIZ	"IOE? Illegal sequence of uuos"]		;ERISU%==5
+	[ASCIZ	"IOE? Transmission error"]			;ERTRN%==6
+	[ASCIZ	"IOE? Not a save file"]				;ERNSF%==7
+	[ASCIZ	"IOE? Not enough core"]				;ERNEC%==10
+	[ASCIZ	"IOE? Device not available"]			;ERDNA%==11
+	[ASCIZ	"IOE? No such device"]				;ERNSD%==12
+	[ASCIZ	"IOE? Ill. mon. call for getseg and filop"]	;ERILU%==13
+	[ASCIZ	"IOE? No room"]					;ERNRM%==14
+	[ASCIZ	"IOE? Write-locked"]				;ERWLK%==15
+	[ASCIZ	"IOE? Not enough table space"]			;ERNET%==16
+	[ASCIZ	"IOE? Partial allocation"]			;ERPOA%==17
+	[ASCIZ	"IOE? Block not free"]				;ERBNF%==20
+	[ASCIZ	"IOE? Can't supersede a directory"]		;ERCSD%==21
+	[ASCIZ	"IOE? Can't delete non-empty directory"]	;ERDNE%==22
+	[ASCIZ	"IOE? Sfd not found"]				;ERSNF%==23
+	[ASCIZ	"IOE? Search list empty"]			;ERSLE%==24
+	[ASCIZ	"IOE? Sfd nest level too deep"]			;ERLVL%==25
+	[ASCIZ	"IOE? No-create for all s/l"]			;ERNCE%==26
+	[ASCIZ	"IOE? Segment not on swap space"]		;ERSNS%==27
+	[ASCIZ	"IOE? Can't update file"]			;ERFCU%==30
+	[ASCIZ	"IOE? Low seg overlaps hi seg (getseg)"]	;ERLOH%==31
+	[ASCIZ	"IOE? Not logged in (run)"]			;ERNLI%==32
+	[ASCIZ	"IOE? File has outstanding locks set"]		;ERENQ%==33
+	[ASCIZ	"IOE? Bad .EXE file directory (getseg,run"]	;ERBED%==34
+	[ASCIZ	"IOE? Bad ext. for .EXE file(getseg,run)"]	;ERBEE%==35
+	[ASCIZ	"IOE? .EXE directory too big(getseg,run)"]	;ERDTB%==36
+	[ASCIZ	"IOE? TSK - exceeded network capacity"]		;ERENC%==37
+	[ASCIZ	"IOE? TSK - task not available"]		;ERTNA%==40
+	[ASCIZ	"IOE? TSK - undefined network node"]		;ERUNN%==41
+	[ASCIZ	"IOE? Rename - sfd is in use"]			;ERSIU%==42
+	[ASCIZ	"IOE? Delete - file has an ndr lock"]		;ERNDR%==43
+	[ASCIZ	"IOE? Job count high (A.T. read cnt ovrfl"]	;ERJCH%==44
+	[ASCIZ	"IOE? Cannot rename sfd to a lower level"]	;ERSSL%==45
+monmax==.-monerr-1
+
+
+	LIT
+ 
+ 
+
+;=============================================================================
+;Lowsegment storage
+ 
+	RELOC
+
+					; OPEN block
+dsopbk: EXP	0			; I/O status and flags
+	EXP	0			; Sixbit device name or UDX
+	dsbfoh,,dsbfih			; Buffer ring header pointers
+dsopln==.-dsopbk
+
+; LOOKUP/ENTER block
+dslkbk: EXP	dslkln			; .RBCNT, Number of args following
+	XWD	0,dslkpt		; .RBPPN, Pointer to path
+	BLOCK	.RBDEV+1-.RBNAM
+dslkln==.-dslkbk-1
+
+; Job's PPN								(*JMR*)
+jobppn:	BLOCK	1			; Logged in PPN			(*JMR*)
+
+; PATH.-block
+dslkpt: BLOCK	.PTMAX+1
+ 
+prslen:	BLOCK	1		;String length when parsing file names.
+prsarg:	block	1		;Special input pointer for parser.
+
+tcrsiz:	BLOCK	1			; place to save number of read words
+
+tcrdev:	BLOCK	1			; flag for TMP:
+tcrflg:	BLOCK	1			; flag for reading TMP:
+notdir:	BLOCK	1			; flag for non-directory devices
+ds.opn: EXP	0			; file-is-open flag
+ 
+; buffer ring headers
+dsbfoh: BLOCK	3			; output header
+dsbfih: BLOCK	3			; input header
+ 
+
+; buffers
+dsbuf1: BLOCK	3			; first buffer
+	BLOCK	dsksiz/5
+dsbuf2: BLOCK	3			; second buffer
+	BLOCK	dsksiz/5
+dsbuf3: BLOCK	3			; third buffer
+	BLOCK	dsksiz/5
+dsbuf4: BLOCK	3			; fourth buffer
+	BLOCK	dsksiz/5
+dsbuf5: BLOCK	3			; fifth buffer
+	BLOCK	dsksiz/5
+dsbuf6: BLOCK	3			; sixth buffer
+	BLOCK	dsksiz/5
+ 
+; data for backup
+tmpnam:	BLOCK	1			; temporary filename
+orgpro:	BLOCK	1			; original protection
+orgnam:	BLOCK	1			; original file name
+orgext:	BLOCK	1			; original extension
+xxbak:	BLOCK	1			; backup flag
+
+; storage for the error-handler
+errtab:	BLOCK	1			; pointer to last error tabel
+lsterr:	BLOCK	1			; offset into last error table
+
+proflg:	BLOCK	1			; protection-code flag
+
+cvseen:	EXP	0			; CTRL-V flag
+
+save.n:	BLOCK	1			; place to save pointer to filename
+savpos:	BLOCk	1			; place to save position in filename
+
+blknum:	BLOCK	1			; number of blocks in file
+
+TCRBUF:	BLOCK	50		;Buffer for TMP:EDS reading/writing.
+RSCCNT:	block	1		;Count of argument chars rescanned.
+
+RUNBLK::			;[JE] Argument for /RUN:file
+RUNDEV::!EXP	0		;Device.
+RUNFIL::!EXP	0		;File name.
+RUNEXT::!EXP	0		;Extension.
+	 EXP	0		;Some zero word.
+RUNPPN::!EXP	0		;PPN.
+	 EXP	0		;Another zero word.
+
+EXPFIL:	BLOCK	^D11		;Expand file name here.
+
+PG.VAL:	BLOCK	1		;Value of /Page:nn
+LN.VAL:	BLOCK	1		;Value of /Line:nn
+CH.VAL:	BLOCK	1		;Value of /Char:nn
+
+FLAG8:	BLOCK	1		;Byte size of input file.
+
+END

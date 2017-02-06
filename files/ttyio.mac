@@ -1,0 +1,1278 @@
+TITLE	TTYIO - Low level terminal routines and PSI control for AMIS.
+SUBTTL  Macros, definments and such things.
+
+SEARCH	UUOSYM,MACTEN		;Needed external symbols
+SALL				;Listing control
+
+TWOSEG	600000			;Make this a two segment program
+
+IFNDEF	F$DBUG,<F$DBUG==0>	;Assume not debugging
+IFNDEF	F$KSYS,<F$KSYS==-1>	;Default for KSYS warnings
+IFNDEF	F$OPAR,<F$OPAR==-1>	;Default for output parity
+IFNDEF	F$META,<F$META==-1>	;Default for TERMINAL META TRMOP.
+IFNDEF	F$SUBT,<F$SUBT==-1>	;Default for TERMINAL SUBTYPE TRMOP.
+
+IFNDEF	BUFSIZ,<BUFSIZ==20>	;Default buffer size is 20 words
+IFNDEF	CCMAX,<CCMAX==3>	;Default is 3 ^C to break
+IFNDEF	MBFTIM,<MBFTIM==500>	;Default wakeup time (milliseconds)
+IFNDEF	PDLLEN,<PDLLEN==150>	;Default length of interrupt stack
+IFNDEF	TAHSIZ,<TAHSIZ==200>	;Default type ahead size (chars)
+IFNDEF	.TOMET,<.TOMET==1770>	;Local TRMOP., for TERMINAL [NO] META.
+IFNDEF	.TOSUB,<.TOSUB==1767>	;Local TRMOP., for TERMINAL SUBTYPE xxx.
+IFNDEF	.TOFLO,<.TOFLO==1764>	;Local TRMOP., for TERMINAL [NO] FLOWCONTROL.
+
+METACH==200			;The meta bit in a character
+
+OPDEF	CALL[	PUSHJ	P,]
+
+TTY==1				;Channel to open TTY: on.
+PTY==3				;Channel to push to exec on.
+
+STRSIZE==^D40			;Length of strings.
+
+T0==0
+T1==1
+T2==2
+T3==3
+T4==4
+T5==5
+T6==6
+T7==7
+P==17
+SUBTTL  BUG - Print bug message and exit to monitor
+
+BUG::	SETZM	RUNFIL##	;Really don't run anything after this...
+	PUSH	P,T2		;Save argument
+	MOVEI	T2,[BYTE(7) "?",.CHCRT,.CHLFD,"?",.CHNUL]
+	CALL	OUTSTR		;Print start of bug message
+	POP	P,T7		;Restore argument into T7
+	HRLI	T7,(POINT 7)	;Make T7 a byte pointer to the string
+	MOVEI	T3,STRSIZE	;Get length of string
+BUG1:	ILDB	T2,T7		;Get a character
+	JUMPE	T2,BUG.2	;If it's a <NUL>, break,
+	CALL	TTYWRITE	; else print it
+	SOJG	T3,BUG1		; and loop back if more
+BUG.2:	CALL	MONITOR		;Kick him out
+	MOVEI	T2,[ASCIZ "Use the monitor command 'REENTER' to restart."]
+	CALL	OUTSTR		;Print string
+	JRST	BUG.2		; and loop back to monitor
+SUBTTL  DAYTIME - Give back a string containing date and time
+
+DAYTIM::CALL	BLANKS		;Clear string
+	HRLI	T2,(POINT 7)		;Make T2 a byte pointer to string
+	MOVE	T0,[%CNYER]
+	GETTAB	T0,			;Get current year
+	 SETZ	T0,
+	IDIVI	T0,^D100		;Divide into first and last digit pairs
+	PUSH	P,T0+1			;Save last two digits
+	CALL	TWODIG			;Put first two in string
+	POP	P,T0			;Get last two digits again
+	CALL	TWODIG			;Deposit them too
+	MOVEI	T0,"-"			;Get a hyphen
+	IDPB	T0,T2			;Deposit it
+	MOVE	T0,[%CNMON]
+	GETTAB	T0,			;Get current month
+	 SETZ	T0,
+	CALL	TWODIG			;Deposit them
+	MOVEI	T0,"-"			;Get a hyphen
+	IDPB	T0,T2			;Deposit it
+	MOVE	T0,[%CNDAY]
+	GETTAB	T0,			;Get current day
+	 SETZ	T0,
+	CALL	TWODIG			;Deposit day
+	MOVEI	T0," "			;Get a space
+	IDPB	T0,T2			;Put it in string
+	MOVE	T0,[%CNHOR]
+	GETTAB	T0,			;Get current hour
+	 SETZ	T0,
+	CALL	TWODIG			;Put hour in string
+	MOVEI	T0,":"			;Get a colon
+	IDPB	T0,T2			;Put it into string
+	MOVE	T0,[%CNMIN]
+	GETTAB	T0,			;Get current minute
+	 SETZ	T0,
+	CALL	TWODIG			;Put minutes into string
+	MOVEI	T0,":"			;Get a colon again
+	IDPB	T0,T2			;Put it into string
+	MOVE	T0,[%CNSEC]
+	GETTAB	T0,			;Get current seconds
+	 SETZ	T0,
+
+TWODIG:	IDIVI	T0,^D10			;Divide argument into first and second
+	ADDI	T0,"0"			; digits, then make them ascii chars.
+	ADDI	T0+1,"0"
+	IDPB	T0,T2			;Deposit first...
+	IDPB	T0+1,T2			; then second digit into goal string
+	POPJ	P,
+SUBTTL  GetVersion -- Get current version number, encode in string arg.
+
+GETVER::PUSHJ	P,BLANKS	;Blank out string.
+	HRLI	T2,(POINT 7)	;Make a byte pointer.
+	SKIPA	T3,[
+		POINT	7,[	;1234567890123456789012345678901234567890
+			ASCIZ	"Tops-10 AMIS, Version 1C, edit # "]]
+GVER.2:	IDPB	T0,T2		;Store in string.
+	ILDB	T0,T3		;Load next byte.
+	JUMPN	T0,GVER.2	;Loop until null.
+	HRRZ	T3,.JBVER	;Get edit number.
+	IDIVI	T3,^O100	;Divide away first digit of three.
+	IDIVI	T4,^O10		;Split second and third digit.
+	MOVEI	T3,"0"(T3)	;Make a digit.
+	IDPB	T3,T2		;Store it.
+	MOVEI	T3,"0"(T4)	;Make a digit.
+	IDPB	T3,T2		;Store it.
+	MOVEI	T3,"0"(T5)	;Make a digit.
+	IDPB	T3,T2		;Store it.
+	POPJ	P,		;All done!
+SUBTTL  DETACH - Leave AMIS and visit your local Chinese restaurant
+
+DETACH::CALL	TTYCLOSE		;Reset terminal parameters
+	MOVEI	T2,[ASCIZ "From job "]
+	CALL	OUTSTR
+	PJOB	T2,
+	MOVEI	T3,^D10
+	CALL	OUTNUM
+	MOVEI	T2,[ASCIZ "
+
+."]
+	CALL	OUTSTR
+	CALL	TTYWRITE		; write it out, 
+	CALL	TTYFORCE		; and force the buffer!
+	MOVSI	T1,-1
+	ATTACH	T1,			;Detach
+	 JFCL				; Well...
+	POPJ	P,
+SUBTTL  MONITOR - Return to operating system
+
+MONITO::CALL	TTYCLOSE		;Reset terminal parameters
+	MOVE	T1,[
+		PS.FRC+[.PCDAT
+			XWD	VECDAT-VECTOR,0
+			EXP	0]]
+	PISYS.	T1,			;Remove attach/detach trap
+	 JFCL				;Ignore error here
+	SKIPN	RUNFIL##	;Shall we do /RUN?
+	 JRST	MONI.2		; No, handle normally.
+	MOVEI	T1,RUNBLK##	;Load address of run block.
+	RUN	T1,		;Start the program.
+	HALT			;This shall not return.
+MONI.2:	MONRT.			;Go to operating system
+	MOVE	T1,[
+		PS.FAC+[.PCDAT
+			XWD	VECDAT-VECTOR,0
+			EXP	0]]
+	PISYS.	T1,		;Restore attach/detach trap
+	 JFCL			;Ignore error here
+	CALL	TTYFLUSH	;Clear internal buffer
+	SETZM	CCCNT		;Reset ^C counter
+	CALL	TTYOPEN		;Set terminal parameters again
+	MOVE	T2,TTFLOW	;Set pref. XonXoff state.
+	CALL	XONXOFF
+	MOVE	T2,ACTSTR	;Get address of activation string
+	JRST	OUTLST		;Print it
+SUBTTL  NOINT & OKINT - disable/enable interrupts.
+
+NOINT::	AOS	INHIBIT
+	POPJ	P,
+
+OKINT::	SOS	INHIBIT
+	SKIPE	CCDONE		;Any deferred interrupt?
+	 CALL	MONITOR		;Yes, exit now.
+	SETZM	CCDONE		;Wipe flag
+	POPJ	P,
+SUBTTL  PPUSH - Push to exec routine
+
+PPUSH::	MOVEM	T2,BRKCHR	;Save break character
+	MOVEI	T1,PTY		;Get PTY channel #
+	GETCHR	T1,		;Get device characteristics
+	JUMPN	T1,PPUSH1	;If not zero, we already got PTY open
+	OPEN	PTY,[
+		EXP	UU.FSP!.IOASC
+		SIXBIT	/PTY/
+		XWD	PTOBUF,PTIBUF]
+	 JRST	RFALSE		;Can't push.
+	MOVE	T1,[		;Set up PTY buffer headers
+		XWD	400K,PIBUF1+1]
+	MOVEM	T1,PTIBUF+.BFADR
+	HRRI	T1,POBUF1+1
+	MOVEM	T1,PTOBUF+.BFADR
+	MOVE	T1,[
+		POINT ^D7,0,35]
+	MOVEM	T1,PTIBUF+.BFPTR
+	MOVEM	T1,PTOBUF+.BFPTR
+	SETZM	PTIBUF+.BFCTR
+	SETZM	PTOBUF+.BFCTR
+
+	HRLI	T1,BUFSIZ+1		;Get buffer size, plus one
+	HRRI	T1,PIBUF2+.BFHDR	;Set up PTY buffers
+	MOVEM	T1,PIBUF1+.BFHDR
+	HRRI	T1,PIBUF1+.BFHDR
+	MOVEM	T1,PIBUF2+.BFHDR
+	HRRI	T1,POBUF2+.BFHDR
+	MOVEM	T1,POBUF1+.BFHDR
+	HRRI	T1,POBUF1+.BFHDR
+	MOVEM	T1,POBUF2+.BFHDR
+
+	SETZM	VECPID+.PSVFL
+	MOVE	T1,[
+		PS.FAC+[EXP	PTY
+			XWD	VECPID-VECTOR,PS.RID
+			EXP	0]]
+	PISYS.	T1,			;Add input done interrupts on PTY
+	 JRST	RFALSE			; Can't add? No push then
+
+; Here to give commands to the PTY to set up terminal type.
+
+	MOVEI	T2,"."		;Get a dot
+	CALL	TTYWRITE	;Play monitor for a while...
+
+	MOVEI	T1,[ASCIZ "TERMINAL TYPE "]
+	CALL	PTY7ST		;Give string to PTY
+	move	t1,tttype
+	CALL	PTY6WD		;Give sixbit word to PTY
+
+define $tell(flag,command),<	
+	movei	t1,[asciz " NO"]
+	skipn	flag
+	 call	pty7st
+	movei	t1,[asciz " 'command'"]
+	call	pty7st
+>;$tell macro
+
+	$tell(ttpage,PAGE)
+	$tell(tttab,TAB)
+	$tell(ttform,FORM)
+	$tell(ttdefr,DEFER)
+
+	movei	t1,[byte (7).CHCRT,.CHNUL]
+	pushj	p,pty7st	;Terminate command.
+	jrst	ppush2		;No need to add interrups again.
+
+PPUSH1:	SETZM	VECPID+.PSVFL
+	MOVE	T1,[
+		PS.FAC+[EXP	PTY
+			XWD	VECPID-VECTOR,PS.RID
+			EXP	0]]
+	PISYS.	T1,			;Add input done interrupts on PTY
+	 JRST	RFALSE			; Can't add? No push then
+	MOVEI	T1,PTY		;Get subjob channel
+	JOBSTS	T1,		;Get subjob info
+	 JRST	PPUSH2		; Hmmmmm... Lose some.
+	ANDI	T1,JB.UJN	;Extract job #
+	HRLS	T1		;Job # to left half...
+	HRRI	T1,'WAK'	;Function code == wake it up
+	PIJBI.	T1,		;Rrrrrrriiiiiinnnnngggg!
+	 JFCL			; Nobody home, I presume.
+
+PPUSH2:	MOVE	T2,DEASTR		;Get pointer to deactivation string
+	CALL	OUTLST			;Deactivate terminal
+	SKIPN	CHRCNT			;Type ahead buffer empty?
+	 JRST	PPUSH4			; Yes, go start looping
+PPUSH3:	CALL	TTYREAD			;Read the char from type ahead
+	SOSGE	PTOBUF+.BFCTR		;Room in output buffer?
+	 OUTPUT	PTY,			; No, make some
+	IDPB	T1,PTOBUF+.BFPTR	;Deposit character
+	SKIPE	CHRCNT			;Type ahead buffer empty now?
+	 JRST	PPUSH3			; No, get next byte
+	OUTPUT	PTY,			;Yes, force out PTY output buffer
+
+PPUSH4:	SETOM	PUSHED		;We are pushed now...
+
+PPUSH5:	PUSHJ	P,PTYSHF	;Shuffle eventual data from PTY.
+	MOVEI	T1,^D60*^D1000	;Get sleep time
+	HIBER	T1,
+	 JFCL
+	SKIPE	PUSHED		;Break loop if we are not pushed.
+	 JRST	PPUSH5
+	MOVE	T1,[
+		PS.FRC+[EXP	PTY
+			XWD	VECPID-VECTOR,PS.RID
+			EXP	0]]
+	PISYS.	T1,
+	 JFCL
+	MOVE	T2,ACTSTR		;Get pointer to activation string
+	CALL	OUTLST			;Activate terminal
+	CALL	TTYFORCE
+	MOVEI	T1,PTY			;Get PTY channel number
+	JOBSTS	T1,			;Get Status for subjob
+	 setz	t1,
+	TLNN	T1,(JB.ULI)		;Job logged in on PTY?
+	 RELEAS	PTY,			; No, don't hold up the PTY
+rtrue:	MOVEI	T1,1			;Return true
+	MOVEM	T1,1(P)
+	POPJ	P,
+
+rfalse:	SETZM	1(P)			;Return false
+	POPJ	P,
+SUBTTL  RUNCOM - Start compil with runoffset 1
+
+RUNCOM::CALL	TTYCLOSE		;Reset line parameters
+	MOVSI	T1,1			;Runoffset
+	HRRI	T1,RUNCMP		;Address of run block
+	RUN	T1,UU.PHY		;Run the program, from physical SYS:
+	HALT	.
+
+RUNCMP:	SIXBIT	/SYS/			;Device
+	SIXBIT	/COMPIL/		;Program
+	Z				;Unused
+	Z				;Unused
+	Z				;Unused
+	Z				;Unused
+SUBTTL  TTYACTIVATION - Get addresses of (de)activation strings.
+
+TTYACT::MOVEM	T2,ACTSTR		;Save pointer to activation
+	MOVEM	T3,DEASTR		; and deactivation string
+	JRST	OUTLST			;Go give activation string to TTY
+SUBTTL  TTYCHECK - Look if terminal input buffer is empty
+
+TTYCHE::SETZM	1(P)			;Assume we return FALSE
+	SKIPE	CHRCNT			;Is type ahead buffer empty?
+	 JRST	TTYCH2			; No, go return TRUE
+	JUMPE	T2,TTYCH3		;We go sync output buffer?
+	IMULI	T2,^D1000		;Convert seconds to milliseconds
+	HRRZ	T2,T2			;Clear flag bits in ac
+	HIBER	T2,			;Take a nap
+	 JFCL				;Just ignore error on this one
+TTYCH1:	SKIPE	CHRCNT			;Wake up, look again
+TTYCH2:	 AOS	1(P)			; Make result TRUE
+	POPJ	P,			;Go back
+
+TTYCH3:	CALL	TTYFORCE		;Force output buffer
+	SETZM	1(P)			;Reset top of stack
+	JRST	TTYCH1			;Go look again
+SUBTTL  TTYFLUSH - Flush terminal input buffer
+
+TTYFLU::MOVE	T1,TAHPTR
+	MOVEM	T1,TAHGET
+	MOVEM	T1,TAHPUT
+	SETZM	CHRCNT
+	MOVEI	T1,TAHSIZ
+	MOVEM	T1,CHRGET
+	MOVEM	T1,CHRPUT
+	MOVEM	T1,CHREMP
+	POPJ	P,
+SUBTTL  TTYFORCE - Force output buffer
+
+TTYFOR::SKIPE	DTACHD			;Are we detached?
+	 POPJ	P,			; Yep, keep quiet
+	MOVSI	T1,770000
+	TDNN	T1,TTOBUF+.BFPTR	;Anything in buffer?
+	 POPJ	P,			; No, nothing to do.
+	OUT	TTY,			;Try force out the buffer
+	JRST	TTYFO2			;All OK? go syncronize with monitor
+	MOVEI	T1,^D300
+	HIBER	T1,			;Else wait a while...
+	 JFCL
+	JRST	TTYFOR
+
+TTYFO2:	MOVE	T1,[
+		XWD	2,[
+			.TOTOC
+			-1]]
+	TRMOP.	T1,			;Read # of chars in monitor buffer
+	 POPJ	P,			;If we can't read, just return
+	IMUL	T1,FUDGEF		;Estimate I/O time
+	SUBI	T1,MBFTIM		; and wake a moment earlier...
+	JUMPLE	T1,TTYFO3		;Shall we go to bed, madam?
+	HIBER	T1,
+	 JFCL
+TTYFO3:	POPJ	P,
+SUBTTL  TTYHACKER - Set/reset hackmatic terminal flag
+
+TTYHAC::MOVEM	T2,HACKER	;Save new hackmatic terminal flag
+IFN F$META,<
+	MOVEI	T0,.TOMET+.TOSET ;Load function code.
+	SETO	T1,		;Argument = my terminal.
+	MOVX	T3,<3,,T0>	;Arg for TRMOP.
+	TRMOP.	T3,		;Tell monitor too.
+	 JFCL			; Ignore error, possibly not implemented here.
+>;End of IFN F$META
+	POPJ	P,
+;*
+;* Here to read the initial setting of .TOMET from monitor.  Called directly
+;* by MAIN.PAS, as a temporary kludge.
+;*
+IFN F$META,<
+TTYMET::MOVE	T1,[		;Load up the arguments.
+		XWD	2,[
+			EXP	.TOMET
+			EXP	-1]]
+	TRMOP.	T1,		;Ask monitor.
+	 SETZ	T1,		; Default not meta key on terminal.
+	MOVEM	T1,1(P)		;Tell MAIN.PAS.
+	MOVEM	T1,HACKER	;Also remember for TTYREAD.
+	POPJ	P,		;Return cheerfully.
+>;End of IFN F$META
+
+; TTYPROTOCOL - decide if to use ^S/^Q as commands or flow control.
+
+TTYPRO::move	t1,[xwd 2,[exp .toflo,-1]]
+	trmop.	t1,
+	 movei	t1,0		; Default is NO FLOWCONTROL.
+	jumpe	t1,rfalse	;Zero means use as commands.
+	jrst	rtrue		;Non-zero means flow control.
+
+SUBTTL  TTYINIT - Init terminal handler
+
+TTYINI::MOVEI	T2,TTY		;Try to prevent ?Address check...
+	RESDV.	T2,		;Release channel if it is there,
+	 JFCL			; ignore errors.
+	MOVE	T2,[XWD 2,[EXP .TODEM,-1]]
+	TRMOP.	T2,		;Read TERMINAL DEFER setting.
+	 SETZ	T2,		; If error, assume NO DEFER.
+	movem	t2,ttdefr	;Save flag for later use.
+	JUMPE	T2,FRITZ	;Terminal is NO DEFER, skip kludge.
+	MOVE	T1,[XWD 3,[EXP .TODEM+.TOSET,-1,0]]
+	TRMOP.	T1,		;Set NO DEFER
+	 JRST	FROTZ		; Well, skip this then.
+FRITZ:	OPEN	TTY,[		;Open then terminal in NOECHO mode,
+		EXP	IO.SUP	; to bypass bug in TOPS-10.
+		SIXBIT	/TTY/
+		EXP	0]
+	 JFCL			; Don't care if this fails.
+	SETZ	T1,		;Clear T1.
+	SLEEP	T1,		;Take a short nap.
+	JUMPE	T2,FROTZ	;Don't set DEFER if it was off initially.
+	MOVE	T1,[XWD 3,[EXP .TODEM+.TOSET,-1,1]]
+	TRMOP.	T1,		;Set DEFER back on.
+	 JFCL			; Ignore error.
+FROTZ:	OPEN	TTY,[		;Continue and assume SCNSER is in phase now.
+		EXP	UU.AIO!.IOPIM!UU.PHS
+		SIXBIT	/TTY/
+		XWD	TTOBUF,TTIBUF]
+	 HALT	.		; Too bad...
+	MOVEI	T1,TTY
+	IONDX.	T1,		;Get UDX for TTY:
+	 SETO	T1,		; Can't happen, but...
+	MOVEM	T1,TTUDX	;Save UDX
+
+define $read(func,save,default<0>),<
+	movei	t1,func
+	pushj	p,dtrmop
+	 movx	t1,<default>
+	movem	t1,save
+>;$read macro
+
+	$read(.totrm,tttype,<sixbit'TTY   '>)
+	$read(.topag,ttpage,1)
+	$read(.totab,tttab)
+	$read(.tofrm,ttform)
+
+	movei	t1,.topbs+.toset;Set an empty PIM mode break set.
+	movei	t3,0
+	pushj	p,dtrmop
+	 jfcl			;Ignore error.
+
+; Set up buffer pointers
+
+	MOVE	T1,[XWD 400K,TIBUF1+1]
+	MOVEM	T1,TTIBUF+.BFADR
+	HRRI	T1,TOBUF1+1
+	MOVEM	T1,TTOBUF+.BFADR
+	MOVE	T1,[POINT ^D8,0,35]
+	MOVEM	T1,TTIBUF+.BFPTR
+	MOVEM	T1,TTOBUF+.BFPTR
+	SETZM	TTIBUF+.BFCTR
+	SETZM	TTOBUF+.BFCTR
+
+	HRLI	T1,BUFSIZ+1
+	HRRI	T1,TIBUF2+.BFHDR	;Set up TTY buffers
+	MOVEM	T1,TIBUF1+.BFHDR
+	HRRI	T1,TIBUF1+.BFHDR
+	MOVEM	T1,TIBUF2+.BFHDR
+	HRRI	T1,TOBUF2+.BFHDR
+	MOVEM	T1,TOBUF1+.BFHDR
+	HRRI	T1,TOBUF1+.BFHDR
+	MOVEM	T1,TOBUF2+.BFHDR
+	CALL	TTYFLUSH		;Get a clean taye ahead buffer
+
+; TTYINIT - Set up PSI system for us
+
+	MOVEI	T1,VECTOR
+	PIINI.	T1,
+	 JRST	PISYSE
+	setzm	vectim+.psvfl
+	move	t1,[
+		ps.fac+[.pctmr
+			xwd	vectim-vector,0
+			exp	0]]
+	pisys.	t1,
+	 jfcl			;Oh my.
+	SETZM	VECDAT+.PSVFL
+	MOVE	T1,[
+		PS.FAC+[.PCDAT
+			XWD	VECDAT-VECTOR,0
+			EXP	0]]
+	PISYS.	T1,
+	 jfcl			;Funny to have, but...
+	SETZM	VECJBI+.PSVFL
+	MOVE	T1,[
+		PS.FAC+[.PCJBI
+			XWD	VECJBI-VECTOR,0
+			EXP	0]]
+	PISYS.	T1,
+	 jfcl			;Funny to have, but...
+	SETZM	VECRID+.PSVFL
+	MOVE	T1,[
+		PS.FAC+[EXP	TTY
+			XWD	VECRID-VECTOR,PS.RID
+			EXP	0]]
+	PISYS.	T1,
+	 JRST	PISYSE
+	SETZM	VECTLE+.PSVFL
+	MOVE	T1,[
+		PS.FAC+[.PCTLE
+			XWD	VECTLE-VECTOR,0
+			EXP	0]]
+	PISYS.	T1,
+	 JRST	PISYSE
+IFN F$KSYS,<
+	MOVE	T1,[
+		PS.FAC+[.PCKSY
+			XWD	VECKSY-VECTOR,0
+			EXP	0]]
+	PISYS.	T1,
+	 jfcl			;Funny to have, but...
+>;End of IFN F$KSYS
+	MOVSI	T1,(PS.FON)
+	PISYS.	T1,
+	 JRST	PISYSE
+	setom	timflg		;Fudge up a timer interrupt.
+	SETZM	CCCNT		;We have not seen any ^C yet
+	SETZM	DTACHD		; and we are not detached
+	SETZM	INHIBIT		;Interrupts are allowed right now
+	SETZM	CCDONE		;But none pending.
+	setzm	savttp		;For terminal type listings.
+	CALL	TTYOPEN		;Set up the rest of the terminal junk
+	JRST	INDONE		;Simulate input done, pick up typeahead
+
+;Routine to do a TRMOP. for our terminal.
+
+dtrmop:	move	t2,ttudx	;Load UDX.
+	move	t4,[3,,t1]
+	trmop.	t4,		;Perform the function
+	 popj	p,		; Non-skip return on failure.
+	move	t1,t4		;Return value in T1.
+	aos	(p)		;Do skip return.
+	popj	p,
+
+SUBTTL  TTYREAD - Read one character.
+
+TTYREA::SKIPG	CHRCNT		;Anything to read?
+	 CALL	WAITER		; No, go wait for some
+	ILDB	T1,TAHGET	;Yes, get it
+	SKIPN	HACKER		;Using hackmatic terminal?
+	 ANDI	T1,177		;No, get rid of parity bit
+	TRNE	T1,200		;Meta bit?
+	 TRC	T1,200+400	; Yes, shift it one step left.
+	MOVEM	T1,1(P)		;Give it to pascal
+	SOS	CHRCNT
+	AOS	CHREMP		;Fix up buffer pointers
+	SOSLE	CHRGET		;Need to wrap get pointer yet?
+	 POPJ	P,		; No, return
+	MOVE	T1,TAHPTR	;Yes, do the wrap
+	MOVEM	T1,TAHGET
+	MOVEI	T1,TAHSIZ
+	MOVEM	T1,CHRGET
+	POPJ	P,
+
+WAITER:	PUSHJ	P,TTYFORCE	;Force output buffer meanwhile
+wait.2:	movx	t2,<sleep t2,>	;Load instruction
+	movem	t2,hibloc	;Set up for sleeping.
+	skipe	chrcnt		;Still empty?
+	 popj	p,		; Nope, done waiting
+IFN F$KSYS,<
+	SKIPE	KSYMSG		;Any KSYS message to print?
+	 PUSHJ	P,KSYOUT	; Yes, go do it.
+>;End of IFN F$KSYS
+	skipe	timflg		;Timer interrupt?
+	 pushj	p,clkupd	; Yes, update clock.
+	movei	t2,^D60		;Load time to sleep.
+	xct	hibloc		;Sleep or JFCL.
+	jrst	wait.2		;Loop back and try again.
+
+clkupd:	setzm	timflg		;Clear flag until next time.
+	mstime	t2,		;Get time of day.
+	idivi	t2,^D60000	;Compute milliseconds until next interrupt.
+	movei	t2,^D60000
+	subi	t2,(t3)
+	tlo	t2,(1B0)
+	pitmr.	t2,		;Request interrupt.
+	 jfcl			; Oh my...
+	push	p,0		;Push a dummy word (stack frame)
+	pushj	p,TimeStamp##	;Call mode line clock update routine
+	pop	p,(p)		;Trim off stack (standard method)
+	jrst	ttyforce	;Return after a good work (and force buffer)
+;*
+;* PROCEDURE GetClock(VAR Hour, Minute: integer);
+;* This routine are used to get values for mode line clock.
+;*
+getclo::mstime	t4,		;Get time of day, in milliseconds.
+	idivi	t4,^D1000*^D60	;Get time of day, in minutes.
+	idivi	t4,^D60		;Split into hours and minutes.
+	movem	t4,(t2)		;Return hours.
+	movem	t5,(t3)		;Return minutes.
+	popj	p,		;Return to caller
+SUBTTL  TTYSPEED - Read terminal speed from monitor
+
+TTYSPE::MOVEI	T1,.TOTSP
+	pushj	p,dtrmop
+	 SETZ	T1,		;If error, assume 0
+	MOVE	T1,SPDTAB(T1)	;Map speed code to baude rate
+	MOVEM	T1,1(P)		;Give back
+	POPJ	P,
+
+SPDTAB:	EXP	^D0		;Code 0 ...
+	EXP	^D50
+	EXP	^D75
+	EXP	^D110
+	EXP	^D134
+	EXP	^D150
+	EXP	^D200
+	EXP	^D300
+	EXP	^D600
+	EXP	^D1200
+	EXP	^D1800
+	EXP	^D2400
+	EXP	^D4800
+	EXP	^D9600
+	EXP	^D19200
+	EXP	^D0		; ... 17 ( Octal )
+SUBTTL  TTYTYPE - Give terminal type in special code
+
+TTYTYP::MOVE	T6,T2		;Save pointer to TERM string
+	SETZM	0(T2)		;Clear first word in string
+	SETZM	1(T2)		;Clear second word in string
+	MOVE	T3,[		;Read TMPcore file, arg block in T4-T5
+		XWD	.TCRRF,T4]
+	DMOVE	T4,[
+		XWD	'TRM',0	;File name is TMP:TRM,
+		IOWD	2,10]	; read two words into AC 10 and 11
+	TMPCOR	T3,
+	 JRST	TTYTY3		;TMP:TRM not found, use TRMOP.(.TOTRM)
+	JUMPE	T3,TTYTY3	;Use TRMOP. if file is empty, too
+	MOVE	T4,[		;Get a byte pointer to file
+		POINT	7,10]
+	MOVE	T5,[		;Get a byte pointer to SIXBIT word
+		POINT	6,T1]
+	SETZ	T1,
+	MOVEI	T7,6		;Max. # of characters in a SIXBIT word
+
+TTYTY1:	ILDB	T3,T4		;Get a character
+	CAIL	T3,"a"		;Lower case alphabetic?
+	 CAILE	T3,"z"
+	  SKIPA
+	   SUBI	T3,"a"-"A"	;Yes, make it upper case
+	CAIL	T3,"0"		;Look if character is digit or letter
+	 CAILE	T3,"9"
+	  SKIPA			;Not digit, look if letter
+	JRST	TTYTY2
+	CAIL	T3,"A"
+	 CAILE	T3,"Z"
+	  JRST	TTYTY4		;Not letter either, break loop
+TTYTY2:	SUBI	T3,"A"-'A'	;Convert character from ASCII to SIXBIT
+	IDPB	T3,T5		;Put character in SIXBIT word
+	SOJG	T7,TTYTY1	;Loop back if we got more room
+				;Now we got sixbit word in T1, go look
+	JRST	TTYTY4		; it up in the terminal type table.
+
+TTYTY3:
+IFN F$SUBTYP,<
+	MOVE	T1,[XWD 2,[EXP .TOSUB,-1]]
+	TRMOP.	T1,		;Get SUBTYPE, if we have it.
+	 MOVEI	T1,0		; Error -- say nothing.
+	TLNN	T1,-1		;Left half zero?
+>;End IFN F$SUBTYP
+	MOVE	T1,tttype
+ttyty4:	MOVEI	T7,6		;Transfer 6 characters
+	HRLI	T6,(POINT 7)	;Build byte pointer to TERM string
+	MOVE	T5,[		;Build byte pointer to SIXBIT name
+		POINT   6,T1]
+TTYTY5:	ILDB	T0,T5		;Get a byte
+	ADDI	T0,"A"-'A'	;Make it ASCII
+	IDPB	T0,T6		;Give it to TERM
+	SOJG	T7,TTYTY5	;Loop back if more
+	MOVEM	T1,TTNAME	;Remember the terminal name for later.
+	CAME	T1,['VT100 ']	;Is this a VT100?
+	 TDZA	T1,T1		; Nope, return zero.
+	  MOVEI	T1,1		;  Yes, the only one from now on...
+	MOVEM	T1,1(P)		;Give back 0 or 3.
+	POPJ	P,
+
+SUBTTL  BADTTY - tell user his terminal type is not supported.
+
+BADTTY::SETZM	ACTSTR		;Clear activation string pointer
+	SETZM	DEASTR		;Clear deactivation string pointer
+	MOVEI	T2,[
+		ASCIZ	"
+The terminal type "]
+	CALL	OUTSTR		;Print first half of short message.
+	MOVE	T2,TTNAME	;Get terminal name.
+	SETZ	T3,		;Clear junk.
+	CALL	OUTSIX		;Print terminal name.
+	MOVEI	T2,[
+		ASCIZ	" is not supported by AMIS.
+Type 'CONTINUE' for further information.
+"]
+	CALL	OUTSTR		;Print second half of short message.
+BADT.2:	CALL	MONITOR		;Exit to operating system.
+	SKIPN	SAVTTP
+	 JRST[	MOVEI	T2,NTTMSG
+		CALL	OUTSTR
+		JRST	BADT.2]
+	MOVEI	T2,[ASCIZ "
+The following terminals are supported:
+
+"]
+	CALL	OUTSTR
+	movei	t1,0
+	jsp	t7,stor.c
+	MOVEI	T2,SAVTTL
+	CALL	OUTSTR
+	MOVEI	T2,[ASCIZ "	
+
+Use the monitor command 'TERMINAL TYPE <name>' to set
+the terminal type.
+"]
+	CALL	OUTSTR
+	JRST	BADT.2
+
+nttmsg:	asciz	"
+There are no terminals defined.  Contact your friendly systems programmer.
+
+"
+
+SaveTerminalName::
+	MOVE	T4,[point 7,t2]
+	MOVEI	t5,6
+	SKIPE	SAVTTP		;Set up yet?
+	 JRST	ss4711		; Yes, skip this.
+	setzm	savnum
+	MOVE	T1,[POINT 7,SAVTTL]
+	MOVEM	T1,SAVTTP
+	MOVEI	T1,<<5*SAVLEN>-1>
+	MOVEM	T1,SAVCNT
+ss4711:	ildb	t1,t4		;get byte...
+	jsp	t7,stor.c
+	sojg	t5,ss4711	;Maybe loop.
+	movei	t1," "
+	jsp	t7,stor.c
+	jsp	t7,stor.c
+	aos	t1,savnum
+	caige	t1,8
+	 popj	p,
+	movei	t1,15
+	jsp	t7,stor.c
+	movei	t1,12
+	jsp	t7,stor.c
+	setzm	savnum
+	popj	p,
+
+stor.c:	sosle	savcnt		;room?
+	 idpb	t1,savttp	; room.  store.
+	jrst	(t7)		;return.
+SUBTTL  TTYWIDTH - Read terminal width from monitor
+
+TTYWID::MOVEI	t1,.TOWID
+	pushj	p,dtrmop
+	 MOVEI	T1,^D80		;If error, assume page width is 80
+	MOVEM	T1,1(P)		;Store the result
+	POPJ	P,
+
+; TTYPRINTABLE - Return set of printable chars.
+
+TTYPRI::movei	1,<000000,,000017>
+	movem	1,0(2)
+	setom	1(2)
+	setom	2(2)
+	movx	1,<777777,,400000>
+	movem	1,3(2)
+	popj	p,
+
+SUBTTL  TTYLENGTH - override default terminal length, if possible.
+
+ttylen::push	p,t2		;Save argument.
+	movei	t1,.tolnb
+	pushj	p,dtrmop	;Read terminal length.
+	 setz	t1,		; Default length.
+	pop	p,t2		;Restore argument pointer.
+	jumple	t1,.popj	;Don't overwrite default with junk.
+	movem	t1,(t2)		;Store new value.
+	popj	p,		;Return.
+
+SUBTTL  TTYWRITE - write one character.
+
+TTYWRI::SKIPE	DTACHD		;Are we detached?
+	 POPJ	P,		; Yep, keep quiet
+IFN F$OPAR,<
+	MOVEI	T1,(T2)		;Copy char
+	LSH	T1,-4		;Shift...
+	XORI	T1,(T2)		;Get together...
+	TRCE	T1,14
+	 TRNN	T1,14
+	  TRC	T2,200
+	TRCE	T1,3
+	 TRNN	T1,3
+	  TRC	T2,200
+>;End of IFN F$OPAR
+	SOSGE	TTOBUF+.BFCTR	;Room in buffer?
+	 JRST	TTYWR2		; No, go force out
+	IDPB	T2,TTOBUF+.BFPTR ;Deposit
+	POPJ	P,		;Done!
+
+TTYWR2:	OUT	TTY,		;Out with the buffer
+	 JRST	TTYWRITE	; OK, but we may have been detached.
+	MOVEI	T1,^D300	;Time to sleep
+	HIBER	T1,		;Take a nap
+	 JFCL			; Ignore error return,
+	JRST	TTYWRITE	; and hope for better luck
+SUBTTL  USRNAME - Put user name in argument string
+
+USRNAM::CALL	BLANKS		;Put blanks in all of string T2 points to
+	HRLI	T2,(POINT 7)	;Make argument a byte pointer
+	HRROI	T3,.GTNM1	;Set up to get first
+	HRROI	T4,.GTNM2	; and second half of user name
+	GETTAB	T3,
+	 SKIPA
+	  GETTAB T4,
+	   SETZB T3,T4		; In case of errors, clear both words.
+USRNM1:	LDB	T1,[		;Get first sixbit char
+		POINT ^D6,T3,^D5]
+	ADDI	T1,"A"-'A'	;Make it ascii
+	IDPB	T1,T2
+	LSHC	T3,6		;Shift both T6 and T7
+	JUMPN	T3,USRNM1	;Loop back if any of them
+	JUMPN	T4,USRNM1	; is non-zero
+	POPJ	P,
+;I/O routines for PTY
+
+; Interrupt routine to flag data ready.
+
+PTYDON:	SETOM	PTYFLG		;Remember to try to read sometime.
+	DEBRK.			;Dismiss interrupt.
+	 JFCL			; Can't happen.
+	POPJ	P,		;Can happen.
+
+; Actual reader, called by background loop.
+
+PTYSHF:	SKIPN	PTYFLG		;Any data to shuffle from PTY?
+	 POPJ	P,		; No, return now.
+	SETZM	PTYFLG		;Yes, but clear flag.
+SHFLUP:	INPUT	PTY,		;Get info from PTY
+	SKIPG	PTIBUF+.BFCTR	;Did we get anything?
+	 JRST	TTYFORCE	; No more data, force terminal buffers.
+SHFL.2:	SOSGE	PTIBUF+.BFCTR	;Decrement buffer counter
+	 JRST	SHFLUP		; No more, try for another buffer.
+	ILDB	T2,PTIBUF+.BFPTR ;Get a byte
+	CALL	TTYWRITE	;Write it on terminal
+	JRST	SHFL.2		; and loop back for more
+
+;; Routine to give an ASCIZ string to the PTY.
+
+PTY7ST:	HRLI	T1,(POINT ^D7)	;Get a byte pointer to the string
+PTY7S1:	ILDB	T2,T1		;Get a byte from the string
+	JUMPE	T2,PTY7S2	;Break on null
+	SOSGE	PTOBUF+.BFCTR	;Look if more foom in PTY output buffer
+	 OUTPUT	PTY,		; Make more room then!
+	IDPB	T2,PTOBUF+.BFPTR ;Deposit byte in buffer
+	JRST	PTY7S1		;Loop back and look if more
+
+PTY7S2:	OUTPUT	PTY,		;Finally, force out the buffer
+	POPJ	P,		; and return to caller
+
+;; Routine to give SIXBIT word in T1 to the PTY.
+
+PTY6WD:	LDB	T2,[		;Get first character
+		POINT	^D6,T1,^D5]
+	ADDI	T2,"A"-'A'	;Convert SIXBIT to ASCII
+	SOSGE	PTOBUF+.BFCTR	;Room in buffer?
+	 OUTPUT	PTY,		; No, make some
+	IDPB	T2,PTOBUF+.BFPTR ; then deposit character
+	LSH	T1,6		;Shift out one character
+	JUMPN	T1,PTY6WD	;Loop back if more in word
+	OUTPUT	PTY,		;No more, force out buffer
+	POPJ	P,		; and return to caller
+SUBTTL  Routine to set up terminal parameters
+
+TTYOPE:	movei	t1,.tocom
+	pushj	p,dtrmop
+	 setz	t1,
+	jumpe	t1,TTYOP1	;Look if we are in monitor mode
+	movei	t1,.todsp
+	movei	t3,msgnmm
+	pushj	p,dtrmop
+	 jfcl
+	MONRT.			;Exit to monitor
+	JRST	TTYOPEN		;Try again
+
+TTYOP1:	SETSTS	TTY,.IOPIM	;Reset PIM mode on TTY
+	MOVEI	T5,TTY		;Get TTY channel #
+	IONDX.	T5,		;Get UDX for channel
+	 SETO	T5,		; Can't happen, but...
+	MOVEM	T5,TTUDX	;Save UDX
+	CALL	TTYSPEED	;Compute fudge factor
+	SKIPG	T1,2(P)
+	 MOVEI	T1,^D9600
+	MOVEI	T2,^D10K
+	IDIV	T2,T1
+	MOVEM	T2,FUDGEF	;Save new fudge factor
+	POPJ	P,
+SUBTTL  Routine to reset terminal parameters
+
+TTYCLO:	MOVE	T2,DEASTR	;Get address of deactivation string
+	CALL	OUTLST		;Print string
+	CALL	TTYFORCE	;Force out buffers
+	SKIPA	T2,TTPAGE	;Get previous page mode setting.
+
+;* Skip into XonXoff handler.
+
+XONXOF::MOVEM	T2,TTFLOW	;Save pref. xonxoff state.
+	MOVEI	T0,.TOPAG+.TOSET;Function code.
+	MOVE	T1,TTUDX	;Device index.
+	MOVX	T3,<3,,T0>	;Argument pointer.
+	TRMOP.	T3,		;Set new value.
+	 JFCL			; Ignore error.
+	JUMPN	T2,.POPJ	;If setting XonXoff mode, done.
+	MOVEI	T0,.TOSTP+.TOSET
+	MOVX	T3,<3,,T0>	;Else we have to make sure the terminal don't
+	TRMOP.	T3,		; get stuck in XOFF state...
+	 JFCL
+	POPJ	P,		;Return.
+SUBTTL  Some junk...
+
+BLANKS:	MOVE	T3,[		;Blank string
+		BYTE(7)	" "," "," "," "," "]
+	MOVEM	T3,(T2)		;Put blanks in first word
+	HRL	T3,T2		;Source in left halfword
+	HRRI	T3,1(T2)	;Dest in right
+	BLT	T3,<STRSIZ/5>-1(T2) ;Blank rest of string
+	POPJ	P,
+
+OUTLST:	JUMPE	T2,.POPJ	;Any pointer there?
+	SKIPG	T3,(T2)		;Anything to type out?
+	 POPJ	P,
+	HRRI	T7,1(T2)
+	HRLI	T7,(POINT 7)
+OUTLS1:	ILDB	T2,T7
+	CALL	TTYWRITE
+	SOJG	T3,OUTLS1
+.POPJ:	POPJ	P,
+
+OUTSTR:	MOVE	T7,T2
+	HRLI	T7,(POINT 7)
+OUTST1:	ILDB	T2,T7
+	JUMPE	T2,.POPJ
+	CALL	TTYWRITE
+	JRST	OUTST1
+SUBTTL  Input done interrupt routine
+
+INDONE:	MOVEM	T1,INSAVE		;Save AC 1
+INDON1:	SOSGE	TTIBUF+.BFCTR		;More chars in buffer?
+	 JRST	GETBUF			; No, go get a buffer
+	ILDB	T1,TTIBUF+.BFPTR	;Get a char from buffer
+	SKIPE	PUSHED			;Look if we are pushed
+	 JRST	PTYPUT			; We are, give char to PTY
+INDON2:	CAIE	T1,.CHCNC		;Is char C-C
+	 CAIN	T1,.CHCNC+METACH	; or C-M-C?
+	  JRST	INDON4			;  Yep, go look if we had enough
+	SETZM	CCCNT			;No, clear counter
+INDON3:	SOSGE	CHREMP			;Is there space to put this char in?
+	 JRST	INDON5			; Nope, go beep the user
+	IDPB	T1,TAHPUT		;Yes, put it there
+	AOS	CHRCNT			;Increment # of chars in buffer
+	SOSLE	CHRPUT			;Decrement wrap pointer
+	 JRST	INDON1			; We need not wrap yet, loop back
+	MOVE	T1,TAHPTR
+	MOVEM	T1,TAHPUT		;Do the wrap
+	MOVEI	T1,TAHSIZ
+	MOVEM	T1,CHRPUT
+	JRST	INDON1			;Loop back
+
+IFN F$DBUG,<			;If debugging, pretend we have
+INDON4:	MOVEI	T1,$0BPT##+1	; a breakpoint at the interrupted
+	EXCH	T1,VECRID+.PSVOP; instruction.
+	MOVEM	T1,$0BPT##
+	MOVE	T1,INSAVE	;Restore T1 for us
+	OUTSTR[	ASCIZ	/
+****************************************************
+********   DDT  (Type <ESC>P to continue)   ********
+****************************************************
+/]
+	JRST	INTEND		;DEBRK. rigth into DDT!
+>;End IFN F$DBUG
+IFE F$DBUG,<
+INDON4:	AOS	T1,CCCNT	;Increment ^C count, put result in T1
+	CAIGE	T1,CCMAX	;Greater than max # allowed?
+	 JRST	INDON6		; No, go return this char
+	SKIPLE	INHIBIT		;Are we allowed to break here?
+	 AOSA	 CCDONE		; No, set flag to break as soon as possible 
+	  SKIPA
+	   JRST	INDON6		;  and forget this
+	MOVEM	T0,SAVEB2	;Save AC 0
+	MOVE	T0,[		;Set up a BLT pointer
+		XWD	T1,SAVEB2+1]
+	BLT	T0,SAVEB2+17	;Save all the other AC's
+	MOVE	T0,[
+		XWD	PDLP2,15]
+	BLT	T0,17		;Move in a new stack
+	CALL	MONITOR		;Go to operating system
+	MOVE	T0,[		;Get a BLT pointer
+		XWD	SAVEB2+1,T1]
+	BLT	T0,17		;Restore all AC's
+	MOVE	T0,SAVEB2	;Restore AC 0 too
+	SETZM	CCCNT		;Zero ^C counter
+	JRST	INDON1		;Loop back
+>;End IFE F$DBUG
+SUBTTL  Continuing input done routines.
+
+INDON5:	AOS	CHREMP
+	OUTCHR[	EXP	.CHBEL]
+	JRST	INDON1
+
+INDON6:	LDB	T1,TTIBUF+.BFPTR	;Get ^C type character again
+	JRST	INDON3			;Go back, process as normal char
+
+GETBUF:	IN	TTY,
+	 JRST	INDON1
+	movx	t1,<jfcl>
+	movem	t1,hibloc
+	MOVE	T1,INSAVE
+	DEBRK.
+	 jfcl			;Can't happen.
+	POPJ	P,
+
+	OUTPUT	PTY,
+PTYPUT:	SKIPN	HACKER		;Eight bit terminal?
+	 ANDI	T1,177		; No, mung parity bit
+	CAMN	T1,BRKCHR	;Is this the break character?
+	 JRST	PTYPU2		; Yep, pop it up a little
+	SOSGE	PTOBUF+.BFCTR
+	 JRST	PTYPUT-1	;*** Kludgy ***
+	IDPB	T1,PTOBUF+.BFPTR
+	OUTPUT	PTY,
+	JRST	INDON1
+
+PTYPU2:	SETZM	PUSHED
+	JRST	INDON1
+SUBTTL  PSI handling -- KSYS warnings
+;*
+;* KSYS interrupts go here.
+;*
+IFN F$KSYS,<
+KSYS:	DMOVEM	T1,KSYSAV	;Save a couple.
+	MOVEM	T3,KSYSAV+2	;... and another...
+	SKIPG	T1,VECKSY+.PSVIS;Get time left until KSYS
+	 AOJN	T1,KSYS.2	; Ignore zero, change -1 to 0.
+	MOVSI	T2,-KSYLEN	;Load length of KSYS checkpoint table
+KSYS.1:	MOVS	T3,KSYTAB(T2)	;Get table entry.  (swapped)
+	CAIN	T1,(T3)		;Is this the it?
+	 HLRZM	T3,KSYMSG	; Yes, remember pointer to message.
+	AOBJN	T2,KSYS.1	;Loop if more table
+KSYS.2:	MOVE	T3,KSYSAV+2	;Restore T3.
+	DMOVE	T1,KSYSAV	;Restore T1 & T2.
+	JRST	INTEND		;Dismiss the interrupt.
+;*
+;* When the time left until KSYS is equal to one of the entries in KSYTAB,
+;* we issue a warning on the users terminal.
+;*
+KSYTAB:	XWD	^D0,[ASCIZ "is over!!!"]
+	XWD	^D1,[ASCIZ "ends in one minute"]
+	XWD	^D2,[ASCIZ "ends in two minutes"]
+	XWD	^D5,[ASCIZ "ends in five minutes"]
+	XWD	^D15,[ASCIZ "ends in fifteen minutes"]
+KSYLEN==.-KSYTAB
+;*
+;* This is the routine that gets called when KSYMSG gets non-zero.
+;*
+KSYOUT:	MOVEI	T2,[		;Load start of KSYS message.
+		BYTE(7)	.CHBEL, .CHCRT, .CHLFD, "*", "*"
+		ASCIZ	"*** Timesharing "]
+	PUSHJ	P,OUTSTR	;Print string on terminal
+	MOVE	T2,KSYMSG	;Get main message.
+	PUSHJ	P,OUTSTR	;Print it.
+	MOVEI	T2,[
+		ASCIZ	" *****"]
+	PUSHJ	P,OUTSTR	;Print final part.
+	PUSHJ	P,TTYFORCE	;Force out TTY buffers
+	SETZM	KSYMSG		;We did it now, don't do it again.
+	POPJ	P,		;Return to caller.
+>;End IFN F$KSYS
+SUBTTL  Attach/detach trap
+
+ATTDET:	SKIPGE	VECDAT+.PSVIS		;Look if it was a detach
+	 JRST	ATTDE2			; It was
+	MOVEM	17,SAVEB2+17		;Save AC 17
+	MOVEI	17,SAVEB2
+	BLT	17,SAVEB2+16		;Save the rest
+	MOVE	15,PDLP2		;Get new AC 15
+	DMOVE	16,PDLP2+1		;Get new AC 16 & 17
+	movei	t1,.todsp
+	movei	t3,msgatt
+	pushj	p,dtrmop
+	 jfcl
+	CALL	MONITOR			;Go to operating system
+	SETZM	DTACHD
+	SKIPE	PUSHED			;Are we pushed?
+	 JRST	ATTDE1			; Yep, don't refresh screen.
+	PUSH	P,1(P)		;ADJSP P,1
+	CALL	WINREFRESH##		;Restore jumbled screen
+	CALL	WINUPDATE##		;Allow updating...
+	POP	P,(P)		;ADJSP P,-1
+ATTDE1:	HRLZI	17,SAVEB2
+	BLT	17,17
+	JRST	INTEND
+
+ATTDE2:	SETOM	DTACHD			;We are detached now
+	CLRBFO				;Clear output buffer
+	JRST	INTEND			;Dismiss!
+SUBTTL  Internal error messages.
+
+MSGATT:	BYTE(7)	.CHCRT,"Y","o","u"," "
+	ASCIZ	"have attached a job running AMIS.
+Type 'CONTINUE' to resume editing."
+
+MSGNMM:	BYTE(7)	.CHCRT,"S","o","r","r"
+	ASCIZ	"y, I can't work in monitor mode"
+SUBTTL  Other interrupt routines
+
+timint:	setom	timflg		;Just flag timer interrupt.
+
+tlx:	jrst	intend		;Ignore time limit exceeded
+
+CROSS:	movem	t1,savcrs	;Save T1.
+	HRRZ	T1,VECJBI+.PSVIS
+	CAIE	T1,'POP'
+	 jrst	crosse
+	MOVEI	T1,PTY		;Get PTY channel
+	JOBSTS	T1,		;Get job status for subjob
+	 JRST	CROSSE		; Error, ignore pop request
+	HRL	T1,T1		;Move job # to left half word
+	HRRI	T1,'POP'	;Get function code
+	CAMN	T1,VECJBI+.PSVIS ;Interrupted by our own subjob?
+	 SETZM	PUSHED		; Yes, not pushed any more
+CROSSE:	move	t1,savcrs	;Restore T1
+INTEND:	movem	t1,hibloc	;Save t1.
+	movx	t1,<jfcl>	;Load instruction.
+	exch	t1,hibloc	;Restore t1, set up hiber location.
+	debrk.
+	 jfcl
+PISYSE:	MOVEI	T2,[ASCIZ "TTYIO: Some PISYS function failed."]
+	JRST	BUG
+SUBTTL  Some internal I/O routines
+
+OUTNUM:	MOVE	T7,T2			;Move number to T7
+OUTNU2:	IDIV	T7,T3			;The standard recursive
+	PUSH	P,T7+1			; number printing routine.
+	SKIPE	T7
+	 CALL	OUTNU2
+	POP	P,T2
+	ADDI	T2,"0"
+	JRST	TTYWRITE
+
+OUTSIX:	DMOVE	T6,T2			;Get words into T6 & T7
+OUTSI1:	LDB	T2,[			;Get first sixbit char
+		POINT ^D6,T6,^D5]
+	ADDI	T2,"A"-'A'		;Make it ascii
+	CALL	TTYWRITE
+	LSHC	T6,6			;Shift both T6 and T7
+	JUMPN	T6,OUTSI1		;Loop back if any of them
+	JUMPN	T7,OUTSI1		; is non-zero
+	POPJ	P,
+SUBTTL  Low segment data areas
+
+XLIST
+LIT
+LIST
+
+RELOC	0			;Put data in low segment
+
+VECTOR:				;Start of PSI vector here
+VECTIM:	EXP	TIMINT		;Slot for timer interrupts.
+	BLOCK	3
+VECDAT:	EXP	ATTDET		;Slot for attach/detach
+	BLOCK	3
+VECJBI:	EXP	CROSS		;Slot for cross job interrupts
+	BLOCK	3
+VECRID:	EXP	INDONE		;Slot for input done
+	BLOCK	3
+VECPID:	EXP	PTYDON		;Slot for PTY input done
+	BLOCK	3
+VECTLE:	EXP	TLX		;Slot for time limit exceeded
+	BLOCK	3
+IFN F$KSYS,<
+VECKSY:	EXP	KSYS		;Slot for KSYS warnings.
+	BLOCK	3
+>;End IFN F$KSYS
+VECEND:				;End of PSI vector here
+
+ACTSTR:	BLOCK	1		;Pointer to activation string
+BRKCHR:	BLOCK	1		;Break char, when pushing
+CCCNT:	BLOCK	1		;^C counter
+CCDONE:	BLOCK	1		;Non-zero means inhibited ^C trap
+				; should be served
+DEASTR:	BLOCK	1		;Pointer to deactivation string
+DTACHD:	BLOCK	1		;Detach flag (set if job is detached)
+FUDGEF:	BLOCK	1		;Fudge factor
+HACKER:	BLOCK	1		;Flag for hackmatic terminal
+HIBLOC:	SLEEP	T2,		;Instruction to execute for sleeping.
+INHIBIT:BLOCK	1		;Non-zero means inhibit ^C exits from
+				; interrupt level
+INSAVE:	BLOCK	1		;Save T1 here when input done interrupt
+IFN F$KSYS,<
+KSYMSG:	BLOCK	1		;Pointer to KSYS message to print sometime.
+KSYSAV:	BLOCK	3		;Place to save T1-T3 when checking KSYS.
+>;End of IFN F$KSYS
+PUSHED:	BLOCK	1		;If we are pushed or not
+PTYFLG:	BLOCK	1		;PTY has data ready.
+
+TIMFLG:	BLOCK	1		;Timer interrupt flag.
+
+;Various terminal parameters, set up mainly by TTYINIT.
+
+ttname:	block	1		;Holds terminal name, in sixbit.
+tttype:	block	1		;Holds terminal type.  (.TOTRM)
+ttdefr:	block	1		;Holds terminal defer flag.  (.TODEM)
+tttab:	block	1		;Holds terminal tabs flag.  (.TOTAB)
+ttform:	block	1		;Holds terminal form flag.  (.TOFRM)
+ttudx:	block	1		;Holds UDX for TTY:
+ttflow:	block	1		;Pref. xonxoff state inside editor.
+ttpage:	block	1		;Pref. xonxoff state outside editor.
+
+TTOBUF:	BLOCK	3			;Terminal output buffer header
+TOBUF1:	BLOCK	3+BUFSIZ
+TOBUF2:	BLOCK	3+BUFSIZ
+
+TTIBUF:	BLOCK	3			;Terminal input buffer header
+TIBUF1:	BLOCK	3+BUFSIZ
+TIBUF2:	BLOCK	3+BUFSIZ
+
+PTOBUF:	BLOCK	3			;PTY output buffer header
+POBUF1:	BLOCK	3+BUFSIZ
+POBUF2:	BLOCK	3+BUFSIZ
+
+PTIBUF:	BLOCK	3			;PTY input buffer header
+PIBUF1:	BLOCK	3+BUFSIZ
+PIBUF2:	BLOCK	3+BUFSIZ
+
+CHRCNT:	BLOCK	1			;# of internally bufferd characters
+CHREMP:	BLOCK	1			;# of empty positions in tah buffer
+CHRGET:	BLOCK	1			;Wrap counter for get pointer
+CHRPUT:	BLOCK	1			;Wrap counter for put pointer
+TAHGET:	BLOCK	1			;Current get pointer
+TAHPUT:	BLOCK	1			;Current put pointer
+TAHPTR:	POINT	^D8,TAHBUF		;Pure pointer to type ahead buffer
+TAHBUF:	BLOCK	<TAHSIZ+^D3>/^D4	;Internal type ahead buffer
+
+savttp:	block	1
+savcnt:	block	1
+savnum:	block	1
+savttl:	block	<savlen==100>
+
+SAVEB2:	BLOCK	20
+savcrs:	block	1		;Save T1 here on cross job interrupt.
+PDLP2:	EXP	PDL2+PDLLEN-10
+	XWD	PDL2,PDL2
+	XWD	400K,PDL2+1
+PDL2:	BLOCK	PDLLEN
+
+END

@@ -1,0 +1,12 @@
+.; Load AMIS (Production version)
+.; B is the edit number for the PREVIOUS edit of AMIS.
+.let %B=%753
+.let %B=%B+%1
+.r teco				;Update the edit number.
+*ebamisp.mic[10,335,AMIS]/inplaceaas.let %B=ki%'B
+ex
+.r link
+*AMIS.EXE/SSave = /Set:.HIGH.:600000
+*TTYIO.REL, ROOT.REL, MAIN.REL, UTILIT.REL, INPUT.REL, BUFFER.REL, -
+*MBUF.REL, SCREEN.REL, TERM.REL, DSKIO.REL, SEARCH.REL, POM.REL -
+*/Version:1C('B)-5/Go

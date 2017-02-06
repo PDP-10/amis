@@ -1,0 +1,102 @@
+	TITLE	POM - Phase Of the Moon routine for AMIS
+
+DEFINE	gtad	; Define the GTAD JSYS as a macro under Bottoms-10
+	PUSHJ	P,.gtad
+TERMIN
+
+a=1
+b=2
+c=3
+d=4
+e=5
+pomptr=6
+p=17
+
+call=PUSHJ P,
+strsize=40
+	.GLOBAL	getpom
+	.DECTW
+.qmtch==1
+
+; The following routine was extracted from ITS TECO for Twenex
+; by L-H "Krsna" Eriksson.
+
+; Type out phase of the moon
+pom:	GTAD
+	SUB	A,synofs		; Offset to nearest new moon to day 0
+	IDIV	A,synp			; Divide into quarter periods
+	ANDI	A,3			; Get period
+	MOVEI	A,phsnms(A)
+	CALL	ascind			; Type its name
+	MULI	B,24.*60.*60.		; Convert to seconds
+	LSH	C,1			; Flush duplicate sign bit
+	LSHC	B,17.			; Get one word product
+	MOVEI	E,tdhmst
+tdhms1:	IDIVI	B,@(E)
+	JUMPE	B,tdhms2
+	HRLM	C,(P)
+	CALL	[AOJA E,tdhms1]		; Increment and recurse
+	HLRZ	C,(P)
+tdhms2:	CALL	dpt			; Type it in decimal
+	HLLZ	A,(E)
+	SOJA	E,sixin1		; Back up, type and return
+; Use some other output routine, such as sixnty or ascind.
+
+phsnms:	ASCII	/NM+/
+	ASCII	/FQ+/
+	ASCII	/FM+/
+	ASCII	/LQ+/
+
+tdhmst:	SIXBIT	/S./+60.
+	SIXBIT	/M./+60.
+	SIXBIT	/H./+24.
+	SIXBIT	/D./+<,-1>
+
+synp:	<29.53059&<777,,-1>>_-6		; Length of quarter in GTAD units
+synofs:	22,,253553			; 18 days and a bit
+
+; End of code copied from ITS TECO
+
+; To get the date in GTAD format, we do a GETTAB.
+
+.gtad:	MOVE	1,[%CNDTM]
+	GETTAB	1,		; Get time and date in universal format.
+	 JFCL
+	POPJ	P,		; return.
+
+; The following routines are used by POM to return its results.
+
+ascind:	HRLI	A,440700		; Make a byte pointer
+	ILDB	A-1,A			; Get a byte
+	JUMPN	A-1,[			; Quit if all done
+		IDPB	A-1,pomptr	; Dump it
+		JRST	ascind+1]	; ..and loop a bit
+	POPJ	P,
+
+sixin1:	SETZ	A-1,			; Zero character ac
+	LSHC	A-1,6			; Get 1st SIXBIT character
+	JUMPN	A-1,[			; Quit if all done
+		ADDI	A-1," "		; Make it ASCII
+		IDPB	A-1,pomptr	; Dump it
+		JRST	sixin1]		; ..and loop a bit.
+	POPJ	P,
+
+dpt:	IDIVI	C,12			; Extract last digit
+	HRLM	D,(P)			; A hack.
+	SKIPE	C			; Done?
+	 CALL	dpt			; Recurse
+	HLRZ	D,(P)			; Another hack
+	ADDI	D,"0"			; Make a digit
+	IDPB	D,pomptr		; Dump it
+	POPJ	P,			; ..and return
+
+getpom:	MOVE	pomptr,2		; Get string pointer from PASCAL
+	HRLI	2,[.BYTE 7	
+		REPEAT STRSIZE,[" "
+]
+		.BYTE]
+	BLT	2,<STRSIZE/5>-1(pomptr)	; Blank out the string
+	HRLI	pomptr,440700		; Make a byte pointer
+	JRST	pom			; Call the ITS POM routine
+
+	END

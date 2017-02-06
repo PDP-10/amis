@@ -1,0 +1,308 @@
+title	amis
+search	jobdat,uuosym
+extern	main,bug
+entry	amis,catch,throw,new,free,corerr,offset
+
+ifndef cdebug,<cdebug==0>	;Track core usage.
+ifndef cdblen,<cdblen==^D20>	;... for these block sizes.
+
+t0=0				; temporary accumulators
+t1=1
+a1=2				; arguments to procedures
+a2=3
+a3=4
+a4=5
+a5=6
+a6=7
+fp=15				; frame pointer
+np=16				; new pointer which holds top of stack
+sp=17				; stack pointer
+
+false=0				; representation of false
+true=1				; representation of true
+nil=0				; representation of nil
+
+loc	.jbren			; start address for reenter command
+exp	amis
+
+twoseg	400000			; start of reentrant code
+
+;------------------------------------------------------------------------------
+; program amis;
+; main program written in assembly language
+;------------------------------------------------------------------------------
+
+amis:	tdza	a1,a1		; run entry
+	 movei	a1,1		; ccl entry
+	movem	a1,offset	; save run offset
+	skipn	total		; check if restart,
+	 jrst	amis.2		;  and skip once-only things if so.
+	reset			; reset world otherwise
+	movei	sp,stkblk+1	; Need stack for rrspar call.
+	skipn	offset		; If no run offset, -
+	 pushj	sp,rrspar##	;  rescan the command line.
+
+amis.2:	move	fp,[		; initialize pointer registers
+		xwd	stkblk,stkblk]
+	movei	np,stkend-1
+	move	sp,[
+		xwd	400000,stkblk+1]
+	move	a1,total	; get total initialization flag,
+	setzm	total		;  and clear it for restart
+	pushj	sp,main		; call main procedure
+	movei	a1,[		; main procedure may never terminate
+		asciz	"AMIS main loop terminated"]
+	pushj	sp,bug
+
+;------------------------------------------------------------------------------
+; procedure catch(ref catchblock: context);
+; saves context in catchblock
+; accumulators used: a1, a2
+;------------------------------------------------------------------------------
+
+context=a1			; address of catchblock
+
+catch:	caig	np,100(sp)	; check if we have enough stack
+	 pushj	sp,corerr	; no, so catching is meaningless
+	movem	np,0(context)	; save top of stack pointer
+	movem	fp,1(context)	; save frame pointer
+	movem	sp,2(context)	; save stack pointer
+	move	a2,0(sp)	; fetch return address,
+	hrlm	a2,0(context)	;  and save it in catchblock
+	movei	a2,false	; return false this time
+	movem	a2,1(sp)
+	popj	sp,
+
+;------------------------------------------------------------------------------
+; procedure throw(var Context: catchblock);
+; restores context from catchblock
+; accumulators used: a1, a2, np, fp, sp
+;------------------------------------------------------------------------------
+
+context=a1			; address of catchblock
+
+throw:	move	a2,0(sp)	; fetch program counter with status flags
+	hrrz	np,0(context)	; restore top of stack pointer
+	move	fp,1(context)	; restore frame pointer
+	move	sp,2(context)	; restore stack pointer
+	hlr	a2,0(context)	; restore old return address
+	 movem	a2,0(sp)	;  and save on stack
+	movei	a2,true		; return true this time
+	movem	a2,1(sp)
+	popj	sp,
+
+;------------------------------------------------------------------------------
+; procedure new(pointer: ^any data type);
+; implements the standard procedure new
+; length of data type comes in a1, address of allocated object is left in a1
+; ackumulator used: a1
+; accumulators saved before use: a2, a3, a4, a5, a6
+;------------------------------------------------------------------------------
+
+overhead=1			; one word memory manager overhead
+extra=2000			; allocate two extra memory pages
+
+length=a1			; length to allocate
+this=a2				; block which we are trying to allocate
+pred=a3				; that block's predecessor in linked list
+succ=a4				; that block's successor in linked list
+
+new:	jumple	a2,[
+		movei	a1,[
+			asciz	"New: Allocating 0 or negative length"]
+		pushj	sp,bug]
+ifn cdebug,<
+	caig	a2,cdblen	;In range?
+	 aos	cortab(a2)	; Yes, count this block.
+	cain	a2,200		;Text chunk?
+	 aos	cortab		; Yes, count it.
+>;ifn cdebug
+	push	sp,this		; saving accumulators is neccessary, since
+	push	sp,pred		;  this is a runtime system routine
+	push	sp,succ
+	push	sp,a5
+	push	sp,a6
+	move	length,a2	;*** STUPID GERMANS THAT CHANGE REGISTERS ***
+	movei	pred,freelist	; start with pointer to pointer to free list
+newloop:hrrz	this,(pred)	; scan the free list for nil, which means that
+	cain	this,nil	;  we have reached the end of the free list
+	 jrst	newzero		;  without finding an appropriate chunk,
+	hlrz	a5,(this)	;  or a chunk which is long enough to keep the
+	cail	a5,overhead(length);  data type plus the memory manager's
+	 jrst	newtwo		;  overhead
+	move	pred,this
+	jrst	newloop
+newzero:move	this,.jbff	; we didn't find an appropriate chunk, so we
+	move	a5,this		;  have to reserve some memory after the last
+	addi	a5,overhead(length);  allocated chunk
+	hrrz	a6,.jbrel	; do we have to ask the operating system for
+	cail	a6,-1(a5)	;  more memory?
+	 jrst	newmos		; no, we already have that much memory
+	movei	a6,extra-1(a5)	; yes, try to allocate some extra memory at
+	core	a6,		;  the same time
+	 skipa			; did operating system give us extra memory?
+	  jrst	newmos		; yes, go on
+	movei	a6,-1(a5)	; no, try to allocate just as much as we need
+	core	a6,
+	 skipa			; successfull this time?
+	  jrst	newmos		; yes, go on
+	movei	a1,[		; no, go print error message
+		ascii	"URK? Buffer Space Exhausted             "]
+	jrst	error##		; *** try to do something smarter here ***
+newmos:	movei	a6,overhead(length); set up chunk length in overhead word
+	movsm	a6,(this)
+	movem	a5,.jbff	; update address of first free location
+	hrlm	a5,.jbsa
+	jrst	newret
+newtwo:	hlrz	a5,(this)	; we found a chunk, now check if we can split
+	caig	a5,2*overhead(length);  it into two parts
+	 jrst	newone		; too short, don't split it
+	move	succ,this	; long enough, calculate start address of 2nd
+	addi	succ,overhead(length);  part
+	subi	a5,overhead(length); calculate length of 2nd part and store
+	hrl	a5,(this)	;  length and pointer in overhead word of 2nd
+	movsm	a5,(succ)	;  part
+	movei	a5,overhead(length); change length of 1st part
+	hrlm	a5,(this)
+	hrrm	succ,(pred)	; finally remove 1st part from free list
+	jrst	newret
+newone:	hrrz	succ,(this)	; remove unsplit chunk from free list
+	hrrm	succ,(pred)
+newret:	movei	a1,overhead(this); return address of first word after overhead
+	pop	sp,a6		; restoring accumulators is also neccessary
+	pop	sp,a5
+	pop	sp,succ
+	pop	sp,pred
+	pop	sp,this
+	popj	sp,
+
+;------------------------------------------------------------------------------
+; procedure free(pointer: ^any data type);
+; implements the standard procedure dispose
+; address of object to deallocate comes in t0 and length in t1
+; accumulators saved before use: a1, a2, a3, a4
+;------------------------------------------------------------------------------
+
+overhead=1			; one word memory manager overhead
+keep=1000			; keep spare memory if less than one page
+
+this=a1				; block which we are about to deallocate
+pred=a2				; that block's predecessor in linked list
+succ=a3				; that block's successor in linked list
+
+free:	jumpe	a1,[		; address must not be zero or nil
+		movei	a1,[
+			asciz	"Dispose: Deallocating 0 or NIL"]
+		pushj	sp,bug]
+ifn cdebug,<
+	caig	a2,cdblen	;In range?
+	 sos	cortab(a2)	; Yes, discount this block.
+	cain	a2,200		;Text chunk?
+	 sos	cortab		; Yes, discount it.
+>;ifn cdebug
+	dmove	t0,a1		;*** STUPID GERMANS ***
+	move	this,t0
+	push	sp,this		; saving accumulators is neccessary, since
+	push	sp,pred		;  this is a runtime system routine
+	push	sp,succ
+	push	sp,a4
+	movei	pred,freelist	; start with pointer to pointer to free list
+	movei	this,-overhead(this); point to memory manager data instead
+disloop:hrrz	succ,(pred)	; scan the free list for nil, which means that
+	caie	succ,nil	;  we reached the end of the free list, or a
+	 caml	succ,this	;  higher address, which means that we shall
+	  jrst	dispred		;  insert this chunk there
+	hrlz	pred,pred
+	hrr	pred,succ
+	jrst	disloop
+dispred:camn	succ,this	; chunk addresses must not be equal
+	 jrst[	movei	a1,[
+			asciz	"Dispose: Deallocating object twice"]
+		pushj	sp,bug]
+	hlrz	a4,(pred)	; see if this chunk starts at the same address
+	addi	a4,(pred)	;  as the previous one ends at
+	came	a4,this
+	 jrst	disinto		; it doesn't, go insert it into list
+	hllz	a4,(this)	; it does, concatenate the two adjancent chunks
+	addm	a4,(pred)	;  by increasing the size of the first one
+	hrrz	this,pred	; back up pointers for further calculations
+	hlrz	pred,pred
+	jrst	dissucc
+disinto:hrrm	succ,(this)	; not adjancent, so just insert this chunk into
+	hrrm	this,(pred)	;  the free list
+dissucc:hlrz	a4,(this)	; see if this chunk ends at the same address
+	add	a4,this		;  as the next one starts at
+	came	a4,succ
+	 jrst	diszero		; it doesn't, go check if at end of memory
+	hrrz	a4,(succ)	; it does, concatenate the two adjancent chunks
+	hrrm	a4,(this)	;  by moving a pointer and increasing the size
+	hllz	a4,(succ)	;  of the first one
+	addm	a4,(this)
+	jrst	disret
+diszero:came	a4,.jbff	; is this the last allocated chunk in memory?
+	 jrst	disret		; no, so there's nothing more to do
+	movei	a4,nil		; yes, discard this chunk from the free list
+	hrrm	a4,(pred)	;  and try to deallocate some memory
+	movem	this,.jbff
+	hrlm	this,.jbsa
+	andi	this,777000
+	hrrz	a4,.jbrel
+	caige	this,1-1000-keep(a4)
+	 core	this,
+	  jfcl
+disret:	pop	sp,a4		; restoring accumulators is also neccessary
+	pop	sp,succ
+	pop	sp,pred
+	pop	sp,this
+	popj	sp,
+
+;------------------------------------------------------------------------------
+; procedure corerr;
+; implements the runtime system routine for stack overflow
+; accumulators used: a1, np, fp, sp
+;------------------------------------------------------------------------------
+
+corerr:	caie	np,stkend-1	; executing on normal stack?
+	 jrst	corbug		; no, hard bug
+	movei	np,sofend-1	; initialize pointer registers
+	move	fp,[
+		xwd	sofblk,sofblk]
+	move	sp,[
+		xwd	400000,sofblk+1]
+	movei	a1,[		; get error message string address
+		ascii	"SOF? Stack Overflow                     "]
+	pushj	sp,error	; soft error
+corbug:	movei	a1,[		; hard stack overflow detected
+		asciz	"Stack Overflow"]
+	pushj	sp,bug
+
+seterr::
+inxerr::
+srerr::	movei	a1,[		; These routines shall not be used anyway...
+		asciz	"Horrendeous system error"]
+	pushj	sp,bug
+
+
+bittb.::i==0
+repeat	^D36,<
+	exp	1B<i>
+	i==i+1
+>;End of bit table.
+
+lit				; put literals in reentrant segment
+reloc				; start of non reentrant data area
+
+ifn cdebug,<			; Count use of core blocks:
+cortab:	exp	0		; Text chunks.
+	repeat cdblen,<exp 0>	; Blocks 1..cdblen words.
+>;ifn cdebug
+
+total: exp	1		; total initialization flag is true initially
+offset:	block	1		; run offset stored here
+freelist: xwd	0,nil		; pointer to first element in free list
+stkblk:	block	1000		; runtime stack
+stkend:				; end of runtime stack
+sofblk:	block	100		; stack overflow stack
+sofend:				; end of stack overflow stack
+
+end	amis

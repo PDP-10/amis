@@ -1,0 +1,276 @@
+
+
+
+				MAKTRM
+
+
+
+1.  INTRODUCTION:
+
+	MAKTRM is a program which compresses a terminal description
+	into a compact form understandable to the screen editor AMIS.
+
+2.  EXAMPLE:
+
+	Let's assume you want AMIS to leave your VT100 terminal in Soft
+	Scroll Mode when you exit from editing.  To achieve this, you
+	must first create a file containing a full description of your
+	terminal.  Let's say you have done this, and the description
+	file VT100.DEC now exists.  Now run the MAKTRM program and
+	answer its questions concerning input and output according to
+	the following dialogue:
+
+		.R PUB:MAKTRM
+
+		Input file /AMIS.DEC/ : VT100.DEC
+		Output file /AMIS.TRM/ : AMIS.TRM
+		Processing VT100
+
+		EXIT
+
+	The first two lines are MAKTRM's query about names for input
+	and output files, respectively.  Carriage return only gives the
+	default file name.  (Note that AMIS requires its compact
+	description file to be named AMIS.TRM).  Then follows one line
+	for each terminal processed, just as a progress report.
+
+
+3. TERMINAL CONSTRAINTS:
+	
+	In order to use AMIS, your terminal must meet the following
+	requirements :
+
+     a) Cursor functions: The cursor must be able to move up, down,
+	left, right and 'home' - i.e. the topmost left-hand corner - on
+	the screen. Also, when a character is written, it must replace
+	the character which was previously in that position, and the
+	cursor must then move one step forward.
+
+     b)	Clearing function: It must be possible to wipe the screen of
+	all its current contents.
+	
+
+4.  INPUT FILE FORMAT:
+
+	Your input file to the MAKTRM program should define your
+	terminal according to the pattern shown below. Note that you
+	have to type out all the headings in full, up to the colon
+	character; MAKTRM as yet has no recognition function.
+	
+	Some of the various headings below take a string of characters
+	for their argument; others will take a numeral, others again
+	will take a simple 'yes' or 'no'. A string may consist of any
+	character or characters (unless otherwise specified) - such as
+	words or letters within double quotes (" and "), CTRL- characters,
+	or numerals. Thus, a CTRL-J might be entered as ^j or as its
+	corresponding numerical ASCII code: 10 (decimal), %12 (octal),
+	or #A (hexadecimal).
+
+	Cursor operations: Each cursor operation should be given as a
+	string of 1 to 10 characters, defining whatever function will
+	cause the cursor on your particular terminal to move in the
+	manner indicated by the operation.	
+	
+	In addition to the above, the following logical names exist and
+	may as such be part of strings without being surrounded by
+	double quotes:
+
+	Backspace	Bell		Blank		 Delete
+	Escape		FormFeed	LineFeed	 Return
+	Rubout (= Delete)  		Space (= Blank)  Tab
+
+	These are the items you can specify:
+	---------------------------------------
+	
+	Terminal Name:	The designation of your terminal, given
+			as a string of 1 - 6 characters (e.g. the
+			name typed within double quotes) excluding
+			CTRL-characters. 
+	
+	Cursor Up:	Move the cursor one line straight up.
+
+	Cursor Down:	Move the cursor one line straight down.
+
+	Cursor Left:	Move the cursor one step (one character width)
+			to the left.
+
+	Cursor Right:	Same thing but in the other direction. 
+
+	Cursor Home:	Place the cursor at its normal starting point:
+			the topmost left-hand corner of the screen.
+
+	Erase from Cursor to End of Line:
+		 	Erase the rest of the current line.
+
+	Time Needed for Erasing to End Of Line:
+			Number of milliseconds to send fillers after
+			erasing to end of line.
+
+	Clear Screen:	Blank the entire screen.
+
+	Time Needed to Clear Screen:
+			Number of milliseconds to send fillers after
+			clearing the screen.
+
+	DCA Lead In String:
+			The characters starting direct cursor addressing.
+
+	DCA Intermediate String:
+			Characters to send between row and column.
+
+	DCA Trailing String:
+			Characters to terminate addressing with.
+
+	DCA Coordinates Decimal:
+			YES if row and column should be given as decimal
+			numbers, NO if they should be send as characters.
+			The default is NO.
+
+	DCA Column First:
+			YES if the column should be sent first.
+
+	DCA Row Offset:
+	DCA Column Offset:
+			What offset to add to row and column addresses.
+
+	DCA Row Negate:
+	DCA Column Negate:
+			YES if row or coulmn should be negated before
+			adding the offset.  The default is NO.
+
+	DCA Exception Begin:
+	DCA Exception End:
+	DCA Exception Offset:
+			Some terminals does have different column offsets
+			for different columns.  Therefore, a method to
+			specify a range with different column offset.
+
+	CR Goes To Left Margin:
+			YES if a a single Carriage Return puts the cursor
+			at the leftmost position on the current line, NO
+			if it does something else.  The default is YES.
+
+	VT100 Region Scroll:
+			YES if the terminal supports VT100-style region
+			scroll operations, NO otherwise.
+
+	Insert Line:
+	Delete Line:	Characters to Insert or Delete one line.
+
+	Time Needed to Insert/Delete Line:
+			Number of milliseconds to send fillers after
+			an Insert Line or Delete Line.
+
+	Terminal Initialization String:
+			String of 1 - 40 characters.
+
+	Terminal Deactivation String:
+			String of 1 - 40 characters.
+
+	Terminal Width:	Integer denoting character positions.
+			(Default is 80 character widths.)
+
+	Terminal Page Length:	
+			Integer denoting lines. (Default is
+			24 lines.)
+
+	Fixed Tab Stops Every 8 Columns:
+			YES or NO.  Default is NO.
+
+	Wrap Around From Last Column:
+			Tell what action the terminal takes after writing
+			a character at the rightmost position in a line.
+			YES says that the terminal moves the cursor to the
+			beginning of the next line.
+			NO says that the cursor stays at the same position.
+			UNKNOWN (the default) says that the behavour is
+			indeterminate.  This will cause a direct addressing
+			each time something is written in the last column,
+			to make sure the position is correct.
+
+	Fill Character:	
+			Serves to 'fill out' the communication
+			line to the computer, in order to let the
+			terminal catch up, if it's slower than
+			the connection. A Filler Char. should
+			be given as a string of one character,
+			preferably a character which is ignored by
+			your terminal. 
+
+
+	The following operations are not yet used by AMIS:
+
+********************************
+*
+*	Insert Character Mode ON:
+*	Insert Character Mode OFF: 
+*	Delete character:
+*	Time Needed to Insert/Delete Character:
+*	Highlight Mode ON:	
+*	Highlight Mode OFF:	
+*
+********************************
+
+	As an example, here is how you might define a VT100 terminal
+	that preserves Soft Scroll on exit: (Note that it is perfectly
+	possible to write comments in your definition - anything
+	following a semicolon character (;) on the line is ignored by
+	the program.)
+
+	Terminal Name: "VT100"
+	Cursor up: Escape "[A"
+	Cursor down: ^J
+	Cursor left: ^H
+	Cursor right: Escape "[C"
+	Cursor home: Escape "[H"
+	Erase from cursor to end of line: Escape "[K"
+	Home and Clear Screen:
+			Escape "[H" -	;First goto home
+			Escape "[J"	;Then clear to end-of-screen
+	Time needed to clear screen: 100
+	DCA Lead In String: Escape "["
+	DCA Intermediate String: ";"
+	DCA Trailing String: "H"
+	DCA Coordinates Decimal: Yes
+	DCA Column First: No
+	DCA Column Offset: 1
+	DCA Row Offset: 1
+	Time needed to insert/delete line: 15
+	Region scroll algorithm: 5	;Standard VT100 region scroll
+	Highlight mode ON: Escape "[7m"	;Select reverse video
+	Highlight mode OFF: Escape "[m"	;Reset all video attributes
+	Terminal initialization string: -
+		Escape "<" -	;Set terminal in ANSI mode, then
+		Escape "[?4l" -	;Select jump scroll
+		Escape "=" -	;Enter alternate keypad mode
+		Escape "[?1h" -	;Cursor application
+		Escape "[?6l" -	;Select absolute origin
+		Escape "[r"	;And finally, reset scrolling region.
+	Terminal deactivation string: -
+		Escape ">" -	;Exit alternate keypad mode
+		Escape "[?1l" -	;Cursor key
+		Escape "[?4h"	;Select soft scroll
+	Terminal width: 80
+	Terminal page length: 24
+	Fixed tab stops every 8 columns: No
+	Wrap around from last column: Yes
+	Fill character: Rubout
+
+5.  OUTPUT FILE FORMAT:
+
+	Not readable by humans.
+
+
+6.  KNOWN BUGS AND RESTRICTIONS:
+
+	6.1  If you give a terminal name consisting of more than six
+	     characters, AMIS will not be able to understand the
+	     output file.
+
+	6.2  Integer values (such as timing constants) must not be left
+	     blank; that is, if your terminal description contains a
+	     line whose value is an integer, this value must not be
+	     omitted.
+
+  			[End of MAKTRM.MAN]
+

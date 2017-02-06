@@ -1,0 +1,2147 @@
+	A M I S   E D I T   H I S T O R Y		 -*- Text -*-
+	---------------------------------
+
+1988-02-19 15:08:47 Edit 753, by Johnny & Stellan.
+	TERM had an interesting bug: In routine TrmOut, the call
+	to TrmPos had its arguments swapped.  This crashed AMIS
+	if you were on a terminal with more lines than columns,
+	and the wraparound behaviour was unknown.  Some cretin
+	just happened to ...
+
+	Module: TERM.PAS
+
+1988-02-13 22:44:02 Edit 752, by Johnny.
+	Have ^R Tab to Tab Stop take arguments.
+
+	Module: MAIN.PAS
+
+1988-02-09 13:00:18 Edit 751, by Johnny.
+	Let files with extension .RFC have Text Mode by default.
+
+	Module: DSKIO.MAC
+
+1988-01-07 02:36:14 Edit 750, by Johnny.
+	On tops-10, have Date Edit insert the node name too, if there
+	is room in the file name string.
+
+	Module: DSKIO.MAC (Yeach)
+
+1988-01-01 12:46:50 Edit 747, by Johnny.
+	Fix Find File to create a good buffer name even if the file
+	did not exist.  Let BUFFER have an unpacked copy of the eol
+	string, for speed.  Start to implement personal flag 3, for
+	^J display control.  (Not yet working good, though).  Finally
+	for Tops-10, fix a race in TTYIO, and run the mode line clock
+	with timer interrupts.
+
+	Modules: MAIN, BUFFER, SCREEN, TTYIO.
+
+1987-11-16 16:22:56 Edit 746, by Johnny.
+	Changed second argument for DskOpen from integer to
+	mnemonic char.  Also implemented the function Set Flags,
+	along with code to select old (EMACS) or new (GnuMACS)
+	style window handling, ability to shut off terminal
+	beeping, and ability to select case-sensitive searching.
+
+	Modules: MAIN, BUFFER, SCREEN, DSKIO, TERM.
+
+1987-09-19 21:20:49 Edit 745, by Johnny.
+	Clean up of code and comments.
+	Modules: MAIN, SEARCH, UTILITY, BUFFER.
+
+1987-09-17 01:10:26 Edit 744, by Johnny.
+	Fix all errors to conform with "XXX? Message" format.
+	Also increase VMS keyboard macros to 200 chars.
+	Modules: MAIN, INPUT, UTILITY.
+
+1987-09-16 20:46:00 Edit 743, by Johnny.
+	Change second arg to TrueName from integer (bit map)
+	to char, this being somewhat more mnemonic.
+	Have SCREEN remember first character of eol sequence,
+	to prevent lots of calls to AtEol.  This seems to
+	take out 50-75% of them.
+	Modules: MAIN, SCREEN, DSKIO.
+
+1987-09-16 18:14:41 Edit 742, by Johnny.
+	Make List Files with an argument put the list in
+	the buffer instead of on the screen.
+	Also a couple of patches for TTYIO (tops-10) to
+	prevent ?Address check ... bugs on restart/continue.
+	Modules: MAIN, TTYIO.
+
+1987-09-11 23:42:43 Edit 741, by Johnny.
+	Designed interface for "List Files" function, and
+	installed common code for it in MAIN.  Tops-10 code
+	in DSKIO are dummies.
+	Modules: MAIN, DSKIO.
+
+1987-09-11 03:19:35 Edit 740, by Johnny.
+	Mapped five more functions on VT220 keyboard keys:
+	F6/ ^R Quit
+	F10/ ^R Exit
+	F12/ ^R Beginning of Line
+	F13/ ^R Backward Kill Word
+	F14/ Overwrite Mode
+	This makes AMIS version 1C(nn)-5.  Hold on...
+	Module: MAIN.PAS
+
+1987-09-10 23:35:39 Edit 737, by Johnny.
+	Implemented BLISS Mode.
+	Modules: MAIN, DSKIO.
+
+1987-09-10 17:37:16 Edit 736, by Johnny.
+	Fix C-Q to echo, and pass correct arguments for VT220
+	function keys.
+	Module: MAIN.PAS
+
+1987-09-09 16:36:55 Edit 735, by Johnny.
+	Seems like edit 723 or something broke Swedish mode
+	upper/lower character sets.  Fix the code.
+	Module: MAIN.PAS
+
+1987-09-09 11:42:40 Edit 734, by Johnny.
+	Installed mapping for CSI sequences from VT220 (equiv)
+	keybords.  Also moved some code around.
+	Modules: UTILITY, BUFFER, INPUT, MAIN, SEARCH.
+
+1987-09-06 04:05:01 Edit 733, by Johnny.
+	Ripped out, and replaced the automagical echoing system.
+	Also lots of other small changes.
+	Modules: *.PAS  (Mostly MAIN & BUFFER)
+
+1987-09-03 00:49:26 Edit 732, by Johnny.
+	Started to move code around to more logical places.
+	Modules: SCREEN, TERM, UTILIT, INPUT.
+
+1987-09-01 00:15:52 Edit 731, by Johnny, inspired by THN.
+	Implemented a check for modified buffer in ^R Visit File,
+	offers to save modified buffers.  Also ^R One Window now
+	keeps current window, instead of upper one.  Finally,
+	^R Two Windows opens another window into same buffer.
+	Module: MAIN.PAS
+
+1987-08-29 18:28:04 Edit 730, by Johnny.
+	Replaced routine TTYEIGHTBIT with TTYPRINTABLE, and
+	revamped the code slightly.  Also started to implement
+	table-driven SCREEN.
+	Modules: SCREEN, TERM, TTYIO.
+
+1987-08-27 20:59:39 Edit 727, by Johnny.
+	Increased dispatch tables from seven to eight bit characters.
+	Also undid edit 721, since it had undesireable side effects.
+	Modules: SCREEN.PAS, MAIN.PAS
+
+1987-08-22 00:39:29 Edit 726, by Johnny.
+	Modifications to show eight-bit characters on screen.
+	Modules: SCREEN.PAS, TERM.PAS, TTYIO.MAC
+
+1987-08-20 22:49:53 Edit 725, by Johnny.
+	Teached SEARCH that characters in the range 241..376
+	(octal) are printing.  Currently this edit is for VMS.
+	Module: SEARCH.PAS
+
+1987-08-20 17:43:42 Edit 724, by Johnny
+	Add preprocessor commands for Tops-10 too, and change
+	command files for Tops-10 generation.
+	Modules: *.PAS
+
+1987-08-19 23:44:33 Edit 723, by Johnny
+	Internal munging, to enable eight-bit character sets.
+	Changed TTYREAD interface, moved Up/DownCase to MAIN.
+	Modules: MAIN.PAS, INPUT.PAS, UTILITY.PAS, TTYIO.MAC
+
+1987-08-11 12:46:26 Edit 722, by Johnny   (PDP-10 version only)
+	Added code in DSKIO to rescan the command line, this
+	allows us to finally throw the old boot program in the
+	trash can, where it belongs.  
+	Modules: DSKIO.MAC, ROOT.MAC
+
+1987-06-10 08:45:40 Edit 721, by Johnny
+	C-M-V did not do the same as C-X o C-V C-X o, no good.
+	After inserting a call to WinPrelude somewhere, this seems
+	to work.
+	Module: SCREEN.PAS
+
+1987-06-07 00:08:40 Edit 720, by Johnny
+	Implemented Insert Buffer.  Also fix bug in QCopy routine.
+	Modules: MAIN.PAS, BUFFER.PAS
+
+1987-05-31 21:04:29 Edit 717, by Johnny & MOJ
+	Have Date Edit skip over -*- line, if there is any.
+	Module: MAIN.PAS
+
+1987-05-29 18:22:15 Edit 716, by Johnny
+	Remove calls to GetByte/PutByte, and do the code in-line.
+	Modules: BUFFER.PAS, MBUF.*
+
+1987-05-25 05:08:42 Edit 715, by Johnny   (PDP-10 version only)
+	Optimization of search routines in MBUF, searching now
+	takes only about 30-40% of the time it used to take.
+	Module: MBUF.MAC
+
+1987-05-17 20:21:12 Edit 714, by Johnny   (PDP-10 version only)
+	Implement /I, for handling the stupid I*M-PC format
+	of national characters.
+	Module: DSKIO.MAC
+
+1987-05-08 21:18:29 Edit 713, by Johnny   (PDP-10 version only)
+	Implement /8 for input files on Tops-10.  This will
+	convert the data from 8-bit to 7-bit format.
+	Module: DSKIO.MAC
+
+1987-04-16 00:28:37 Edit 712, by MOJ.
+	String constant in NotYetError contained a tab instead
+	of three spaces -- no good.
+	Module: MAIN.PAS
+
+1987-04-16 00:19:18 Edit 711, by Johnny & MOJ.
+	Change hardwired file spec for init file into call to
+	routine that does it in a system-specific way.  Also
+	add code for VMS file specs.
+	Modules: MAIN.PAS, UTILITY.PAS
+
+1987-03-06 23:37:33 Edit 710, by MOJ
+	VMS fixes ([global] declarations).  Also teach SCREEN
+	not to compare records directly.
+	Modules: TERM.PAS, MAIN.PAS, SCREEN.PAS, MBUF.PAS
+
+1987-03-06 21:44:22 Edit 707, by MOJ
+	VMS fixes and copyright notice for MAIN.  
+	Module: MAIN.PAS
+
+1987-03-06 18:53:01 Edit 706, by Johnny
+	Fix [global] declarations in BUFFER & SCREEN.
+	Remove stupid initprocedure from the UTILITY module.
+	Install copyright notice in all pascal modules, but MAIN.
+
+1987-03-05 21:42:54 Edit 705, by Johnny & MOJ.
+	Move declaration of variable "index" to proper scope level.
+	Ought to fix problem with MicroVAX.
+	Module: TERM.PAS
+
+1987-02-15 00:14:50 Edit 704, by Johnny
+	Make it even easier to move the sources to a VMS system.
+	Now everything should be handled with the following TECO
+	macro:  <fn(*@VMS:$^V$;n*)$;-2d>
+	Modules: *.PAS
+
+1987-02-13 22:34:37 Edit 703, by Johnny & MOJ.
+	Lobotomize the pascal compiler used on Tops-10, to change
+	"PROGRAM" to "MODULE" and "EXTERN" to "EXTERNAL".  Also
+	make all (*global*) comments into (*@VMS: [global] *) for
+	easier mechanic conversion by a simple-minded program.
+	Still some work left to do in MAIN, BUFFER & SCREEN though.
+	Modules: *.PAS
+
+1987-02-12 22:13:55 Edit 702, by Johnny
+	Kill Buffer could leave a dangling pointer to the buffer just
+	killed.  Answer:  zap the pointer when killing buffers.
+	Also fix the "last" bug with nullpadding of output buffers.
+	Module: MAIN.PAS & DSKIO.MAC
+
+1987-02-11 17:13:05 Edit 701, by Johnny
+	Clean up flag handling in TERM.  Also fix TTyType routine
+	to return its flag as a boolean instead of as an integer.
+	Module: TERM.PAS & TTYIO.MAC
+
+1987-02-10 23:19:07 Edit 700, by Johnny   (PDP-10 version only)
+	When writing files on TMP:, make sure the last word of the
+	file is padded with nulls.
+	Module: DSKIO.MAC
+
+1987-01-27 07:04:04 Edit 677, by Johnny
+	Remove "^R View two Windows", since it did not work too good.
+	Also GNUmacs does not have it...
+	Module: MAIN.PAS
+
+1987-01-27 05:49:53 Edit 676, by Johnny
+	Clean up buffer handling in MAIN.  Also remove unimplemented
+	function "^R Append to Buffer", since nobody asked for it and
+	nobody will ever implement it.
+	Module: MAIN.PAS
+
+1987-01-27 00:11:28 Edit 675, by Johnny
+	Have ReadDefault routine handle ^Y, with "expected" results.
+	Module: BUFFER.PAS & UTILITY.PAS
+
+1987-01-26 20:07:40 Edit 674, by Johnny   (PDP-10 version only)
+	Clean up TTYIO, regarding terminal features and flags.  Also
+	have the PUSH to EXEC code propagate more terminal settings
+	to the PTY.
+	Module: TTYIO.MAC
+
+1987-01-25 01:09:58 Edit 673, by Johnny
+	Have PASCAL Mode treat CONST, TYPE and VAR as BEGIN-class keywords.
+	Module: MAIN.PAS
+
+1987-01-17 13:20:40 Edit 672, by Johnny
+	Teach Find File always to create a new buffer when it is reading
+	in a file, instead of re-using any buffer it thinks is free to
+	use.  It happend to be wrong too often...
+	Module: MAIN.PAS
+
+1987-01-10 18:08:30 Edit 671, by Johnny
+	Teach Find File to name any created buffer to something sensible.
+	Module: MAIN.PAS, DSKIO.MAC
+
+1987-01-08 17:07:18 Edit 670, by Johnny
+	Finally installed KPJ's code for Kill Buffer.
+	Module: MAIN.PAS
+
+1986-12-22 01:06:23 Edit 667, by Johnny
+	More local/global stuff.
+	Module: INPUT.PAS
+
+1986-12-20 21:59:50 Edit 666, by Johnny
+	Fix ^R Center Line to leave dot at a sensible position, namely
+	at beginning of next line.  Also let it take arguments.
+	Module: MAIN.PAS
+
+1986-12-20 21:25:54 Edit 665, by Johnny
+	More local/global routine marking, and cleanup.
+	Module: SEARCH.PAS
+
+1986-12-17 02:50:17 Edit 664, by Johnny
+	More of edit 656.  (Mark routines LOCAL/GLOBAL).
+	Module: UTILITY.PAS
+
+1986-12-04 23:03:46 Edit 663, by Johnny
+	Fix indenting bug.  Keywords longer than 40 chars did
+	sometimes screw up the stack, because of missing range check.
+	Module: MAIN.PAS
+
+1986-12-03 21:03:26 Edit 662, by Johnny
+	Fix module interfaces, remove TRMHAS function.
+	Module: TERM.PAS & SCREEN.PAS
+
+1986-12-01 22:37:47 Edit 661, by Johnny
+	Fix interrupt handling to use only one level.
+	Module: TTYIO.MAC
+
+1986-12-01 20:43:24 Edit 660, by Johnny
+	Still more cleanup, and removal of redundant code.
+	Module: TERM.PAS
+
+1986-11-22 21:57:35 Edit 657, by Johnny
+	Clean up flag handing in terminal file reading routines.
+	Module: TERM.PAS
+
+1986-11-22 19:52:01 Edit 656, by Johnny
+	Started marking all global routines as such.  Also some
+	cosmetics.
+	Module: TERM.PAS
+
+1986-11-20 14:17:38 Edit 655, by Johnny
+	Run the chainsaw thru TERM, and removed the old-style
+	region scroll algorithm numbers, scroll is now defined
+	with a set of parameters resembling the new DCA handling.
+	Module: TERM.PAS
+
+1986-11-12 04:50:03 Edit 654, by Johnny
+	Implemented the function Connect to Directory.
+	Module: DSKIO.MAC & MAIN.PAS
+
+1986-11-10 22:58:44 Edit 653, by Johnny
+	Extend edit 650 with /Page:nn & /Line:nn.
+	Module: DSKIO.MAC & MAIN.PAS
+
+1986-10-15 16:58:05 Edit 652, by Johnny
+	Fix routine from edit 605 to use TRMOP. .TOFLOW instead
+	of kludge with TMP:XON to determine initial state of
+	XonXoff Mode.
+	Module: TTYIO.MAC
+
+1986-10-10 20:25:51 Edit 651, by Johnny
+	Edit 650 did not work when given as command line argument.
+	Module: MAIN.PAS
+
+1986-10-08 18:36:56 Edit 650, by Johnny
+	Implement /Char:nn switch on filenames, to automagically go
+	to position nn in buffer after file is read in.
+	Module: DSKIO.MAC & MAIN.PAS
+
+1986-08-22 21:48:20 Edit 647, by Johnny
+	Make ^R Indent for ADA handle the special cases "AND THEN",
+	"OR ELSE", "END CASE", "END LOOP" and "END SELECT".  Sigh...
+	Module: MAIN.PAS
+
+1986-08-20 21:25:48 Edit 646, by Johnny
+	Finally implement the table-driven indent/exdent handling
+	for block structured code.
+	Module: MAIN.PAS
+
+1986-08-18 21:23:36 Edit 645, by Johnny
+	Remove unused argument to routine "truename".
+	Module: DSKIO.MAC & MAIN.PAS
+
+1986-07-03 19:34:07 Edit 644, by Johnny
+	(Tops-10-specific)  Teach AMIS that the speed "Ext. A"
+	is equal to 19200 baude.
+	Module: TTYIO.MAC
+
+1986-06-23 19:23:44 Edit 643, by Johnny
+	Teach AMIS about extension .H, belonging to some kind of C
+	files.  (There is a bug, by the way, that -*- C -*- does
+	not work alone, but all other modes does.  Some fencepost
+	error, apparently.  Will eventually be fixed some day...)
+	Module: DSKIO.MAC
+
+1986-05-06 22:36:56 Edit 642, by Johnny
+	Give better error message when AMIS can't handle your temrinal
+	type, by building a list of supported terminals in core as we
+	scan the terminal definition files.
+	Modules: TERM.PAS, TTYIO.MAC
+
+1986-04-18 21:15:19 Edit 641, by Johnny
+	Removed a race from TTYFORCE.  (Topsy-specific)
+	Module: TTYIO.MAC
+
+1986-04-17 23:28:47 Edit 640, by Johnny
+	Try removing trailing junk from filename expansion, to
+	make it fit into 40 chars, and eliminate ?FSE errors
+	on C-X C-S & deep SFD nesting.  (Topsy-specific)
+	Module: DSKIO.MAC
+
+1986-01-10 23:18:25 Edit 637, by Johnny
+	Re-teach the intenting functions to back off the indentation
+	on certain keywords, if in certain modes.  (A bug must have
+	sneaked in at some time...)
+	Module: MAIN.PAS
+
+1985-12-12 17:49:42 Edit 636, by Johnny
+	Removed a bug from edit 632.
+	Module: TERM.PAS
+
+1985-12-08 14:30:01 Edit 635, by Johnny
+	Include handling of .RBVER in previous edit.
+	Module: DSKIO.MAC
+
+1985-12-07 22:26:19 Edit 634, by Johnny
+	Teach AMIS to try to preserve .RBSPL on output files.
+	Module: DSKIO.MAC
+
+1985-12-04 22:51:41 Edit 633, by Johnny
+	Cleanup some code used by Where Is.
+	Module: MAIN.PAS
+
+1985-11-29 06:38:48 Edit 632, by Johnny
+	Removed all old DCA algorithms.  Also do some general
+	code cleanup.
+	Module: TERM.PAS
+
+1985-11-26 05:56:09 Edit 631, by Johnny
+	More of edit 627.
+	Module: TERM.PAS
+
+1985-11-26 05:06:48 Edit 630, by Johnny.
+	Fixes to make AMIS run under 6.03A.  (Topsy-specific)
+	Module: TTYIO.MAC
+
+1985-11-25 07:22:06 Edit 627, by Johnny.
+	Clean up the code remaining from edit 625.
+	Module: TERM.PAS
+
+1985-11-25 07:12:56 Edit 626, by Johnny.
+	Try keep the core more together, by allocating cdc's (Yep,
+	they are called so) in clusters of about 30 at a time.
+	This ought to bring down the number of page faults to a
+	level one can accept.  See routine Newcdc.
+	Module: BUFFER.PAS
+
+1985-11-23 21:51:23 Edit 625, by Johnny.
+	Remove all built-in terminal types but VT100.  All terminals
+	should from now on go via system-wide AMIS.TRM file.
+	Module: TERM.PAS, TTYIO.MAC
+
+1985-11-23 19:39:10 Edit 624, by Johnny.
+	Fixes for terminal handling routines.
+	Module: TERM.PAS
+
+1985-11-22 18:15:21 Edit nr 623 Johnny Eriksson
+	Allow an extended format for AMIS.TRM.
+	Module: TERM.PAS
+
+1985-11-20 17:22:36 Edit nr 622 Johnny Eriksson
+	If the init file contains Return followed by LineFeed,
+	throw away the LineFeed.
+	Module: INPUT.PAS
+
+1985-11-15 01:02:03 Edit nr 621 Johnny Eriksson
+	Cosmetics and cleanup.  All internal.
+	Module: MAIN.PAS
+
+1985-11-14 23:51:16 Edit nr 620 Johnny Eriksson
+	New function:  Set Indent Level, to set the block indent
+	level to its argument.
+	Module: MAIN.PAS
+
+1985-11-14 21:59:40 Edit nr 617 Johnny Eriksson
+	From now on, AMIS tries to read AMIS.INIT on your home
+	directory at startup.  The contents is then used as if
+	it came directly from the keybord.
+	Module: MAIN.PAS, INPUT.PAS
+
+1985-11-13 03:51:13 Edit nr 616 Johnny Eriksson
+	From now on it seems to be possible to set a key to run
+	a keybord macro.
+	Module: MAIN.PAS
+
+1985-11-13 02:29:21 Edit nr 615 Johnny Eriksson
+	The function Set Key now takes an optional numeric
+	argument, allowing you to set any key.  If you know
+	how the dispatch table is built, that is...
+	Module: MAIN.PAS
+
+1985-11-12 19:44:56 Edit nr 614 Johnny Eriksson
+	^R Kbd Macro Query left the cursor in the echo area.
+	Hopefully fixed now.
+	Module: INPUT.PAS
+
+1985-11-08 06:33:16 Edit nr 613 Johnny Eriksson
+	Started on indenters for the new modes from edit 611.
+	Major cleanup ought to be done in this area.
+	Module: MAIN.PAS
+
+1985-11-08 04:06:38 Edit nr 612 Johnny Eriksson
+	Cleanup and removal of redundant code.  (Topsy-spec)
+	Module: TTYIO.MAC
+
+1985-11-08 03:52:08 Edit nr 611 Johnny Eriksson
+	Some new major modes -- ADA, PL/1 and Modula-2.
+	No indenters written yet, though.
+	Module: MAIN.PAS
+
+1985-11-05 23:00:18 Edit nr 610 Johnny Eriksson
+	More of edit 605 -- topsy specific.
+	Module: TTYIO.MAC
+
+1985-11-01 00:10:28 Edit nr 607 Johnny Eriksson
+	Allow more than 40 characters in TMP:EDS.
+	Module: MAIN.PAS, DSKIO.MAC
+
+1985-10-31 21:41:59 Edit nr 606 Johnny Eriksson
+	Cleanup.  The function ^R Exit to EXEC is no more.
+	Module: MAIN.PAS
+
+1985-10-31 21:14:20 Edit nr 605 Johnny Eriksson
+	Fix bugs in XonXoff handling, and inplement an operating
+	system dependent routine to decide if we shall use ^S/^Q
+	as flow control or commands initially.
+	Module: MAIN.PAS, TTYIO.MAC
+
+1985-10-27 17:09:15 Edit nr 604 Johnny Eriksson
+	Always reassign keys when invoking XonXoff Mode.
+	Module: MAIN.PAS
+
+1985-10-27 00:04:49 Edit nr 603 Johnny Eriksson
+	1)  Ask operating system about terminal length, and use that
+	    information if present.
+	2)  Allow up to 72 lines on a terminal.
+	Module: TTYIO.MAC, TERM.PAS, SCREEN.PAS
+
+1985-07-19 13:07:14 Edit nr 602 Johnny Eriksson
+	If TERMINAL SWEDISH is set, use <> instead of [] around
+	directory expansions.
+	Module: DSKIO.MAC
+
+1985-06-12 23:38:16 Edit nr 601 Johnny Eriksson
+	Forgot to assign ^R Save File to C-X S in previous edit.
+	Module: MAIN.PAS
+
+1985-06-08 18:32:18 Edit nr 600 Johnny Eriksson
+	Implemented the function XonXoff mode.
+	Modules: MAIN.PAS, TTYIO.MAC
+
+1985-04-25 12:43:27 Edit nr 577 Johnny Eriksson
+	Revamped the matching paren logic.  Mucho work.
+	But it should be easier to maintain it now.
+	Module: MAIN.PAS
+
+1985-03-19 17:35:50 Edit nr 576 Johnny Eriksson
+	Change screen representation of ESCape from ^[ to $, for
+	consistency, and for compatibility.
+	Module: SCREEN.PAS
+
+1985-02-24 20:38:30 Edit nr 575 Johnny Eriksson
+	Permit AMIS to handle logical names with file name and extension
+	in them.  (New function in version 7.02 of Tops-10)
+	Module: DSKIO.MAC
+
+1985-02-24 20:37:44 Edit nr 574 Johnny Eriksson
+	Started the ground work on re-assignable keys inside functions.
+	Modules: MAIN.PAS, UTILIT.PAS, SEARCH.PAS
+
+1984-11-30 17:42:16 Edit nr 573 Johnny Eriksson
+	1)  Correct problem with previous edit, we tested for letters
+	    instead of alphanumerics.
+	2)  Fix for ^R Delete Character and ^R Backward Delete Character
+	    to include KillCheck if they go for more than one char.
+	Module: MAIN.PAS
+
+1984-11-18 22:03:48 Edit nr 572 Johnny Eriksson
+	Allow ^W as editing character when reading strings.
+	Module: MAIN.PAS, UTILITY.PAS
+
+1984-10-19 14:54:46 Edit nr 571 Johnny Eriksson
+	If an unknown switch was seen, the file name parser forgot
+	to pop off two registers from the stack before returning,
+	resulting in a jump to a random location.  Cure:  Restore
+	the two registers.
+	Module: DSKIO.MAC
+
+1984-10-15 02:21:27 Edit nr 570 Johnny Eriksson
+	Resetting the KSYS timer to zero caused AMIS to issue
+	the message *** Timesharing is over ***.  Fixed.
+	Module: TTYIO.MAC
+
+1984-10-01 00:22:17 Edit nr 567 Johnny Eriksson
+	Increase the message issued when the terminal type is unknown
+	to AMIS.  (Tell user how to set terminal type).
+	Module: TTYIO.MAC
+
+1984-09-19 01:56:06 Edit nr 566 Johnny Eriksson
+	Fix recognition routines.  It is now possible to distinguish
+	between "TeX Mode" and Text Mode", for example.
+	Module: MAIN.PAS
+
+1984-09-18 06:45:58 Edit nr 565 Johnny Eriksson
+	Implement C Mode, in place of A68 mode.
+	Module: MAIN.PAS
+
+1984-09-13 19:54:01 Edit nr 564 Bengt B{verman
+	Fix the cleanup after the ?TLK Too Long Keybord Macro error.
+	Module: INPUT.PAS
+
+1984-06-25 17:29:49 Edit nr 563 Johnny Eriksson
+	Fix a bug in previous edit.
+
+1984-05-26 18:31:05 Edit nr 562 Johnny Eriksson
+	Teach AMIS to look for /RUN in file speces.
+	Module: DSKIO.MAC, TTYIO.MAC
+
+1984-05-15 18:00:40 Edit nr 561 Johnny Eriksson
+	Install a fix for the sequence M-N C-P, which did position
+	the cursor at erroneus places.
+	Module: MAIN.PAS
+
+1984-04-26 22:47:03 Edit nr 560 Johnny Eriksson
+	Take TERMINAL SUBTYPE into account when determining what terminal
+	type we are using.
+	Module: TTYIO.MAC
+
+1984-04-08 00:40:08 Edit nr 557 Johnny Eriksson
+	Install a fix for the phase error in SCNSER/COMCON, concerning
+	type-ahead versus deferred echo.
+	Module:	TTYIO.MAC
+
+1984-04-01 17:04:52 Edit nr 556 Johnny Eriksson
+	Install DCA algorithm # 12, for use by Tandberg wreck used
+	in Oslo.
+	Module:	TERM.PAS
+
+1984-03-31 16:51:58 Edit nr 555 Johnny Eriksson
+	1)  Disable almost all use of tabs in cursor addressing.
+	    Only allow that with non-dca terminals, in special cases.
+	2)  Rename the function "^R Indent according to Mode" to be
+	    named "^R Tab to Tab Stop", and put it on M-I also.
+	Module:	TERM.PAS, MAIN.PAS
+
+1984-03-30 21:52:02 Edit nr 554 Johnny Eriksson
+	1)  Fix a bug in stripping the unit number of a disk name.
+	2)  Remove "?Field too long" error from file name parser.
+	Module:	DSKIO.MAC
+
+1984-02-11 15:43:32 Edit nr 553 Johnny Eriksson
+	Compiler generated bad code in routine StrSelectBuffer.
+	Restructure the routine, for the time beeing.
+	Module:	MAIN.PAS
+
+1984-01-26 17:29:48 Edit nr 552 Johnny Eriksson
+	Change of PASCAL compiler.  The major differences are:
+
+	1)  Register allocation.  Frame pointer and "new" pointer
+	    have been switched.
+	2)  New argument handling for New and Dispose.
+	3)  New internal representation of Nil.
+	4)  Comment scanner stops on "}" nowadays.
+	5)  Keyword "OTHERS" replaced with "OTHERWISE".
+
+	Modules changed:
+	   AMIS.MAC (1, 2 and 3)
+	   MAIN.PAS (4)
+	   TERM.PAS (5) 
+
+1984-01-19 00:56:37 Edit nr 551 Johnny Eriksson
+	The function ^R Down Real Line halted a kbd macro definition,
+	if one was in effect.  Changed it so that it only stops a
+	running macro, and not the definition of one.
+	Module:	MAIN.PAS
+
+1984-01-17 22:29:28 Edit nr 550 Johnny Eriksson
+	Some very slight changes to BUFFER:  Replaced the call to
+	GcInit with the routine itself, and removed the (unused)
+	external declaration of DskWrite.  Also some minor cosmetics.
+	Module:	BUFFER.PAS
+
+1984-01-06 17:05:39 Edit nr 547 Johnny Eriksson
+	Sub-optimization of search routines from MBUF.
+	Module:	MBUF.MAC
+
+1984-01-05 18:24:37 Edit nr 546 Johnny Eriksson
+	Correct spelling of function name: "PASCAL mode" ==> "PASCAL Mode".
+	Module:	MAIN.PAS
+
+1984-01-01 21:05:25 Edit nr 545 Johnny Eriksson
+	Shut off buffer garbage collector while reading files.
+	Saves great amount of CPU time, and prevents trashing.
+	Module:	BUFFER.PAS
+
+1984-01-01 00:36:10 Edit nr 544 Johnny Eriksson
+	Shrunk the data type "cdc" in buffer.  Saves some space
+	when editing large files.
+	Module:	BUFFER.PAS
+
+1983-11-30 20:24:34 Edit nr 543 Johnny Eriksson
+	Fixed a very slight bug from edit 523.  (We did not re-indent
+	an empty block as we should.)
+	Module: MAIN.PAS
+
+1983-11-22 20:14:16 Edit nr 542 Johnny Eriksson
+	Implemented the function "What Version", prints current version
+	and edit number in the echo area.  Also removed a couple of bug
+	checks from the yet unused parts of TERM.
+	Module:	MAIN.PAS, TTYIO.MAC, TERM.PAS
+
+1983-11-21 01:12:12 Edit nr 541 Johnny Eriksson
+	Implemented a hook for file name recognition.  Currently not
+	working on Tops-10, though.
+	Module: MAIN.PAS, UTILIT.PAS, DSKIO.MAC
+
+1983-11-17 01:24:24 Edit nr 540 Johnny Eriksson
+	Fixed up the function "Hackmatic Terminal" so that it toggles
+	the thing.  Also init the corresponding flag by asking the
+	operating system if the terminal has a meta key.
+	Module:	MAIN.PAS, TTYIO.MAC
+
+1983-11-11 01:30:54 Edit nr 537 Johnny Eriksson
+	Finally implemented our own KSYS warnings, since the operating
+	system won't allow the SEND ALL from opser to pass thru to
+	a terminal open in Packed Image Mode (.IOPIM).
+	Module:  TTYIO.MAC
+
+1983-11-10 17:12:45 Edit nr 536 Johnny Eriksson
+	1)  Increased MaxHeight from 33 to 34 lines.
+	    Module:  SCREEN.PAS
+	2)  Physically removed the function "List Files".
+	    Module:  MAIN.PAS
+
+1983-11-09 19:02:12 Edit nr 535 Johnny Eriksson
+	Phased out AMIMAC.MAC & AMIMAC.UNV.
+	Module:  MBUF.MAC, TTYIO.MAC, DSKIO.MAC
+
+1983-11-09 00:05:58 Edit nr 534 Johnny Eriksson
+	Some of the region-oriented functions duplicated the topmost
+	mark on the stack.  Removed call to SetMark in routine GetRegion.
+	Module:  UTILIT.PAS
+
+1983-11-08 23:33:36 Edit nr 533 Johnny Eriksson
+	Fixed echo area updating bug in ^R Incremental Search & friends.
+	Module:  MAIN.PAS
+
+1983-11-08 20:42:39 Edit nr 532 Johnny Eriksson
+	1)  The line of stars in two window mode extended from 16
+	    to (screen width - 10) characters.
+	    Module:  SCREEN.PAS
+	2)  Started implementing the function ^R Center Line.
+	    Module:  MAIN.PAS
+
+1983-11-05 23:37:04 Edit nr 531 Hans Albertsson & Johnny Eriksson
+	C-X 3 (^R View Two Windows) patched.  You don't want to know how...
+	Module:  MAIN.PAS
+
+1983-11-04 00:48:55 Edit nr 530 Johnny Eriksson
+	From now on, the mark stack is local for each buffer.
+	Module:  MAIN.PAS
+
+1983-10-30 05:52:44 Edit nr 527 Johnny Eriksson
+	Removed routine TTyString since it was not used any more.
+	Module:  UTILIT.PAS
+
+1983-10-24 02:11:35 Edit nr 526 Johnny Eriksson
+	Special check for I, L, V and W in routine ReadFunc.  (As first
+	letter on the line, they shall expand to Insert, List, View
+	and What, respectively).
+	Module:  MAIN.PAS
+
+************* Below, all entrys are written in Swedish.  Beware. *************
+
+1983-10-21 22:47:00 Edit nr 525 Hans Albertsson
+	Fillertecken ^_ ( ctrl underscore ) f|r HP2648.
+
+1983-10-18 22:05:41 Edit nr 524 Hans Albertsson
+	Uppsnyggning av Edit 523 i EndCheck. En repeat -> while, ett
+	SetDot(.... borttaget...
+
+1983-10-16 00:32:15 Edit nr 523 Hans Albertsson
+	^R Indent Algol Stm k{nner i Pascal Mode igen "REPEAT" och
+	"CASE" som ekvivalenta med "BEGIN".
+	EndCheck k{nner i Pascal Mode igen "UNTIL" som ekvivalent med
+	"END". EndCheck "exdenterar" enbart om dels "END" eller "UNTIL"
+	st}r f|rst p} raden och dessutom f|reg}ende rad har samma
+	indentering som den betraktade raden.
+	
+1983-08-04 17:40:26 Edit nr 522 Johnny Eriksson
+	Extension 'C' ger numera algol mode.
+
+1983-08-02 20:26:32 Edit nr 521 Johnny Eriksson
+	[ndrat hanteringen av osupportade terminaltyper.
+	Dessutom {ndrat s} att man f}r j{mn paritet p} utmatningen,
+	i st{llet f|r "random" paritet.
+
+1983-07-23 00:41:21 Edit nr 520 Bj|rn Danielsson
+	Tagit bort egenskap "TAB" fr}n terminaltyperna VT100,
+	ANSI, och AMBASS i koden i TERM.  Eftersom dom inte
+	har fasta tabstopp i var 8:e position s} ska inte
+	AMIS tro att dom har det heller.
+
+1983-07-19 12:55:04 Edit nr 517 Johnny Eriksson
+	Plockat bort raden "STAT:   BLOCK   2*^D128" fr}n TTYIO's
+	l}gsegment.  Kvarleva fr}n statistikinsamlingen...
+
+1983-07-13 17:27:52 Edit nr 516 Johnny Eriksson
+	[ndrat p} ordningen f|r hanteringen av egendefinierade
+	terminaltyper.  Nu s|ks anv{ndarens AMIS.TRM innan AMIS tittar
+	efter inbyggda terminaltyper.  Vidare letas efter AMIS.TRM p}
+	logged-in directory, i st{llet f|r p} default path.
+
+1983-06-22 12:38:31 Edit nr 515 Johnny Eriksson
+	R{ttat en bugg i kommandot Help C; casecheck f|r subkommandon
+	till C-X.
+
+1983-06-16 07:08:53 Edit nr 514 Johnny Eriksson
+	Korrigerat utmatningen fr}n edit 513 lite grand.
+
+1983-06-14 22:37:38 Edit nr 513 Johnny Eriksson
+	Apropos skriver nu {ven ut vilka tangenter funktionerna ligger
+	p}, i f|rekommande fall.
+
+1983-06-14 19:22:21 Edit nr 512 Johnny Eriksson
+	Tagit bort kommandot "List Commands", och lagt in funktionen
+	"Apropos" i st{llet.  Apropos med tomt argument listar alla
+	kommandon numera.
+
+1983-06-06 19:33:22 Edit nr 511 Johnny Eriksson
+	F|rsta-raden-flaggor (-*-mumble-*-) kan nu inneh|lla {ven minor
+	modes, till exempel -*- Swedish Text -*- eller liknande.
+	Dessutom slagit is{r TRUENAME till TRUENAME + TRUEMODE.
+
+1983-06-02 16:54:28 Edit nr 510 Bj|rn Danielsson
+	Lagt in specialtest i DSKIO s} att "/" avslutar filspecar.
+	Dock g|rs ingen avkodning av switcharna eller vad det
+	nu kan vara.
+
+1983-05-13 22:06:45 Edit nr 507 Bj|rn Danielsson
+	Fixat DSKIO-bug. Endast avslutande nulls i sista ordet ska
+	strippas vid inl{sning, inte allt som f|ljer efter f|rsta
+	b{sta null som p}tr{ffas...
+
+1983-04-20 16:06:30 Edit nr 506 Johnny Eriksson
+	[ndrat exitstr{ngen f|r Ambassador.  AMIS sl}r inte l{ngre
+	av wrap modes vid exit.
+
+1983-04-10 21:38:39 Edit nr 505 Johnny Eriksson
+	Korrigerat wrap-biten f|r VT52.
+
+1983-04-07 23:27:10 Edit nr 504 Tommy Ericson & Johnny Eriksson
+	1)  Lagt in hantering av negativa argument till Push to EXEC.
+	    Dessa medf|r frysning av |vre sk{rmhalvan, om terminalen
+	    klarar detta.  Tills vidare endast p} VT100.
+	2)  \kat fillerbehovet f|r DT80/1 map erase screen.
+
+1983-03-27 03:06:31 Edit nr 503 Johnny Eriksson
+	R{ttat styrkoderna f|r insert/delete character vad g{ller
+	HP2648A.  Jag har dock inte haft m|jlighet att prova...
+
+1983-03-18 21:51:02 Edit nr 502 Johnny Eriksson
+	1) Race condition vid "waiter" avskaffad.
+	2) TERM s{tter inte l{ngre upp tabbar p} terminalen.
+	3) Diverse sm}tt krafs i TTYIO.
+
+1983-01-23 20:21:17 Edit nr 501 Johnny Eriksson
+	Multipla keybord macros till}tna.
+
+1983-01-08 16:47:31 Edit nr 500 Johnny Eriksson
+	En mindre lus fr}n edit 477 avlivad.  (fill prefix)
+
+1982-12-22 11:53:35 Edit nr 477 Johnny Eriksson
+	Fixat en mindre lus i Auto Fill Mode, om sista ordet p} raden
+	f|regicks av mer {n en blank, och det slutade till h|ger om
+	Fill Column, fick man dot felst{lld efter}t, eller ?NIB.
+
+1982-12-19 19:53:18 Edit nr 476 Johnny Eriksson
+	Minskat den maximala sk{rmh|jden fr}n 60 till 33 rader,
+	vilket krympte SCREENs l}gsegment med n{stan tv} sidor.
+
+1982-12-19 19:39:59 Edit nr 475 Johnny Eriksson
+	Lagt in option T- i INPUT.PAS och SEARCH.PAS, gav ytterligare
+	en sida mindre h|gsegment...
+
+1982-12-04 19:52:24 Edit nr 474 Johnny Eriksson
+	Tre stycken {ndringar i kompilatorn, ger tv} sidor mindre
+	h|gsegment och cirka 5 % snabbare kod.
+
+1982-11-23 17:24:13 Edit nr 473 Johnny Eriksson
+	Alla systemberoende filspecifikationer lagda p} ett st{lle,
+	i modulen UTILITY, rutinen GetFSpec.  S} att inte KZmaaland
+	ska gn{lla s} fruktansv{rt...
+
+1982-11-13 00:31:25 Edit nr 472 Johnny Eriksson
+	Klockan p} moderaden f|rsedd med slagursfunktion.
+
+1982-11-11 16:52:20 Edit nr 471 Johnny Eriksson
+	1) Referensen till INI:AMIS.TRM bytt mot TED:AMIS.TRM.
+	2) Extension .P11 ger nu Macro mode.  (Macro 11)
+
+1982-10-30 21:23:41 Edit nr 470 Bj|rn Danielsson
+	Ny funktion ^R Indent SEXP finns nu p} C-M-Q.
+	^R Indent for LISP {r v{sentligt f|rb{ttrad. LISP-scannern klarar
+	nu kommentarer, slashifierade atomer, str{ngar, och
+	vertical bar (|) -atomer. Buggar i hanteringen av blippar (')
+	{r fullst{ndigt utraderade.
+
+1982-10-24 04:40:08 Edit nr 467 Johnny Eriksson
+	Digital klocka inlagd p} moderaden.  (Time is on my side...)
+
+1982-10-21 11:45:04 Edit nr 466 Jan Michael Rynning
+	Proceduren IncrementalSearch initierar numera variabeln SearchLen.
+
+1982-09-27 01:00:55 Edit nr 465 Bj|rn Danielsson
+	Bug i ^R Indent for LISP avr{ttad.
+	Tecknet ' (blip) st{llde till med problem.
+
+1982-08-31 23:54:38 Edit nr 464 Johnny Eriksson *** Release gjord ***
+	R{ttat en bug i DSKIO, rutinen PUTNAM som behagade skriva s|nder
+	saker den inte hade ett j{vla dugg med att g|ra.  FY FAN f|r
+	en viss f|rfattare till en viss modul!
+
+1982-08-28 23:11:47 Edit nr 463 Johnny Eriksson
+	Parentesmatchningen f|rst}r nu / f|re parenteser i
+	TeX mode och Lisp mode.
+
+1982-08-27 23:52:43 Edit nr 462 Johnny Eriksson
+	TeX mode inlagd i AMIS.
+
+1982-08-27 20:54:12 Edit nr 461 Bj|rn Danielsson
+	^R Indent for LISP specialbehandlar "DEF..", "LET.." och "LAMBDA.."
+
+1982-08-26 09:56:45 Edit nr 460 Bj|rn Danielsson
+	^R Indent for LISP {r ej l{ngre synonym med ^R Indent for Algol.
+
+1982-08-23 18:53:33 Edit nr 457 Johnny Eriksson *** Release gjord ***
+	Parentesmatchningen g|r nu som EMACS g|r.
+
+1982-08-21 14:45:20 Edit nr 456 Johnny Eriksson
+	Parentesmatchningen f|rst}r nu kvotade str{ngar.
+
+1982-08-18 10:51:12 Edit nr 455 Johnny Eriksson
+	Referensen till TED:AMIS.DSC {ndrad till TED:AMIS.DXC, som
+	f|rberedelse till version 2.  Versionsnumret {ndrat till 1B(nn)-5.
+
+1982-08-16 02:47:46 Edit nr 454 Johnny Eriksson
+	a) Statistiken enligt edit nr 451 & 452 borttagen.
+	b) Parentesmatchning inlagd.  Hoppas den fungerar...
+
+1982-05-26 21:14:43 Edit nr 453 Anders Str|m
+	R{ttat TRMICH (insert {ndrar positionen p} cursorn).
+
+1982-05-09 21:29:06 Edit nr 452 Jan Michael Rynning
+	R{ttat n}gra buggar som uppstod i samband med edit 451.
+
+1982-05-09 16:44:47 Edit nr 451 Jan Michael Rynning
+	Statistik |ver antalet anv{nda kommandon inlagd i MAIN och TTYIO.
+
+1982-05-04 19:00:42 Edit nr 450 Johnny Eriksson
+	En liten fix inlagd i TTYIO.
+
+1982-03-13 22:51:57 Edit nr 447 Erik Forsberg
+	HA:s {ndringar f|r AMBASSADOR-terminaler inlagda.
+
+1982-03-11 18:58:40 Edit nr 446 Johnny Eriksson
+	What Date inlagt, efter p}tryckningar av T.Ericson.
+
+1982-03-07 14:12:48 Edit nr 445 Erik Forsberg
+	Nu st{lls AMBASSADOR-terminaler in f|r 30 rader.
+
+1982-03-04 20:26:42 Edit nr 444 Erik Forsberg
+	Efter mycket klagom}l s} har jag exakt kopierat in koden
+	f|r AMBASSADOR fr}n filen VAXTRM.TXT<,,HANS> till AMIS.
+	Enda skillnaden ska vara terminalens radantal. DEC-AMIS
+	har inte variabelt antal utan {r kompilerad f|r 24 rader
+
+1982-02-26 13:58:12 Edit nr 443 Johnny Eriksson
+	En lus i kommandot Find File avlivad.
+
+1982-02-21 00:11:28 Edit nr 442 Johnny Eriksson
+	Ytterligare f|rberedelser till multipla keybord macros.
+
+1982-02-19 14:18:56 Edit nr 441 Anders Str|m
+	R{ttelse i placeringen av f|nstret efter sekvensen
+	WinNo(2); WinSelect(1).
+	Bug-meddelande om ingen buffer valts f|r ett av f|nstren.
+
+1982-02-17 21:09:35 Edit nr 440 Bj|rn Danielsson & Johnny Eriksson
+	Interfacet mellan Buffer och Main {rdrat, vad avser
+	q-registerhantering. F|rberedelser till multipla keybord macros.
+
+1982-02-16 20:46:23 Edit nr 437 Johnny Eriksson
+	Interfacet mellan TTYIO's PUSH to exec-kod och DISCON fixat.
+
+1982-02-14 19:41:37 Edit nr 436 Johnny Eriksson
+	En bug i moderadsuppdateringen efter ^R Save File fixad.
+
+1982-02-13 14:23:16 Edit nr 435 Johnny Eriksson
+	Q-register *, som anv{nds som tempor{rvariabel i vissa fall,
+	clearas nu efter anv{ndandet.
+
+1982-02-11 22:46:41 Edit nr 434 Johnny Eriksson
+	En primitiv version av Undo inlagd.
+
+1982-02-01 20:41:45 Edit nr 433 Anders Str|m
+	WinSelect {r numera en no-op om det bara finns ett f|nster.
+
+1982-01-29 14:52:37 Edit nr 432 Anders Str|m
+	WinGrow helt fixad, nu sker uppdateringen omg}ende.
+
+1982-01-29 14:22:03 Edit nr 431 Anders Str|m
+	Korrigeringar i hanteringen av multipla f|nster.
+
+1982-01-27 20:39:09 Edit nr 430 Johnny Eriksson
+	Numeriskt argument till Push to EXEC fungerar nu som bryttecken.
+
+1982-01-26 21:41:14 Edit nr 427 Johnny Eriksson
+	^R Buffer Not Modified uppdaterar nu moderaden.
+
+1982-01-26 14:23:29 Edit nr 426 Anders Str|m
+	Edit 425 verkligen inlagd, efter /TOTOP.
+
+1982-01-26 14:19:23 Edit nr 425 Anders Str|m
+	Bug i WinGrow fixad, fortfarande problem med att fullst{ndig
+	uppdatering sker f|rst efter n{sta anrop till WinUpdate.
+
+1982-01-25 02:29:09 Edit nr 424 Johnny Eriksson
+	Diverse bugfixar till edit 423.
+
+1982-01-24 04:40:07 Edit nr 423 Johnny Eriksson
+	Help C inlagd. Set key fungerar, om {n primitivt.
+
+1982-01-23 13:20:57 Edit nr 422 Lars-Henrik Eriksson
+	^R Un-kill pop fungerar nu med argumentet 0.
+
+1982-01-22 22:21:41 Edit nr 421 Johnny Eriksson
+	Hanteringen av ^G fixad.
+
+1982-01-21 15:14:17 Edit nr 420 Johnny Eriksson & Lars-Henrik Eriksson
+	En liten bug fr}n edit 416 borttagen, + diverse intern
+	omstrukturering.
+
+1982-01-21 09:54:24 Edit nr 417 Johnny Eriksson
+	En ganska grov bug i edit 415 borttagen.
+
+1982-01-20 23:38:27 Edit nr 416 Lars-Henrik Eriksson
+	Funktionen ^R Describe inlagd. Dokumentationsfunktionerna
+	ligger nu (f|rhoppningsfullt) p} r{tt tangenter.
+	I Overwrite Mode fungerar |verskrivning av tabbar som i EMACS.
+
+1982-01-20 21:54:20 Edit nr 415 Johnny Eriksson
+	Blockniv}n dras nu tillbaka tv} steg vid "end" i algolliknande spr}k.
+	Utskriften vid C-_ kompletterad med rekursiv editniv} eller top level.
+	Dummy OUTPUT inlagd i TTYIO. (verkar inte g|ra n}n skillnad...)
+
+1982-01-19 23:37:42 Edit nr 414 Lars-Henrik Eriksson
+	Sm{rre buggar i Tabify och Untabify r{ttade.
+
+1982-01-19 21:18:12 Edit nr 413 Lars-Henrik Eriksson
+	Korrektion av edit 412.
+
+1982-01-19 21:10:12 Edit nr 412 Lars-Henrik Eriksson
+	M-? K|r nu ^R Describe.
+	^R Mark Whole Buffer implementerad.
+	Kopplingen tangent-funktion korrigerad f|r obskyra kommandon.
+
+1982-01-19 16:29:39 Edit nr 411 Johnny Eriksson
+	Where is inlagd.
+
+1982-01-17 16:56:51 Edit nr 410 Johnny Eriksson
+	Set Visited File Name inlagd.
+
+1982-01-17 00:46:53 Edit nr 407 Johnny Eriksson
+	Mindre interna {ndringar, + att hacken med M-? }terst{lld.
+
+1982-01-16 23:32:57 Edit nr 406 Lars-Henrik Eriksson
+	Indent Tabs Mode implementerad.
+	Buggar i Tabify & Untabify fixade.
+	Minor mode-kommandon hanterar nu argument korrekt.
+	^R Documentation {r nu Describe, inte hela help.
+	Dokumentation f|r ^R Visit in Other Window korrigerad.
+
+1982-01-16 21:07:59 Edit nr 405 Lars-Henrk Eriksson
+	^R Tabify och ^R Untabify implementerade.
+	On|dig kod i ^R Scroll Other Window borttagen.
+
+1982-01-16 01:37:54 Edit nr 404 Johnny Eriksson
+	1) Funktionen List Matching Lines inlagd.
+	2) Describe fungerar hj{lpligt (!).
+
+1982-01-15 21:03:00 Edit nr 403 Johnny Eriksson
+	1) Rutinen WinOvTop inlagd i SCREEN. Den har samma funktion
+	   som tidigare WinOverWrite(Chr(FormFeed)).
+	2) Hj{lp inlagd till kommandot ^R Visit in Other Window.
+
+1982-01-14 Edit nr 402 Jan Michael Rynning
+	Rutinen ReadDefault har tillkommit i UTILITY och MAIN.
+
+1982-01-14 Edit nr 401 Jan Michael Rynning
+	Redundant och obsolet kod avl{gsnad ur UTILITY.
+
+1982-01-12 21:20:56 Edit nr 400 Johnny Eriksson
+	Hj{lptexten till M-X uppdaterad efter edit 376.
+
+1982-01-11 23:23:44 Edit nr 377 Anders Str|m
+	Andra f|nstret uppdateras numera, det sker i bakgrunden.
+
+1982-01-11 21:42:50 Edit nr 376 Johnny Eriksson
+	M-X klarar nu str{ngargument efter funktionsnamnet.
+	Ex: M-X Write Region$allan.kak<CR>
+
+1982-01-11 20:49:52 Edit nr 375 Johnny Eriksson
+	Dollartecken vid recognition }terinf|rt.
+
+1982-01-10 17:36:22 Edit nr 374 Lars-Henrik Eriksson
+	^R Kill Comment implementerad. Likas} ^R Quit (vad man nu
+	har f|r v{rde av den).
+
+1982-01-10 14:12:53 Edit nr 373 Johnny Eriksson
+	Recognitionrutinerna omskrivna. Name Kbd Macro p}b|rjad.
+
+1982-01-09 03:38:30 Edit nr 372 Per Danielsson
+	Bug i TRUNAME fixad (logiska namn hanteras n}got b{ttre).
+
+*****************************************************************************
+	Var tog edit 372 och 373 v{gen ???? 372 kommer jag inte ih}g
+	vad det var, men 373 var en edit som jag gjorde f|r att l{ra
+	AMIS fler filtyper./PD
+
+	Har du tittat p} edit 363?/JE
+
+	Ja, *D[R* var den ju.../PD
+
+*****************************************************************************
+
+1982-01-08 11:29:13 Edit nr 371 Anders Str|m
+	Till{gg till edit 370, {ven initiala bufferten beh}ller
+	sitt l{ge.
+
+1982-01-07 15:06:21 Edit nr 370 Anders Str|m
+	WINGROW {ndrad, s} att f|nster tv} beh}ller sitt
+	absoluta l{ge p} sk{rmen.
+
+1982-01-07 01:58:37 Edit nr 367 Lars-Henrik Eriksson
+	Funktionerna ^R Scroll Other Window och
+	^R Backward Kill Sentence implementerade.
+
+1982-01-07 01:34:41 Edit nr 366 Lars-Henrik Eriksson
+	Funktionerna ^R Read File och ^R Visit in Other Window
+	implementerade.
+
+1982-01-07 01:18:36 Edit nr 365 Anders Str|m
+	WINREFRESH rensar bara valt f|nster om tv} f|nster finns.
+
+1982-01-07 00:59:19 Edit nr 364 Anders Str|m
+	[ndringar i screen vid hantering av tv} f|nster.
+	Numera sparas information om var f|nstret b|rjar,
+	s} att det placeras p} samma st{lle n{r det v{ljs igen.
+	Dessutom finns separat dot f|r de b{gge f|nstren n{r
+	man valt samma buffert till b{gge f|nstren.
+
+1982-01-06 23:30:26 Edit nr 363 Per Danielsson
+	AMIS k{nne nu till ytterligare n}gra fler filtyper,
+	.MSS, .MEM & .PL
+
+1982-01-06 18:47:58 Edit nr 362 Lars-Henrik Eriksson
+	Funktionen Wall Chart implementerad.
+
+1982-01-06 15:56:18 Edit nr 361 Lars-Henrik Eriksson
+	^R Incremental Search och ^R Query Replace bryter nu
+	om man skriver ett metatecken (utom efter ^Q f|rst}s).
+
+1982-01-05 21:38:50 Edit nr 360 Johnny Eriksson
+	Ett mindre fel i kommandot Date Edit borttaget.
+
+1981-12-20 18:50:57 Edit nr 357 \rjan Ekeberg
+	^R Down Real Line d} ett Keyboard Macro exekverar
+	och man n}tt slutet p} bufferten, avbryter makrot
+	ist{llet f|r att stoppa in en ny rad.
+
+1981-12-18 17:39:11 Edit nr 356 \rjan Ekeberg
+	Keyboard Macro Query placerar nu mark|ren r{tt
+	medan fr}gan besvaras.
+
+1981-12-16 22:46:38 Edit nr 355 Johnny Eriksson
+	En bug i kommandot ^R Transpose Regions avlivad.
+
+1981-12-06 15:50:14 Edit nr 354 Anders Str|m
+	Tv} buggar i edit 352 avlivade. Dels anropas TTYFORCE
+	s} att tecknen kommer ut i rimlig tid. Och dels en bugg
+	som upptr{dde vid anrop till DOTPOS.
+
+1981-12-05 22:31:57 Edit nr 353 Johnny Eriksson
+	En bug i edit 351 avlivad.
+
+1981-12-04 18:31:19 Edit nr 352 Anders Str|m
+	Nu provar vi med en ny SCREEN som {r snabbare vid inmatning
+	i slutet av raden.
+
+1981-12-04 02:51:49 Edit nr 351 Johnny Eriksson
+	Kommentarer som b|rjar i v{nstermarginalen flyttas inte
+	l{ngre till kommentarkolumnen, allt enligt EMACS.
+
+1981-12-02 21:18:31 Edit nr 350 L-H Eriksson
+	Kompileringen i edit 346 gjordes med fel kompilator!
+	Nu omkompilerat.
+
+1981-12-02 20:16:14 Edit nummer 347 Jan Michael Rynning
+	Bugg i UnKill r{ttad. MOD kan l{mna tillbaka negativa v{rden.
+
+1981-12-02 18:23:39 Edit nr 346 L-H Eriksson
+	Kommandot "List Commands" }terinf|rt.
+
+1981-12-01 14:22:52 Edit nr 345 Anders Str|m
+	Edit 344 helt }tertagen.
+
+1981-12-01 14:17:01 Edit nr 344 Anders Str|m
+	Misslyckat f|rs|k med uppsnabbad SCREEN.
+
+1981-11-24 17:06:54 Edit nr 343 Johnny Eriksson
+	En lus fr}n edit 342 avlivad.
+
+1981-11-22 14:05:09 Edit nr 342 Johnny Eriksson
+	Support av Comment End inlagt.
+
+1981-11-19 23:55:01 Edit nr 341 Per Danielsson
+	TRUENAME strippar enhetsnumret p} device.
+
+1981-11-19 19:51:30 Edit nr 340 Anders Str|m
+	En bug i SCREEN avlivad, den gjorde att on|digt mycket
+	CPU-tid gick }t om man gjorde inmatning sist i bufferten.
+
+1981-11-18 05:55:10 Edit nr 337 Per Danielsson & Johnny Eriksson
+	TrueName har f}tt en tredje parameter, som {r en mask f|r
+	vilka delar av filspecifikationen som ska l{mnas tillbaka.
+	Filtyperna HLP, DOC och MAN ger nu text mode.
+	Ny major mode: A68 Mode.
+
+1981-11-16 09:53:08 Edit nr 336 Anders Str|m
+	SCREEN anv{nder numera BGETCHAR istf GETCHAR. 
+
+1981-11-09 10:05:34 Edit nr 335 Anders Str|m
+	Intern omorganissation av SCREEN, inga funktionella {ndringar.
+
+1981-11-08 19:41:28 Edit nr 334 Johnny Eriksson
+	Rename Buffer inlagt. Comment end i ALGOL mode satt till ';'.
+	Diverse uppsnyggning av koden i MAIN.
+
+1981-11-07 17:01:55 Edit nr 333 Johnny Eriksson
+	Nu fungerar numeriskt argument till Select Buffer.
+	Funktionen List Commands borttagen.
+
+1981-11-06 11:28:12 Edit nr 332 Anders Str|m
+	Attributet WRAP {r numera satt till FALSE p} VISTA och
+	ADM3A. Det har p}st}tts att det skulle bli fel av samma
+	typ som en g}ng upptr{dde p} EL2500, och d{r fungerade denna
+	{ndring, vi f}r se hur det blir nu.
+	This is a great way to debug a program!
+
+1981-11-02 23:31:23 Edit nr 331 Anders Str|m
+	Attributet EOL tillagt f|r VISTA-terminaler.
+	Styrsekvensen fanns redan inlagd, men det fanns med i
+	m{ngden av attribut.
+
+1981-11-02 15:08:58 Edit nr 330 Johnny Eriksson
+	Casecheckingen fixad s} att C-M-^foo mappas till C-M-foo
+	om den f|rsta var ett illegalt kommando.
+
+1981-11-01 15:49:50 Edit nr 327 Anders Str|m
+	En liten f|rb{ttring av tv}-f|nster varianten p} riktigt dumma
+	terminaler. Sk{rmen rensas inte n{r man byter f|nster.
+
+1981-10-31 23:35:21 Edit nr 326 Johnny Eriksson
+	Funktionen Date Edit inlagd.
+	Vissa interna {ndringar i MAIN och TTYIO.
+
+1981-10-31 21:21:54 Edit nr 325 Jan Michael Rynning
+	C-X C-B (List Buffers) fungerar nu som i en viss annan editor.
+
+1981-10-31 15:29:43 Edit nr 324 Johnny Eriksson
+	Edit nr 323 upplagd p} allvar, eftersom JMR i den sena timmen
+	tyx ha gl|mt kompilera MAIN.PAS...
+
+	Visst kompilerade jag den, men jag gl|mde g|ra /TOTOP f|re /AMISP,
+	s} den {ndrade versionen kom inte med i l{nkningen./JMR
+
+	Du hann f|rst}s inte r{tta till det sj{lv?/JE
+
+	Nej, du hann f|re./JMR
+
+1981-10-31 04:19:37 Edit nr 323 Jan Michael Rynning
+	C-X C-S funkar nu som C-X C-W om bufferten inte har n}got filnamn.
+
+1981-10-25 19:05:03 Edit nr 322 Johnny Eriksson
+	Funktionen Select Buffer promptar nu med default buffertnamn.
+
+1981-10-24 22:21:18 Edit nr 321 Johnny Eriksson
+	^R Count Lines Page svarar nu med "Page has"/"Buffer:"
+	enligt EMACS. N}gra sm} buggar i ^R Backward Delete Hacking Tabs
+	avlivade.
+
+1981-09-26 15:17:09 Edit nr 320 Jan Michael Rynning
+	R{ttat fel i terminalhanteringen f|r MINITE, HA1500 och TE4025.
+
+1981-09-20 21:04:08 Edit nr 317 Jan Michael rynning
+	Abort (C-]) implementerat och ^R Incremental Search ekar dollar efter.
+
+1981-09-17 00:15:42 Edit nr 316 Johnny Eriksson
+	Kommandona M-T (^R Transpose Words), C-X ^T (^R Transpose Lines)
+	och C-X T (^R Transpose Regions) inlagda i MAIN.
+	Funktionen ^R Indent For Lisp inlagd. (F.n. samma som ^R Indent
+	Algol stm). Diverse intern uppsnyggning av CASE-satsen.
+
+1981-09-16 00:19:56 Edit nr 315 Anders Str|m
+	Attributet WRAP {r satt till FALSE f|r terminaltypen EL2500.
+
+1981-09-15 21:11:47 Edit nr 314 Jan Michael Rynning
+	Kod f|r hantering av C-Q inlagd i rutinen Search i IncrementalSearch,
+	som anv{nds av kommandot ^R String Search.
+
+1981-09-14 22:44:53 Edit nr 313 Bj|rn Danielsson
+	Ny bug avlivad i Createbuffer.
+	Nya BUFFER-rutiner: Getbchar, Swapregions.
+
+1981-09-13 15:55:59 Edit nr 312 Jan Michael Rynning
+	Query Replace komplett, som i EMACS. Nya subkommandon: ?, ^ och C-L.
+
+1981-09-12 19:49:32 Edit nr 311 Bj|rn Danielsson
+	BUFFER-rutinen Insert f|rs|ker nu vara smart n{r den s{tter
+	in tecken i icke-fyllda chunkar.
+	Bug i felhanteringen hos Getchar r{ttad.
+
+1981-09-12 15:56:41 Edit nr 310 Anders Str|m
+	En liten bug i SCREEN avl{gsnad. Ompositionering
+	av nedre f|nstret fungerade inte.
+
+1981-09-11 01:51:23 Edit nr 307 Johnny Eriksson
+	En POP fr}n ett oinloggat subjobb medf|r nu release av PTYn.
+
+1981-09-11 00:22:40 Edit nr 306 Johnny Eriksson
+	Lisp mode inhackad. DSKIO och MAIN {ndrade.
+
+1981-09-10 22:58:47 Edit nr 305 BD & JE & JMR & AS
+	Hantering av multipla buffertar och dubbla f|nster.
+	[ndringar i MAIN, SCREEN, BUFFER och SEARCH.
+	Multipla buffertar hanteras med kommandona C-X B, C-X C-B och
+	C-X C-F. Detta har medf|rt {ndringar i MAIN och BUFFER.
+	Dubbla f|nster hanteras med kommandona C-X 1, C-X 2, C-X 3,
+	C-X O och C-X ^. Detta har medf|rt {ndringar i MAIN och SCREEN.
+	Kommandona C-V och M-V jobbar numera p} sk{rmrader ist{llet
+	f|r textrader. Samma g{ller "top-line search". C-L fungerar
+	som i AMIS. Detta har medf|rt {ndringar i MAIN, SCREEN och SEARCH.
+	Delete-funktionen i BUFFER {r nu lite listigare vid borttagning
+	av korta str{ngar.
+
+1981-09-04 20:35:56 Edit nr 304 Anders Str|m
+	Push to EXEC avst{ngt f|r CPU nr 2297 (= LIDAC).
+	Kontrollen g|rs i PPUSH modulen TTYIO.
+
+1981-09-04 17:14:40 Edit nr 303 Johnny Eriksson
+	Kommandot "Compile" forcade inte utbufferten efter att
+	ha skrivit ut filen. Nu fixat.
+
+1981-09-03 21:44:13 Edit nr 302 Jan Michael Rynning *** RELEASAD VERSION ***
+	SCREEN anv{nder tv} modrader och ekorader om sk{rmen {r h|gst 40
+	kolumner bred. DSKIO ger en bughalt om DEVTYP tar error return.
+
+1981-08-28 16:13:22 Edit nr 301 Jan Michael Rynning
+	Top Line Search i ^R String Search fungerar nu.
+
+1981-08-26 20:32:46 Edit nr 300 Erik Forsberg
+	Undvikande av bug i MicroBee 1:s hantering av line lock.
+	Annan ordning p} region scroll sekvensen undviker problemet.
+
+1981-08-25 15:07:21 Edit nr 277 Jan Michael Rynning
+	Help character fungerar i ^R Incremental Search och ^R String Search.
+	DskWrite nollst{ller radnummerbitarna i bufferten vid utskrift.
+
+1981-08-24 18:17:58 Edit nr 276 Jan Michael Rynning
+	Helt omskriven IncrementalSearch upplagd. Help character fungerar inte
+	{n, men vissa andra buggar {r r{ttade. Ekoraden uppdateras inte l{ngre
+	n{r man exekverar ett keyboard macro.
+
+1981-08-22 16:17:18 Edit nr 275 Jan Michael Rynning
+	BUFFER anv{nder nu New i st{llet f|r specialrutiner, och nil i st{llet
+	f|r nyl.
+
+1981-08-21 16:00:28 Edit nr 274 Jan Michael Rynning
+	Rutinen CorErr f|rs|ker anropa Error i st{llet f|r Bug. Catch och
+	Throw modifierade och instoppade i AMIS.MAC.
+
+1981-08-21 14:25:07 Edit nr 273 Per Danielsson
+	Bug i DSKIO fixad (Write File sparar r{tt fil nu).
+	Dessutom {r ADJBP & ADJSP borttagna ur koden med tanke KI-10
+	som inte har dessa instruktioner.
+
+1981-08-19 17:51:40 Edit nr 272 Jan Michael Rynning
+	Omskriven AMIS.MAC skickar med parametern Total:boolean till Main.
+
+1981-08-15 23:58:51 Edit nr 271 Erik Forsberg
+	Bug som uppstod vid end of file p} AMIS.TRM i TERM fixad.
+
+1981-08-15 23:24:30 Edit nr 270 Per Danielsson
+	Bug i TRUENAME (DSKIO) fixad. Default path ska vara default path.
+
+1981-08-15 15:47:47 Edit nr 267 Erik Forsberg
+	Bug i TTYTYP (TTYIO) fixad. Terminalnamnet blev felaktigt paddat
+	till TERM. Dessutom returneras alltid namnet numera.
+
+1981-08-13 21:08:32 Edit nr 266 Jan Michael Rynning
+	Funktionen ReadLine har nu str{ngen Prompt som f|rsta argument.
+
+1981-08-09 19:46:09 Edit nr 265 Jan Michael Rynning
+	[nnu fler kommandonamn inlagda i MAIN, och "ord(<heltal>)" borttagna.
+
+1981-08-08 22:22:45 Edit nr 264 Johnny Eriksson
+	Lite saker inlagda i SEARCH, s} att hanteringen av ekoraden
+	fungerar.
+
+1981-08-08 16:33:46 Edit nr 263 Jan Michael Rynning
+	Nya kommandonamn inlagda i MAIN. Gamla variabler borttagna ur SEARCH.
+
+1981-08-08 14:59:36 Edit nr 262 Jan Michael Rynning
+	R{ttat ett fel i TryScroll, som gjorde att modraden uppdaterades efter
+	varje scrollning.
+
+1981-08-08 05:29:42 Edit nr 261 Johnny Eriksson
+	En bug i search (fr}n edit nr 252) borttagen.
+
+1981-08-07 14:57:43 Edit nr 260 Jan Michael Rynning
+	Mark ring implementerad. C-U C-@ och C-U C-U C-@ fungerar numera.
+
+1981-08-07 14:49:06 Edit nr 257 Anders Str|m
+	R{ttat ett skrivfel i SCREEN, algoritmen f|r att avg|ra n{r
+	man skall scrolla fungerar lite b{ttre nu.
+
+1981-08-07 13:07:57 Edit nr 256 Jan Michael Rynning
+	ExpTabs expanderar nu tabbar korrekt. [ven p} l}nga rader.
+
+1981-08-07 12:30:35 Edit nr 255 Jan Michael Rynning
+	Anrop av TTyForce inlagd sist i WinUpdate, eftersom det inte l{ngre
+	finns n}gon rutin, som anropas efter WinUpdate, som g|r TTyForce.
+
+1981-08-07 00:55:20 Edit nr 254 Erik Forsberg
+	Cursor forward (PE550) korrigerad.
+	Endast dca-bitten i td.has best{mmer nu hur addressering g|rs
+
+1981-08-06 22:03:59 Edit nr 253 Johnny Eriksson
+	1) Flaggan nomodeupdate borttagen ur main.
+	2) Kommandot "Set Comment String" omd|pt till "Set Comment Start".
+	3) Alla st{llen i MAIN d{r det l{ggs in nya reder i bufferten
+	   anropar nu rutinen INSEOL i buffer.
+
+1981-08-06 19:23:35 Edit nr 252 Jan Michael Rynning
+	1) WINDOW + SCREEN -> SCREEN. Rutiner f|r smart hantering av mod- och
+	   ekoareorna inlagd i WINDOW. Gamla SCREEN borttagen.
+	2) AMILIB + FUNCS -> UTILITY. Tv} moduler med utilityfunktioner samman-
+	   slagna till en. Nya UTILITY ska |verensst{mma med beslutad standard,
+	   fast jag har inte hunnit kolla alla funktioner {n, och flera funk-
+	   tioner fr}n MAIN ska flyttas dit.
+	3) MAIN, HELPER, INPUT och SEARCH. Alla anrop f|r hantering av mod-
+	   och ekoareorna {ndrade, f|r att passa nya funktionerna.
+	4) BUFFER. Funktionen AtEOL har f}tt parametrar och fungerar nu som den
+	   ska.
+	5) TERM. Funktioner i andra moduler har bytt namn, WrtStr -> TTyString,
+	   TTyStrings -> TTyActivation och PutInt -> PutDec.
+	6) TTYIO. Anropet av ClearScreen borttaget.
+
+1981-08-06 17:34:48 Edit nr 251 Anders Str|m
+	Bug r{ttad i WINDOW, numera skall C-V fungera bra {ven
+	p} terminaler som saknar "erase to end of line".
+
+1981-08-05 20:28:37 Edit nr 250 Erik Forsberg
+	Mera fillers f|r VC414 !!!!
+
+1981-08-05 00:24:57 Edit nr 247 Erik Forsberg
+	F|rhoppningsvis sista buggen borttagen f|r PE550
+	i TERM.
+
+1981-08-02 20:59:30 Edit nr 246 Erik Forsberg
+	Liten {ndring av VT100 initialisering.
+	Bug i PE550 direkt addressering fixad.
+
+1981-08-02 00:53:57 Edit nr 245 Erik Forsberg
+	Bug i rutinen BUG (TTYIO) fixad.
+	PE550 direkt addressering {ndrad.
+
+1981-08-01 17:21:05 Edit nr 244 Jan Michael Rynning
+	Argument till CommandLoop medf|r korrekt modrad vid rekursiv edit.
+
+1981-07-29 00:45:41 Edit nr 243 Erik Forsberg
+	VT100 s{tts nu automagiskt till 80/132 kolumners mode, beroende
+	p} TTY WIDTH.
+
+1981-07-26 18:14:47 Edit nr 242 Johnny Eriksson
+	En bug fr}n edit nr 241 avlivad.
+
+1981-07-25 00:50:55 Edit nr 241 Johnny Eriksson
+	En bug i hanteringen av attach/detach avlivad.
+
+1981-07-23 21:18:04 Edit nr 240 Jan Michael Rynning
+	Nya texthanteringsrutinerna fr}n Fysikum inlagda. Verkar funka bra nu.
+
+1981-07-22 21:52:11 Edit nr 237 Erik Forsberg
+	Bug i region scroll f|r TE4025 }tg{rdad.
+	Felskriven teckensekvens.
+
+1981-07-21 22:22:10 Edit nr 236 Johnny Eriksson
+	Buggen i TTYWRITE (se edit 232) permanent avlivad.
+
+1981-07-21 20:49:41 Edit nr 235 Erik Forsberg
+	[kta region scroll p} MicroBee2. Inga fillers, och
+	terminalen initialiseras till line mode.
+
+1981-07-20 23:14:58 Edit nr 234 Erik Forsberg
+	Justerat region scroll f|r ADM31. Inga fillers.
+
+1981-07-19 12:30:30 Edit nr 233 Lars-Henrik Eriksson
+	Sk|nhetsfel i WINDOW r{ttat. "FLUSHED" skrivs nu ut
+	omedelbart efter en flush av overwrite-text.
+
+1981-07-18 23:24:39 Edit nr 232 Erik Forsberg
+	Katastrofal bug i TTYIO r{ttad. Fixen tempor{rt i TTYWRITE.
+
+1981-07-18 15:34:04 Edit nr 231 Erik Forsberg
+	Dubbelt s} snabb Tabs{ttning p} VT100,ANSI och AMBASS.
+
+1981-07-18 15:24:13 Edit nr 230 Jan Michael Rynning
+	Strip SOS Line Numbers tar numera bort radnummer ocks}.
+
+1981-07-18 01:38:14 Edit nr 227 Johnny Eriksson
+	AMIS genererar nu j{mn paritet p} utmatningen.
+
+1981-07-18 00:39:24 Edit nr 226 Erik Forsberg
+	Mera tid }t region scroll f|r VC414.
+
+1981-07-18 00:13:07 Edit nr 225 Johnny Eriksson & Erik Forsberg
+	Nya versioner av TERM och TTYIO. AMIS supportar numera
+	anv{ndardefinierade terminaler.
+
+1981-07-16 20:30:18 Edit nr 224 Jan Michael Rynning
+	DSKIO defaultar numera utel{mnat projekt och programmerarnummer till
+	inloggat PPN i st{llet f|r fr}n default PATH.
+
+1981-07-14 16:18:57 Edit nr 223 Jan Michael Rynning
+	"DINNER" bytt mot "DETACH" |verallt i MAIN och TTYIO.
+
+1981-07-12 22:08:02 Edit nr 222 Lars-Henrik Eriksson
+	^R Backward Delete Hacking Tabs gjorde inte r{tt i
+	Overwrite Mode. Nu fixat.
+
+1981-07-12 21:20:26 Edit nr 221 Johnny Eriksson
+	CCL-flaggan clearades inte vid reenter. Nu fixat.
+
+1981-07-12 18:49:00 Edit nr 220 Johnny Erkisson
+	Insert Date l{mnar nu dot f|re, och mark efter den insatta
+	str{ngen. Komandot ^R Un-kill Pop inlagt.
+
+1981-07-10 22:43:44 Edit nr 217 Lars-Henrik Eriksson *** RELEASAD VERSION ***
+	Bug i recognitionrutinerna. Om det fanns funktioner med
+	namnen "Foo Bar" och "Foo-1", s} accepterades inte blanktecken
+	efter "Foo". Nu fixat.
+
+1981-07-09 18:32:09 Edit nr 216 Bj|rn Danielsson
+	Bug i hanteringen av Q-register fixad.
+	Q-registren t|mdes inte innan dom definierades om.
+
+1981-07-09 02:07:47 Edit nr 215 \rjan Ekeberg
+	N}gra mindre uppsnyggningar av Keyboard Macros inf|rda.
+
+1981-07-08 21:22:46 Edit nr 214 Johnny Eriksson & Bj|rn Danielsson
+	Nu kan man ge argument till C-Y.
+
+1981-07-08 19:53:13 Edit nr 213 Bj|rn Danielsson & Johnny Eriksson
+	Nu finns Q-register.
+
+1981-07-07 22:13:34 Edit nr 212 Johnny Eriksson
+	En konstig bug i edit nr 211 fixad.
+
+1981-07-07 20:14:33 Edit nr 211 Johnny Eriksson
+	Inl{sning av funktionsnamn har nu n{stan recognition.
+
+1981-07-07 19:17:37 Edit nr 210 Bj|rn Danielsson
+	Bug i BUFFERs garb fixad (f|rhoppningsvis) och buggen som gav
+	upphov till Ill mem ref i findchar fixad (f|rhoppningsvis).
+
+1981-07-07 14:51:21 Edit nr 207 Bj|rn Danielsson
+	Bug i KILL fixad: KILL med negativt argument stoppar nu in
+	texten i b|rjan av aktuell killbuffert. Nya BUFFER upplagd.
+
+1981-07-05 17:26:22 Edit nr 206 Johnny Eriksson och Jan Michael Rynning
+	En bug i SEARCH borttagen. Vissa interna {ndringar i MAIN,
+	fr{mst inl{sning av funktionsnamn.
+
+1981-07-02 22:50:33 Edit nr 205 Johnny Eriksson
+	Keybord macros inlagda. Jobbet gjort av \rjan Ekeberg.
+
+1981-07-01 23:04:26 Edit nr 204 Johnny Eriksson
+	Ett par sm} buggar i edit nr 203 borttagna.
+
+1981-06-30 22:50:43 Edit nr 203 Johnny Eriksson
+	Vissa interna {ndringar i helper, ett nytt subkommando,
+	'N' inlagt, dessutom finns nu kommandot "View File" i MAIN.
+	
+1981-06-30 18:53:15 Edit nr 202 Per Danielsson
+	Felet med konstiga datum p} backupfilen r{ttat.
+
+1981-06-30 02:24:16 Edit nr 201 Anders Str|m
+	Funktionen DOTPOS l{mnar numera alltid korrekta v{rden,
+	dvs var cursorn hamnar p} den uppdaterade sk{rmen.
+
+1981-06-30 01:22:01 Edit nr 200 Anders Str|m
+	TERM s{tter numera r{tt antal tabstopp, beroende p}
+	aktuell terminalbredd.
+
+1981-06-27 01:40:50 Edit nr 177 Johnny Eriksson
+	Oegentlighet i dispatchtabellen }tg{rdad.
+
+1981-06-27 01:03:50 Edit nr 176 Johnny Eriksson
+	Terminaltypen HA1500 inlagd i TTYIO. Dessutom {ndrade jag
+	konstanten termmodels fr}n 19. till 20.
+
+1981-06-25 17:04:29 Edit nr 175 Anders Str|m
+	Terminaltypen HA1500 inlagd i TERM. Kan dock ej anv{ndas
+	{nnu d} den inte {r definerad i TTYIO {nnu.
+
+1981-06-25 15:53:38 Edit nr 174 Anders Str|m
+	Funktionen TRMCST inlagd i TERM. Den estimerar kostnaden
+	f|r att genomf|ra region-scroll (senare {ven character-
+	insert/delete). Detta anv{nds av WINDOW f|r att b{ttre kunna
+	avg|ra n{r scroll skall anv{ndas.
+
+1981-06-21 15:21:43 Edit nr 173 Lars-Henrik Eriksson
+	Felaktig hantering av M-O kommandot gjorde att siffrorna
+	p} VT100s numeriska tangentbord inte fungerade som de skulle.
+	Hanteringen av prefixkommandon gjord enhetlig.
+
+1981-06-17 22:37:27 Edit nr 172 Johnny Eriksson
+	Kommandot What Page finns nu inhackat i main.
+
+1981-06-14 01:26:20 Edit nr 171 Johnny Eriksson
+	Bug i edit nr 170 }tg{rdad.
+	Koden f|r Push to EXEC befriad fr}n teckendistorsion.
+
+1981-06-14 01:00:54 Edit nr 170 Johnny Eriksson
+	Ny kommandodispatcher inlagd i MAIN. Kommandon av typen
+	C-% och C-= kan nu ges, med hj{lp av funktionen
+	^R Prefix Control. Hj{lpfunktionerna ligger nu i en
+	egen modul, helper.
+
+1981-06-13 17:40:10 Edit nr 167 Jan Michael Rynning
+	Caseing i QueryReplace r{ttad enligt Anders Str|ms anvisningar.
+	Subkommandon ',', C-R och C-W till QueryReplace inf|rda.
+
+1981-06-08 00:40:05 Edit nr 166 Jan Michael Rynning
+	Buggar i CommandLoop r{ttade. Dot och Mark sparas inte. C-M-Z poppar
+	bara upp en rekursiv editniv}.
+
+1981-06-07 17:42:14 Edit nr 165 Jan Michael Rynning
+	Procedurnamn {ndrade till IncrementalSearch och QueryReplace i MAIN
+	och SEARCH. Extra parameter, Delimitered, till QueryReplace inf|rd.
+	Delim i MAIN medtagen i listan |ver globala rutiner.
+
+1981-06-06 17:30:32 Edit nr 164 Johnny Eriksson
+	En bug i Strip SOS Line Numbers fixad.
+	Rekursiva anrop av commandloop m|jliggjorda.
+
+1981-06-04 23:48:10 Edit nr 163 Johnny Eriksson
+	Liten oegentlighet i ^R Count Lines Page }tg{rdad.
+
+1981-06-04 23:18:47 Edit nr 162 Johnny Eriksson
+	Funktionen "Strip SOS Line Numbers" inlagd.
+
+1981-05-16 20:44:01 Edit nr 161 Anders Str|m
+	F|rb{ttring av region scroll p} Tektronix 4025.
+
+1981-05-16 04:28:06 Edit nr 160 Anders Str|m
+	Ny l{nkning d} det av n}gon obegriplig anledning hade
+	blivit fel i f|reg}ende.
+
+1981-05-15 22:21:27 Edit nr 157 Anders Str|m
+	Insert/delete line anv{nds numera p} ANSI-terminaler.
+	Anv{ndningen av i/d-l p} andra terminaler skall f|rhoppningsvis
+	ge mindre sj|sjukeeffekter numera.
+
+1981-05-15 20:51:18 Edit nr 156 Lars-Henrik Eriksson
+	^R Indent New Line stoppar nu in fill prefix f|rst p} den
+	nya raden om s}dant finns.
+
+1981-05-15 17:48:34 Edit nr 155 Lars-Henrik Eriksson
+	Felaktigt assemblerdirektiv i AMIS.MAC kvaddade efterf|ljande
+	ord. Nu fixat.
+
+1981-05-15 17:31:27 Edit nr 154 Lars-Henrik Eriksson
+	[ndringarna i overwritehanteringen i edit 145 som f|rsvann
+	i och med edit 146 {r nu }terinf|rda.
+	En bugg i HELP-kommandots overwritehantering r{ttad.
+
+1981-05-15 07:02:33 Edit nr 153 Per Danielsson
+	Tv} buggar i DSKIOs hantering av TMP: r{ttade.
+
+1981-05-14 23:33:21 Edit nr 152 Anders Str|m
+	Ytterligare en {ndring i TERM, regionen s{tts numera
+	till hela sk{rmen vid initieringen.
+
+1981-05-14 23:19:12 Edit nr 151 Anders Str|m
+	Bug i TERM r{ttad, VT100 flyttar cursorn till home-
+	positionen n{r regionen {ndras, uppdatera variablerna
+	s} att de tar h{nsyn till detta.
+
+1981-05-13 21:14:33 Edit nr 150 Erik Forsberg
+	Bug i MODEEOL (i SCREEN) fixad. En position f|r lite
+	rensas p} terminaler utan erase-to-end -of-line.
+
+1981-05-13 02:47:56 Edit nr 147 Anders Str|m
+	Reenter adress finns numera till AMIS (modulen AMIS).
+
+1981-05-13 02:24:33 Edit nr 146 Anders Str|m
+	Modulen TERM utbytt, den h}ller numera reda p} var cursorn
+	befinner sig p} sk{rmen. Tv} andra moduler har p}verkats
+	av {ndringen, WINDOW och SCREEN. I Window s} anv{nds numera
+	rutinerna i Term (tidigare anv{ndes rutiner i Screen). Det
+	mesta i Screen har f|rsvunnit, kvar finns endast viss hantering
+	av mode- och echo-rad, dessa skall senare bilda en egen modul.
+
+1981-05-10 16:37:03 Edit nr 145 Lars-Henrik Eriksson
+	8 bitars ASCII med metabit kan nu hanteras. Det tempor{ra
+	kommandot "M-X Hackmatic" sl}r p} tolkningen av 8:e biten.
+	Vissa felaktigheter i ekning av metakommandon kvarst}r.
+	Overwrite hanteringen f|rb{ttrad. Flush etc. fungerar
+	nu korrekt.
+
+1981-05-08 21:58:06 Edit nr 144 Anders Str|m
+	Window uppdaterar korrekt {ven n{r {ndring har skett
+	f|re f|nstrets b|rjan.
+
+1981-05-07 22:36:04 Edit nr 143 Johnny Eriksson
+	Funktionen "Dinner" skriver nu ut en "monitor"-punkt.
+
+1981-05-04 21:54:56 Edit nr 142 Johnny Eriksson
+	Attach/detach-f{llan skriver nu om sk{rmen vid attach.
+
+1981-05-03 02:32:06 Edit nr 141 Johnny Eriksson
+	En av Per Danielsson i edit nr 140 introducerad bug
+	borttagen. (Extension .TXT gav macro mode)
+
+1981-05-01 02:08:02 Edit nr 140 Per Danielsson
+	Diverse buggar och misfeatures i DSKIO fixade:
+	TRUNAME st{mmer b{ttre med verkligheten,
+	Blank kan f|rekomma i filspecar om man prefixar med ^V,
+	Default protection blir system default om man har
+	gjort SET DEFAULT PROTECTION OFF (Grrr, annan GETTAB-tabell!)
+	S|kning p} LIB: funkar r{tt.
+
+1981-04-26 18:51:35 Edit nr 137 Erik Forsberg	*** RELEASAD VERSION ***
+	Mera fillers f|r VC404,VC414.
+	Bugrapporten om MICBEE kommer ej l{ngre
+
+1981-04-26 03:06:08 Edit nr 136 Anders Str|m
+	Bug fr}n edit nr 123 r{ttad.
+	(Scroll av sista raden.)
+
+1981-04-25 19:11:11 Edit nr 135 Johnny Eriksson
+	F|rb{ttringar i "Push to EXEC".
+
+1981-04-24 20:28:57 Edit nr 134 Johnny Eriksson	*** RELEASAD VERSION ***
+	"Push to EXEC" tillbaka, p} allas beg{ran.
+
+1981-04-23 19:12:26 Edit nr 133 Per Danielsson
+	Truname ger inte tillbaka extension, directory & protection
+	om den |ppnade filens device inte {r ett directory device.
+
+1981-04-23 17:36:27 Edit nr 132 Lars-Henrik Eriksson
+	Major modes initieras nu korrekt efter omstart av AMIS.
+
+1981-04-22 19:39:39 Edit nr 131 Johnny Eriksson
+	Funktionen "Dinner" fixad.
+
+1981-04-22 16:57:23 Edit nr 130 Anders Str|m
+	Direkt-adressering p} Elite 2500 korrigerad.
+
+1981-04-21 00:04:54 Edit nr 127 Johnny Eriksson
+	Koden f|r synkronisering av outputbufferten {ndrad.
+	Till det b{ttre, hoppas jag.
+
+1981-04-20 13:18:54 Edit nr 126 Lars-Henrik Eriksson
+	Hanteringen av meningar f|rb{ttrad. (Koden gjord av
+	\rjan Ekeberg)
+
+1981-04-19 11:36:27 Edit nr 125 Lars-Henrik Eriksson
+	Dot hamnar nu r{tt efter scrollning. Denna edit KOMPLETTERAR
+	edit nr 102.
+
+1981-04-18 12:39:48 Edit nr 124 Lars-Henrik Eriksson
+	Edit 123 inf|rde en bug i NEWOWLINE, vilken i och med denna
+	edit {r fixad.
+
+1981-04-18 02:35:59 Edit nr 123 Anders Str|m
+	Uppsnabbade algoritmer f|r Window.
+	Terminaler utan direkt-addressering hanteras p} ett b{ttre s{tt.
+
+1981-04-17 20:21:40 Edit nr 122 Lars-Henrik Eriksson
+	Moderaden skrivs nu inte om flera g}nger n{r AMIS startats
+	med EDIT.
+	Upcase av "_" i PASCAL mode ger inte l{ngre Rubout som resultat.
+
+1981-04-16 16:17:59 Edit nr 121 Lars-Henrik Eriksson
+	P} beg{ran fr}n Link|ping {r nu kommandot C-] synonymt med
+	C-X (tillf{llig hack).
+
+1981-04-13 21:05:47 Edit nr 120 Johnny Eriksson
+	Bugg i attach/detach trappen fixad.
+
+1981-04-12 23:52:22 Edit nr 117 Erik Forsberg
+	Typen EL3045 nu inf|rd som typ 2.
+	Men den finns ju inte i monitorn, uppt{ckte jag just ?
+
+1981-04-12 21:37:44 Edit nr 116 Lars-Henrik Eriksson
+	DSKIO returnerade inte korrekt filtypskod f|r TMP:.
+	Nu fixat.
+
+1981-04-11 18:37:18 Edit nr 115 Per Danielsson
+	Liten bug i DSKIO fixad. Ny fil utan angiven
+	protection f}r inte <000> som protection,
+	utan <user-default>./PD
+
+1981-04-11 01:51:41 Edit nr 114 Lars-Henrik Eriksson
+	Allm{n reorganisation av koden i MAIN forts{tter.
+	AMIS accepterar nu godtyckliga major modes i -*-MODE-*-
+	konstruktioner.
+	^R Up Comment Line och ^R Down Comment Line hanterar nu 
+	tomma kommentarer korrekt.
+	I Algol och Pascal modes k|r Tab ^R Indent Algol Stm resp.
+	^R Indent Pascal Stm, dessa indenterar raden eller s{tter
+	in en tab, beroende p} var de skrivs.
+	"_" ing}r nu i ord {ven i Algol mode.
+
+1981-04-09 23:46:39 Edit nr 113 Per Danielsson
+	AMIS accepterar protection code i filnamnet.
+
+1981-04-08 21:51:09 Edit nr 112 Lars-Henrik Eriksson
+	Diverse mindre buggar och sk|nhetsfel r{ttade i f|ljande funktioner:
+		^R Backward delete hacking tabs
+		^R Auto-Fill Space
+		^R Set Comment Column
+		^R Set Fill Column
+		^R Indent for Comment
+		^R Get Q-reg
+		^R Put Q-reg
+	I PASCAL mode ing}r "_" i ord.
+	Kommentarstr{ng inf|rd i Text Mode.
+	^G bryter nu vid --MORE-- prompt.
+	Som bieffekt har t.v. inf|rts en bugg i ^R Up/Down Comment Line:
+		Tomma kommentarrader tas inte bort.
+
+1981-04-07 23:53:44 Edit nr 111 Johnny Eriksson
+	Funktionerna ^R Set Comment Column respektive
+	^R Set Fill Column skriver nu ut det nya v{rdet
+	p} moderaden.
+
+1981-04-07 21:55:05 Edit nr 110 Per Danielsson
+	Funktionen Dinner inlagd.
+	Mindre bug i filnamnsparsern r{ttad.
+	Utrensning av diverse redundant kod i DSKIO.
+
+1981-04-07 21:49:37 Edit nr 107 Lars-Henrik Eriksson
+	Ytterligare allm{n upsnyggning av koden i MAIN.
+	Bugg i "^R Copy Region" r{ttad.
+	I Auto Fill Mode bryter nu {ven "^R CRLF" en f|r l}ng rad.
+
+1981-04-06 19:29:44 Edit nr 106 Per Danielsson
+	Anti-Cimex behandling av edit 104.
+
+1981-04-05 19:25:18 Edit nr 105 Lars-Henrik Eriksson
+	Allm{n uppsnyggning av koden i MAIN.
+	PASCAL mode inf|rd.
+	"Un-kill pop" inlagt i kommandotabellen (f|rut fick man nulls).
+	Bug i "^R Backward delete hacking tabs" fixad.
+	Bug i hanteringen av filtyper r{ttad.
+	R{ttning av meddelandet fr}n "^R Count Lines Page".
+
+1981-04-01 04:19:58 EdIt nR 104 peR DAnIeLsson
+	SuPPoRt I DSKiO f|R TMp: Inf|Rt.
+	GAnskA devIce-obeRoende i/O InhAckAd.
+
+1981-03-31 12:09:24 Edit nr 103 Jan Michael Rynning
+	Bugg i WINDOW, som gav areapos outside, efter --MORE--, r{ttad.
+
+1981-03-30 20:14:13 Edit nr 102 Lars-Henrik Eriksson
+	En bug i (proceduren) window som gjorde att dot kunde hamna
+	fel efter C-V och M-V {r nu fixad.
+
+1981-03-29 12:58:32 Edit nr 101 Johnny Eriksson
+	En bug i Auto Fill Mode fixad.
+
+1981-03-28 14:16:59 Edit nr 100 Johnny Eriksson
+	En bug i ^R Backward Delete Hacking Tabs fixad.
+	Fill prefix inf|rt.
+
+1981-03-27 00:52:07 Edit nr 77 Johnny Eriksson
+	En bug i Auto Fill Mode fixad.
+
+1981-03-26 05:04:35 Edit nr 76 Johnny Eriksson
+	P}verkad av Per Danielsson lade jag in funktionen
+	^R Count Lines Page. Anropas med C-X L
+
+1981-03-26 02:46:48 Edit nr 75 Johnny Eriksson
+	Kommandona f|r indentering av kommentarer justerar
+	nu existerande kommentarer i sidled.
+	Kommandot "^R Copy Region" inlagt.
+	Amis scannar f|rsta raden efter -*-Mode-*-, och
+	s{tter "Mode", om den finns.
+
+1981-03-25 03:08:27 Edit nr 74 Johnny Eriksson
+	Auto fill mode inhackad.
+
+1981-03-24 20:28:18 Edit nr 73 Johnny Eriksson
+	I algol mode ger <TAB> i b|rjan av en rad indentering
+	lika m}nga positioner som f|reg}ende rad.
+
+1981-03-24 17:43:15 Edit nr 72 Johnny Eriksson
+	Amis k{nner nu av n}gra viktiga extensions, och
+	s{tter major mode efter denna.
+	Nya major modes "ALGOL" och "MACRO" inf|rda.
+
+1981-03-23 19:01:25 Edit nr 71 Johnny Eriksson
+	Ruboutpaddning av sista ordet i outputbufferten
+	inlagd f|r terminaltyperna VT52,VT100 och AMBASSador.
+
+1981-03-22 08:52:03 Edit nr 70 Johnny Eriksson
+	F|rb{ttringar vid attach av detachade amisjobb.
+
+1981-03-20 02:34:09 Edit nr 67 Anders Str|m
+	Gammal lus i window borttagen. (Fr}n edit nr 11.)
+	(Delete av f|rsta tecken p} forts{ttningsrad.)
+
+1981-03-15 16:49:06 Edit nr 66 Anders Str|m
+	Ytterligare en lus i edit nr 64 borttagen.
+	(Insert f|rst i bufferten. Fel i wininsert.)
+
+1981-03-15 03:49:53 Edit nr 65 Anders Str|m
+	Lus introducerad i edit nr 64 borttagen.
+	(Cursor till f|rsta position efter window.)
+
+1981-03-15 02:58:51 Edit nr 64 Anders Str|m
+	Window utnyttjar region scroll.
+
+1981-03-05 20:49:38 Edit nr 63 Erik Forsberg
+	VC414 nya prommet supportas. (cursor address 31).
+
+1981-03-02 02:18:17 Edit nr 62 Per Danielsson
+	Bug i DSKIOs hantering av backup fixad (/SCAN-switchen clearas).
+
+1981-02-28 18:57:16 Edit nr 61 Lars-Henrik Eriksson
+	Funktionen "Phase Of Moon" inf|rd. Den l{gger in aktuell
+	m}nfas i bufferten.
+
+1981-02-24 02:50:45 Edit nr 60 Jan Michael Rynning
+	Bugg i s{ttningen av tabulatorstoppar p} TE4025 r{ttad.
+
+1981-02-22 22:14:54 Edit nr 57 Johnny Eriksson
+	En bug i hanteringen av MICroBEE borttagen.
+
+1981-02-22 19:26:26 Edit nr 56 Johnny Eriksson
+	Terminaltyperna AMBASSasdor och MICBEE inlagda i TTYIOs
+	terminaltypstabell. Ambassador betraktas f. n. som VT100,
+	och MICBEE som BEE100. Vidare ger TTYTYPE tillbaka samma
+	kod f|r EL1521 som f|r EL1520, vilket frist{ller 
+	terminaltyp 2. Tv} {ndringar inlagda i TERM, dels har
+	EL1521 tagits bort, dels har anrop av rutinen TTYEXIT
+	lagts in.
+
+1981-02-21 20:21:48 Edit nr 55 Johnny Eriksson
+	Komandot C-X ; (^R Set Comment Column) samt 
+	Set Comment String inlagda i main.
+
+1981-02-19 20:50:07 Edit nr 54 Johnny Eriksson
+	R{ttning av bug i ^R Indent For Comment.
+
+1981-02-19 20:15:16 Edit nr 53 Lars-Henrik Eriksson
+	Edit 52 avsl|jade en bug i QREADC, vilken nu {r fixad.
+
+1981-02-19 19:50:08 Edit nr 52 Lars-Henrik Eriksson
+	TTYCHECK t|mmer inte l{ngre ttybuffertarna. CHECK anropar
+	nu TTYFORCE ist{llet.
+
+1981-02-14 22:46:44 Edit nr 51 Johnny Eriksson	*** RELEASAD VERSION ***
+	Asynkront ^C f|ljt av 'CONTINUE' har tidigare inte fungerat
+	beroende p} en bug. Nu r{ttad.
+
+1981-02-11 14:28:53 Edit nr 50 Jan Michael Rynning
+	Promptern 'Write Region: ' {ndrad till 'Write Region to File: '.
+
+1981-02-09 19:54:11 Edit nr 47 Per Danielsson
+	DSKIO {ndrad s} att AMIS skriver DSKxn: i st{llet f|r DSK:, efter
+	Write File.
+	Directory-hakarna {ndrade fr}n '< >' till '[ ]'.
+
+1981-02-08 17:52:02 Edit nr 46 Johnny Eriksson
+	Formatet f|r insert date {ndrat.
+
+810207 18:28:43 Edit nr 45 Johnny Eriksson
+	F|rb{ttring av kommentarkommandona.
+
+810207 18:00:36 Edit nr 44 Johnny Eriksson
+	L{tt uppsnabbning av upper/lowercase region.
+
+810205 23:05:57 Edit nr 43 Erik Forsberg
+	TERM skickar ej l{ngre ut ^X vid initiering av VT100.
+
+810205 16:29:39 Edit nr 42 Anders Str|m
+	[ndringen av WINDOW i edit nr 40 borttagen, f|rutom det fall
+	n{r  sk{rmen f|rst har blankats.
+
+810205 02:05:57 Edit nr 41 Per Danielsson
+	"Clear key definitions" bortagen ur initieringen av
+	Tektronix 4025, i TERM.
+
+810201 21:43:29 Edit nr 40 Jan Michael Rynning
+	WINDOW refreshar nu sk{rmen a la VIDED. F|rst raden, d{r cursorn st}r,
+	sedan n{sta, d{refter raden innan, och s} vidare. SCREEN suddar nu eko-
+	raden p} ett smartare s{tt p} terminaler, utan erase to end of line.
+
+810128 04:01:03 Edit nr 37 Johnny Eriksson
+	'Enter'-tangenten p} en VT100 k|r nu kommandot
+	"Compile",  2 buggar i TTYIO eliminerade.
+
+810118 04:09:17 Edit nr 36 Johnny Eriksson
+	Lite buggar i edit # 35 borttagna.
+
+810116 22:22:09 Edit nr 35 Johnny Eriksson
+	Helt ny version av TTYIO inlagd.
+
+810114 21:24:43 Edit nr 34 Johnny Eriksson
+	R{ttning av bug i edit # 27.
+
+810114 13:32:52 Edit nr 33 Jan Michael Rynning
+	Support f|r Tektronix 4025 och liknande terminaler inlagt i TERM.
+
+810112 23:49:44 Edit nr 32 Johnny Eriksson
+	Kommandot "Insert Date" inlagt.
+
+800112 20:34:43 Edit nr 31 Johnny Eriksson
+	Kommandot "Compile" sparar nu bufferten om den {ndrats.
+
+800111 19:57:08 Edit nr 30 Johnny Eriksson
+	C-X C-L, (^R Lowercase Region)
+	C-X C-U, (^R Uppercase Region)
+	M-;    , (^R Indent Comment Line)
+	M-P    , (^R Up Comment Line) och
+	M-N    , (^R Down Comment Line) inlagda i MAIN.
+
+810110 22:43:21 Edit nr 27 Johnny Eriksson
+	Lagt in kommandot "Compile" i main.
+
+810109 17:31:14 Edit nr 26 Jan Michael Rynning
+	Korrektion av bugg i DSKIO i edit 25.
+
+810108 16:41:56 Edit nr 25 Jan Michael Rynning
+	Write Region inlagd. N|dv{ndiga {ndringar i MAIN och DSKIO inf|rda.
+
+810107 15:22:05 Edit nr 24 Jan Michael Rynning
+	C-X C-O, allts} ^R Delete Blank Lines, inlagd i AMIS.
+
+801230 17:30:21 Edit nr 23 Jan Michael Rynning
+	Query Replace, n{r man gett ett utropstecken till den, och Replace
+	String, suddar inte l{ngre ekoraden f|r varje hittad f|rekomst av
+	str{ngen, utan bara en g}ng.
+
+801228 20:12:15 Edit nr 22 Johnny Eriksson
+	Ny PUSH TO EXEC inlagd. Anv{nd bara p} egen risk.
+	Ingen garanti l{mnas {nnu.
+
+801215 20:49:23 Edit nr 21 Anders Str|m
+	Korrektion av bug i edit 17.
+
+801214 22:13:28 Edit nr 20 Anders Str|m		*** RELEASAD VERSION ***
+	Korrektion av bug i edit 17.
+
+801214 21:51:00 Edit nr 17 Anders Str|m
+	Uppsnabbning av WINDOW.
+
+801214 20:31:00 Edit nr 16 Johnny Eriksson
+	Bug i attach-detach-trappen fixad.
+
+801213 22:21:20 Edit nr 15 Johnny Eriksson
+	Hantering av Attach/Detach inlagd.
+
+801212 20:36:14 Edit nr 14 Johnny Eriksson
+	Reenterhacken {ndrad en smula.
+
+801212 04:39:45 Edit nr 13 Per Danielsson
+	Mindre "bug" i DSKMESSAGE r{ttad. Om felkoden inte finns med i
+	DSKIOs felmeddelandetabell, s} f}r man nu ett fel-felmeddelande
+	i.st.f. "vadsomhelst".
+
+801209 14:49:02 Edit nr 12. L-H Eriksson
+	"^R Extended Command" klarar nu av f|rkortningar av funktionsnamnet.
+	[ndringarna utf|rda av \rjan Ekeberg.
+
+801208 01:27:27 Edit nr 11. Anders Str|m
+	Mindre bug i hantering av f|r l}nga rader r{ttad.
+
+801207 22:04:17 Edit nr 10. Johnny Eriksson
+	T|mning av monitorbuffertar inlagda p} ett par st{llen.
+
+801207 15:35:23 Edit nr 7. Anders Str|m
+	Bug i samband med ^M och sk{rmpositionering r{ttad.
+
+801207 05:01:42 Edit nr 6. Bj|rn Danielsson
+	"^R Un-Kill" med tom kill-buffert betraktas inte l{ngre som
+	 modifiering av bufferten.
+	S|krutinerna modifierade f|r generell upcase/lowcase.
+		(ingen funktions{ndring)
+
+801207 00:51:10 Edit nr 5. L-H Eriksson
+	Oanv{nda tangenter p} VT-100s numeriska tangentbord ger nu
+	 felmeddelande.
+	PASCAL-runtimerutinen SETERR inlagd i AMIS.MAC.
+
+801207 00:04:15 Edit nr 4. L-H Eriksson
+	Funktionerna "^R Back to Indentation" och "^R Make ()" inlagda.
+		(ursprungligen skrivna av \rjan Ekeberg)
+	"Overwrite Mode" inf|rd.
+	Proceduren EXPTABS i AMILIB inf|rd.
+	"^R New Line" hade en om{rklig bug som nu fixats.
+	VT-100s numeriska tangentbord fungerar nu:
+		Siffertangenterna och minustecknet bildar argument.
+		Punkten ger hj{lp (Samma som C-_).
+		\vriga tangener ger f.n. felmeddelanden eller dumheter.
+	Allm{n uppsnyggning av delar av MAIN.
+
+801204 22:30:00 Edit nr 3. Anders Str|m
+	Proceduren PCNTMESSED inlagd.
+	Procentf{ltet uppdateras f|re textarean.
+
+801202 22:30:00 Edit nr 2. Erik Forsberg
+	2 buggar i terminalhanteringen f|r ADM31 r{ttade.
+
+801201 03:00:00 Edit nr 1. L-H Eriksson		*** RELEASAD VERSION ***
+	Den releasade versionen av AMIS p}b|rjad.
+
+1980-12-02	Denna fil skapad.			/PL

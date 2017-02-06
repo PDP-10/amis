@@ -1,0 +1,329 @@
+; This file is written in -*-MACRO-*- assembler
+
+title	MBUF
+
+;------------------------------------------------------------------------------
+; Machine dependent buffer handling for the AMIS editor, under TOPS-10.
+;------------------------------------------------------------------------------
+
+search	jobdat, uuosym, macten
+
+t0==0
+t1==1
+
+a1==2
+a2==3
+a3==4
+a4==5
+a5==6
+a6==7
+
+q1==10
+q2==11
+q3==12
+q4==13
+q5==14
+
+;?==15	;Frame pointer.
+;?==16	;Used by pascal.
+
+p==17
+
+twoseg
+
+bptlh:	point 7,,6
+	point 7,,13
+	point 7,,20
+	point 7,,27
+	point 7,,34
+
+;------------------------------------------------------------------------------
+; The makbp macro makes a byte pointer from a character offset.
+;------------------------------------------------------------------------------
+
+define	makbp (ac)
+<	idivi	ac,5
+	hll	ac,bptlh(ac+1)
+>
+
+;------------------------------------------------------------------------------
+; Some useful macros to decrement a byte pointer more efficiently than
+; ADJBP does.
+;------------------------------------------------------------------------------
+
+define	dbp (ac)		; Decrement Byte Pointer
+<	caml	ac,[35b5]
+	 jrst	[sub  ac,[340000,,1]
+		 jrst  .+2]
+	add ac,[7b5]
+>
+
+define	dldb (ac,bpac)		; Decrement (byte pointer) and LoaD Byte
+<	dbp	bpac
+	ldb	ac,bpac
+>
+
+define	ddpb (ac,bpac)		; Decrement (byte pointer) and DePosit Byte
+<	dbp	bpac
+	dpb	ac,bpac
+>
+
+;------------------------------------------------------------------------------
+; procedure movebytes(source,dest: refchunk; si,di,n: integer);
+; moves N bytes from offset SI in chunk SOURCE, to offset DI in chunk DEST.
+; The source and destination may overlap.
+;------------------------------------------------------------------------------
+
+movebytes::
+	move	q1,a4
+	came	a1,a2
+	 jrst	mvbfwd
+	caml	a3,a4
+	 jrst	mvbfwd
+	move	t0,a3
+	add	t0,a5
+	camge	t0,a4
+	 jrst	mvbfwd
+
+;Here we have to move the string from the end, backwards.
+
+mvbbwd:	makbp	t0		;Construct source byte pointer.
+	add	t0,a1
+	add	q1,a5		;Construct destination byte pointer.
+	makbp	q1
+	add	q1,a2
+bwdlup:	dldb	a1,t0		;Loop, moving bytes.
+	ddpb	a1,q1
+	sojg	a5,bwdlup
+	popj	p,
+
+; Here if the string can be moved in the normal direction.
+
+mvbfwd:	idivi	q1,5
+	add	q1,a2		;Compute destination word.
+	jumpe	q2,fwd.2	;Go now if word aligned.
+	hll	q1,bptlh-1(q2)	;Build a byte pointer to the previous byte.
+	subi	q2,5		;Convert (1,2,3,4) to (-4,-3,-2,-1)
+	movei	t0,4(a3)	;Copy source index.
+	idivi	t0,5		;build byte pointer to source byte.
+	addi	t0,-1(a1)
+	hll	t0,bptlh(t1)
+fwd.1:	ildb	t1,t0		;Get source byte.
+	idpb	t1,q1		;Store in destination.
+	sojle	a5,.popj	;Return now if no more bytes to move.
+	addi	a3,1		;Bump source index one.
+	aojl	q2,fwd.1	;Go back if dest. word not filled.
+	movei	q1,1(q1)	;Convert byte pointer to addr. of next word.
+
+;Come here with:
+;	A1/ source chunk.
+;	A3/ source index.
+;	A5/ number of bytes left to move.
+;	Q1/ addr. of next word to store.
+
+fwd.2:	subi	q1,1		;Sigh...
+	idivi	a3,5		;Get word and byte offset.
+	add	a1,a3		;a1 := source word addr.
+	idivi	a5,5		;a5 := #words, a6 := #bytes.
+	jumpn	a5,@footab(a4)	;Dispatch according to alignment.
+fwd.9:	jumpe	a6,.popj	;Maybe not needed?
+	hrli	q1,(point 7,,34);Make q1 an IDPB pointer.
+	hll	a1,bptlh(a4)	;Make a1 an LDB pointer.
+fwd.9a:	ldb	t0,a1		;Get next source byte.
+	ibp	a1		;Increment for next time.
+	idpb	t0,q1		;Increment and store.
+	sojg	a6,fwd.9a	;Decrement count and loop.
+.popj:	popj	p,		;All done, return.
+
+footab:	exp	fwd.x0
+	exp	fwd.x1
+	exp	fwd.x2
+	exp	fwd.x3
+	exp	fwd.x4
+
+fwd.x0:	hrli	t0,(a1)		;Get source,,0
+	hrri	t0,1(q1)	;Get source,,destination
+	add	a1,a5		;Update source and destination pointers.
+	add	q1,a5		;(Making q1 = last word in BLT).
+	blt	t0,(q1)		;Move the data.
+	jrst	fwd.9		;Go move the remaining bytes.
+
+fwd.x1:	dmove	t0,(a1)		;Get next source word, and junk.
+	addi	a1,1		;Increment pointer.
+	lsh	t0,-1		;Shift data into place.
+	lshc	t0,10
+	push	q1,t0		;Store ...
+	sojg	a5,fwd.x1	;Decrement and loop.
+	jrst	fwd.9		;Go move the remaining bytes.
+
+fwd.x2:	dmove	t0,(a1)		;Get next source word, and junk.
+	addi	a1,1		;Increment pointer.
+	lsh	t0,-1		;Shift data into place.
+	lshc	t0,17
+	push	q1,t0		;Store ...
+	sojg	a5,fwd.x2	;Decrement and loop.
+	jrst	fwd.9		;Go move the remaining bytes.
+
+fwd.x3:	dmove	t0,(a1)		;Get next source word, and junk.
+	addi	a1,1		;Increment pointer.
+	lsh	t0,-1		;Shift data into place.
+	lshc	t0,-16
+	push	q1,t1		;Store ...
+	sojg	a5,fwd.x3	;Decrement and loop.
+	jrst	fwd.9		;Go move the remaining bytes.
+
+fwd.x4:	dmove	t0,(a1)		;Get next source word, and junk.
+	addi	a1,1		;Increment pointer.
+	lsh	t0,-1		;Shift data into place.
+	lshc	t0,-7
+	push	q1,t1		;Store ...
+	sojg	a5,fwd.x4	;Decrement and loop.
+	jrst	fwd.9		;Go move the remaining bytes.
+
+;------------------------------------------------------------------------------
+; function findchar(c1,c2: char; r: refchunk; pos,range: integer): integer;
+; searches for a character that matches c1 or c2, starting at offset pos in
+; chunk r, testing (at most) range characters. Returns number of tested chars,
+; or 0 if unsuccessful.
+;
+; function bfindchar(c1,c2: char; r: refchunk; pos,range: integer): integer;
+; searches for a character that matches c1 or c2, starting at offset pos-1 in
+; chunk r, testing (at most) range characters. Returns number of tested chars,
+; or 0 if unsuccessful. bfindchar searches backwards.
+;------------------------------------------------------------------------------
+
+ch1==a1
+ch2==a2
+r==a3
+pos==a4
+range==a5
+
+count==q1
+wrd==q2
+mask==q3
+n==q4
+
+;---  New code here.  Dont look, unless you can stand a heart attack. ---
+
+findch::jsp	t1,ssetup	;Set up things for searching.
+	movei	n,-1(count)	;Number of chars to test.
+	addi	n,(pos+1)	;Adjust for skipped bytes.
+	camn	ch1,ch2		;Go somewhere to start this mess.
+	 jrst@[ exp ff1.0, ff1.1, ff1.2, ff1.3, ff1.4](pos+1)
+	jrst@[  exp ff2.0, ff2.1, ff2.2, ff2.3, ff2.4](pos+1)
+
+bfindc::subi	pos,1		;Adjust to calling conventions.
+	jsp	t1,ssetup	;Set up variables.
+	hrroi	pos,-1(pos)	;Moby kludge...
+	movei	n,-1(count)	;Number of chars to test.
+	add	n,[exp 4, 3, 2, 1, 0](pos+1) ;Adjust for skipped bytes.
+	camn	ch1,ch2		;Go somewhere to start this mess.
+	 jrst@[ exp fb1.4, fb1.3, fb1.2, fb1.1, fb1.0](pos+1)
+	jrst@[  exp fb2.4, fb2.3, fb2.2, fb2.1, fb2.0](pos+1)
+
+;Common routine to setup search variables.
+
+ssetup:	skipg	count,range	;Save range, test for zero.
+	 jrst	retzer		; Lose if it is.
+	move	wrd,ch1		;Ho hum...
+	and	wrd,ch2
+	rot	wrd,-7
+	move	mask,wrd
+	rot	wrd,-7
+	iorb	mask,wrd
+	rot	wrd,-16
+	ior	mask,wrd
+	rot	wrd,-7
+	ior	mask,wrd
+	idivi	pos,5		;Get word offset and byte number.
+	add	pos,r		;Get absolute address of first word.
+	move	wrd,(pos)	;Preload first word.
+	xor	wrd,mask
+	jrst	(t1)		;Return to whatever.
+
+;Loop to search forward, looking for one character:
+
+flup1:	move	wrd,(pos)
+	xor	wrd,mask
+ff1.0:	txnn	wrd,<774000,,000000>
+	 jrst	fchr.0
+ff1.1:	txnn	wrd,<003760,,000000>
+	 jrst	fchr.1
+ff1.2:	txnn	wrd,<000017,,700000>
+	 jrst	fchr.2
+ff1.3:	txnn	wrd,<000000,,077400>
+	 jrst	fchr.3
+ff1.4:	txnn	wrd,<000000,,000376>
+	 jrst	fchr.4
+	subi	n,5
+	jumpl	n,retzer
+	aoja	pos,flup1
+
+;Loop to search forward, looking for two characters:
+
+flup2:	move	wrd,(pos)
+	xor	wrd,mask
+ff2.0:	txnn	wrd,<574000,,000000>
+	 jrst	fchr.0
+ff2.1:	txnn	wrd,<002760,,000000>
+	 jrst	fchr.1
+ff2.2:	txnn	wrd,<000013,,700000>
+	 jrst	fchr.2
+ff2.3:	txnn	wrd,<000000,,057400>
+	 jrst	fchr.3
+ff2.4:	txnn	wrd,<000000,,000276>
+	 jrst	fchr.4
+	subi	n,5
+	jumpl	n,retzer
+	aoja	pos,flup2
+
+;Loop to search backward, looking for one character:
+
+blup1:	pop	pos,wrd
+	xor	wrd,mask
+fb1.0:	txnn	wrd,<000000,,000376>
+	 jrst	fchr.0
+fb1.1:	txnn	wrd,<000000,,077400>
+	 jrst	fchr.1
+fb1.2:	txnn	wrd,<000017,,700000>
+	 jrst	fchr.2
+fb1.3:	txnn	wrd,<003760,,000000>
+	 jrst	fchr.3
+fb1.4:	txnn	wrd,<774000,,000000>
+	 jrst	fchr.4
+	subi	n,5
+	jumpge	n,blup1
+	jrst	retzer
+
+;Loop to search backward, looking for two characters:
+
+blup2:	pop	pos,wrd
+	xor	wrd,mask
+fb2.0:	txnn	wrd,<000000,,000276>
+	 jrst	fchr.0
+fb2.1:	txnn	wrd,<000000,,057400>
+	 jrst	fchr.1
+fb2.2:	txnn	wrd,<000013,,700000>
+	 jrst	fchr.2
+fb2.3:	txnn	wrd,<002760,,000000>
+	 jrst	fchr.3
+fb2.4:	txnn	wrd,<574000,,000000>
+	 jrst	fchr.4
+	subi	n,5
+	jumpge	n,blup2
+	jrst	retzer
+
+;Common exit code:
+
+fchr.4:	sojl	n,retzer
+fchr.3:	sojl	n,retzer
+fchr.2:	sojl	n,retzer
+fchr.1:	sojl	n,retzer
+fchr.0:	sub	count,n		;Win!  Return number of tested chars.
+	movem	count,1(p)
+	popj	p,
+
+retzer:	setzm	1(p)		;Return zero.
+	popj	p,
+
+end

@@ -1,0 +1,422 @@
+TITLE	Disconnect dataset terminal or send "POP" interrupt to controlling job.
+SEARCH	JOBDAT,UUOSYM,IMP,MACTEN
+
+OPDEF	IMPUUO[CALL[SIXBIT"IMPUUO"]]
+
+T1==1				;Temporary accumulators.
+T2==2
+T3==3
+T4==4
+T5==5
+T6==6
+T7==7
+BP==10				;Byte pointer to buffer.
+BC==11				;Byte counter for "DISCONNECT".
+PR==12				;Parser routine.
+MA==13				;Message block address.
+JS==14				;Job status word 1.
+CJ==15				;Controlling job number.
+P==17				;Stack pointer - at last.		[16]
+
+DEFINE	MESSAGE(FIRST,CODE,TEXT,REST),<
+	JRST[	OUTSTR[	ASCIZ	"FIRST'DSC'CODE' TEXT"]
+		REST
+		CLRBFI
+		HRROI	JS,.GTSTS
+		GETTAB	JS,	;;[12] Get this job's status.
+		 SETZ	JS,	;;[12]  Let Steinbach guide us here
+		TXNN	JS,1B15	;;[12] Logged in?
+		 OUTSTR[ASCIZ	"
+."]				;;[12]  No, monitor won't give the dot.
+		MONRT.
+		JRST	START]
+> ;END DEFINE MESSAGE
+
+DSCVER==1			;Major version.
+DSCMIN==0			;Minor version.
+DSCEDT==16			;Edit level.
+DSCWHO==2			;Last hacker.
+
+LOC	.JBVER
+VRSN.	DSC
+TWOSEG	.JBHGH
+
+;Revision history.
+;Edit,	by,	when,		what.
+;1	JE	1980-sometime	First working version.
+;2	JE	1981-04-28	Fix bug in logout, run SYS:LOGOUT/PHYSICAL.
+;3	JE	1981-05-01	Add attach/detach trap, so that logout starts
+;				directly after detach.
+;4	JMR	1981-06-25	Merge dataset terminal disconnect code from
+;				and change name to DISCON.MAC.
+;5	JMR	1981-06-26	Remove SEARCH PASMAC and all low segment data.
+;6	JMR	1981-06-26	Add network disconnect.
+;7	JMR	1981-07-14	Correct spelling of "Won't", never on SYS:.
+;10	JMR	1982-02-13	Add rescan of command line.
+;11	JE	1982-02-16	Add cross job function to return me to monitor
+;				level, as a complement to typing a <CR> from
+;				controlling job.
+;12	JE	1982-08-02	A little cosmetics on message type-out.
+;13	TE	1983-03-13	Dont LOGOUT if we detached another line.
+;14	KPJ	1986-04-04	Handle DECnet disconnect.
+;15	JMR	1988-02-09	Add IP terminal disconnect.
+;16	JMR	1988-02-10	Add job number printout when returning to the
+;				controlled job - at last.
+SUBTTL  Start of program. Set up interrupts and check if controlled job.
+
+START:	SKIPA			;No CCL entry.
+	 MESSAGE(?,CCL,No CCL entry)
+	MOVE	P,[		;Set up stack.				[16]
+		IOWD	STKLEN,STKBLK]
+	SETZM	WAKFLG		;Clear wakeup flag
+	MOVEI	T1,VECTOR	;Get our interrupt vector.
+	PIINI.	T1,		;Initialize our PSI.
+	 MESSAGE(?,PII,Couldn't initialize PSI system)
+	MOVSI	T1,(PS.FON)
+	PISYS.	T1,
+	 MESSAGE(?,PSI,Couldn't turn PSI on)
+	MOVEI	T1,DEBRK	;Add our time limit exceeded trap.
+	MOVEM	T1,VECTLE+.PSVNP
+	SETZM	VECTLE+.PSVFL
+	MOVE	T1,[
+		EXP	PS.FAC+[
+			EXP	.PCTLE
+			XWD	VECTLE-VECTOR,0
+			XWD	3,0]]
+	PISYS.	T1,
+	 MESSAGE(?,TLE,Couldn't trap time limit exceeded)
+	MOVEI	T1,CROSS	;Add our cross job interrupt trap.
+	MOVEM	T1,VECJBI+.PSVNP
+	SETZM	VECJBI+.PSVFL
+	MOVE	T1,[
+		EXP	PS.FAC+[
+			EXP	.PCJBI
+			XWD	VECJBI-VECTOR,0
+			XWD	1,0]]
+	PISYS.	T1,
+	 MESSAGE(?,JBI,Couldn't trap cross job interrupts)
+	MOVEI	T1,LGOUT1	;[13] Add our attach/detach trap.
+	MOVEM	T1,VECDAT+.PSVNP
+	SETZM	VECDAT+.PSVFL
+	MOVE	T1,[
+		EXP	PS.FAC+[
+			EXP	.PCDAT
+			XWD	VECDAT-VECTOR,0
+			XWD	2,0]]
+	PISYS.	T1,
+	 MESSAGE(?,DAT,Couldn't trap attach/detach)
+	HRROI	JS,.GTSTS	;Get this job's status.
+	GETTAB	JS,
+	 MESSAGE(?,STS,Couldn't get job status)
+	SETO	CJ,		;Get the controlling job number.
+	CTLJOB	CJ,
+	 MESSAGE(?,CTJ,Couldn't get number of controlling job)
+SUBTTL	Rescan command line and decode it.
+
+	RESCAN	1		;Rescan command line.
+	 SKIPA
+	  MESSAGE(?,RSC,Couldn't rescan command line)
+	MOVEI	BC,0		;Initialize index into "DISCONNECT".
+	MOVE	BP,[		;Load byte pointer to buffer.
+		POINT	7,BUFFER]
+	MOVE	PR,[		;Initialize parser routine addresses.
+		XWD	DISCO,BLANK]
+NEXTC:	INCHSL	T1
+	 JRST	LASTC
+	MOVEI	T2,1
+	LSH	T2,(T1)
+	TXNE	T2,^B10000000000001
+	 JRST	NEXTC		;Ignore NUL and CR.
+	TXNE	T2,^B1100000101000001110010001000
+	 JRST	LASTC		;^C, ^G, LF, VT, FF, ^R, ^T, ^Z, ESC terminate.
+	CAIE	T1,"!"		;! and ; start comments.
+	 CAIN	T1,";"
+	  HRRZI	PR,NEXTC
+	JRST	(PR)		;Jump off to parse routine.
+BLANK:	CAIE	T1," "		;Just loop if space or tab.
+	 CAIN	T1,.CHTAB
+	  JRST	NEXTC
+	MOVSS	PR		;Switch to next parse routine otherwise.
+	JRST	(PR)
+DISCO:	CAME	T1,[		;Check for upper or lower case.
+		EXP	"D","I","S","C","O","N","N","E","C","T",-1](BC)
+	 CAMN	T1,[
+		EXP	"d","i","s","c","o","n","n","e","c","t",-1](BC)
+	  AOJA	BC,NEXTC
+	CAIN	T1,":"
+	 MESSAGE(?,SCN,This program doesn't use SCAN for command decoding)
+	CAIL	T1,"0"		;Check for alphanumeric character.
+	 CAILE	T1,"9"
+	  SKIPA
+	   JRST	ALPHA
+	CAIL	T1,"A"
+	 CAILE	T1,"Z"
+	  SKIPA
+	   JRST	ALPHA
+	CAIL	T1,"a"
+	 CAILE	T1,"z"
+	  SKIPA
+	   JRST	ALPHA
+	MOVE	PR,[		;Load addresses of next parse routines.
+		XWD	STORE,BLANK]
+	JRST	(PR)		;Decode non alpha numeric.
+ALPHA:	CAIL	BC,6		;Shorter than monitor recognizes?
+	 MESSAGE(?,PUD,Please use the DISCONNECT command)
+	MOVE	PR,[		;Load addresses of parsers.
+		XWD	STORE,MINUS]
+	JRST	(PR)		;Jump off to parse character.
+MINUS:	CAIN	T1,"-"		;Just loop if not minus.
+	 HRRI	PR,BLANK	;Select another parse routine.
+	JRST	NEXTC
+STORE:	IDPB	T1,BP		;Store character in buffer.
+	JRST	NEXTC
+LASTC:	MOVEI	T1,.CHNUL
+	IDPB	T1,BP
+SUBTTL	Parse command line.
+
+	CAIE	BC,5		;"DISCO ..."?
+	 JRST	NOTJT		;No, not John Travolta.
+	MOVE	T1,BUFFER
+	ANDCM	T1,[
+		ASCII	"     "]
+	CAMN	T1,[		;"DISCO FREAK"?
+		ASCII	"FREAK"]
+	 JRST	FREAK
+	CAMN	T1,[		;"DISCO FEVER"?
+		ASCII	"FEVER"]
+	 JRST	FEVER
+	CAMN	T1,[		;"DISCO DUCK"?
+		ASCII	"DUCK"]
+	 JRST	QUACK
+NOTJT:	MOVE	BP,[		;Load byte pointer to start of command.
+		POINT	7,BUFFER]
+	ILDB	T1,BP		;Load first command character.
+	JUMPE	T1,NOARG	;No arguments, easy.
+	MOVE	T2,[		;Load byte pointer to sixbit word.
+		POINT	6,T3]
+	SETZ	T3,		;Clear result.
+NEXTS:	CAIL	T1,"0"		;Check for alpha numeric.
+	 CAILE	T1,"9"
+	  SKIPA
+	   JRST	SIXBC
+	CAIL	T1,"A"
+	 CAILE	T1,"Z"
+	  SKIPA
+	   JRST	SIXBC
+	CAIL	T1,"a"
+	 CAILE	T1,"z"
+	  MESSAGE(?,ILC,Illegal character ',
+		OUTCHR	T1
+		OUTSTR[	ASCIZ	"' in terminal name"])
+	SUBI	T1,40
+SIXBC:	SUBI	T1,40
+	TLNN	T2,770000
+	 MESSAGE(?,TLT,Too long terminal name)
+	IDPB	T1,T2
+	ILDB	T1,BP
+	JUMPE	T1,LASTS
+	CAIE	T1,":"
+	 JRST	NEXTS
+	ILDB	T1,BP
+	SKIPE	T1
+	 MESSAGE(?,ICE,Illegal character ',
+		OUTCHR	T1
+		OUTSTR[	ASCIZ	"' after command end"])
+LASTS:	MOVE	T5,T3		;Save terminal name.
+	IONDX.	T3,UU.PHY	;Get universal device index.
+	 MESSAGE(?,NSD,No such device)
+	TXNN	T3,.UXTRM	;Terminal?
+	 MESSAGE(?,NAT,Not a terminal)
+	MOVX	T4,UU.PHS
+	SETZ	T6,
+	OPEN	T4		;See if terminal available.
+	 MESSAGE(?,NAD,Not allowed to disconnect terminal)
+	MOVE	T5,T3		;Get terminal's physical node number.
+	WHERE	T5,UU.PHY
+	 MESSAGE(?,GTN,Couldn't get terminal node number)
+	HRRZS	T5
+	MOVE	T1,[		;Check if command decoder on that node.
+		XWD	.NDRCI,T4]
+	MOVEI	T4,4
+	SETZ	T6,
+	MOVEI	T7,.TYMCR
+	NODE.	T1,
+	 MESSAGE(?,GCD,Couldn't check if command decoder on terminal node)
+	MOVX	T6,SIXBIT "CTY"	;Get command decoder's node number.
+	WHERE	T6,UU.PHY
+	 MESSAGE(?,GCN,Couldn't get command decoder node number)
+	MOVE	T4,T3
+	GETLCH	T4
+	TXNN	T4,GL.DSL	;Data set line?
+	 JRST	ANF10		;It's not, try ANF-10 disconnect.
+	CAME	T5,T6		;Local terminal always succeeds.
+	 TLNN	T7,-1		;DN line usually succeeds.
+	  SKIPA
+	   JRST	ANF10
+	DMOVE	T1,[		;Disconnect the terminal.
+		XWD	2,T2
+		EXP	.TODSF]
+	TRMOP.	T1,
+	 MESSAGE(?,DDT,Couldn't disconnect dataset terminal)
+	JRST	DONE
+
+ANF10:	CAMN	T5,T6		;Refuse to disconnect local terminal.
+	 JRST	LOCAL		;Go check what kind of local terminal.	[15]
+	DMOVE	T1,[		;Disconnect non local terminal.
+		XWD	.NDTDS,T2
+		EXP	2]
+	DEVNAM	T3,UU.PHY
+	 MESSAGE(?,GPT,Couldn't get physical terminal name)
+	NODE.	T1,UU.PHY
+	 MESSAGE(?,DNT,Couldn't disconnect network non dataset terminal)
+	JRST	DONE
+
+LOCAL:	SETZM	IMPBLK+.IBDEV	;Check if IP terminal.			[15]
+	MOVE	T1,T3
+	ANDI	T1,777
+	HRROM	T1,IMPBLK+.IBSTT
+	MOVX	T1,INSVL.(.IUITY,IF.FNC)!IMPBLK
+	IMPUUO	T1,
+	 SKIPA			;Error, assume not IP terminal.
+	  JRST	IP		;IP terminal.
+	DMOVE	T1,[		;Check if DECnet terminal.
+		XWD	2,T2
+		EXP	.TOAPC]
+	TRMOP.	T1,
+	 MOVEI	T1,.TOUNK	;Error, assume not DECnet.
+	CAIE	T1,.TONRT	;Check for NRT.
+	 CAIN	T1,.TOCTM	;Check for CTERM.
+	  JRST	DECNET		;DECnet terminal.
+	MESSAGE(?,DLT,Couldn't disconnect local node non dataset terminal)
+
+IP:	MOVX	T1,INSVL.(.IUSTT)!IMPBLK
+	IMPUUO	T1,		;Find out who owns this IMP.
+	 MESSAGE(?,GIS,Couldn't get IMP status)
+	HLRZ	T1,IMPBLK+.IBSTT
+	PJOB	T2,
+	CAMN	T1,T2
+	 JRST	IPMINE		;It's my IMP.
+	MOVX	T1,IF.NWT!IF.PRV!INSVL.(.IUCLS,IF.FNC)!IMPBLK
+	IMPUUO	T1,		;Must be privileged to close someone else's.
+	 MESSAGE(?,COI,Couldn't close other job's IMP)
+	JRST	DONE
+
+IPMINE:	MOVX	T1,INSVL.(.IUCLS,IF.FNC)!IMPBLK
+	IMPUUO	T1,		;Try to close my IMP.
+	 MESSAGE(?,CMI,Couldn't close my IMP)
+	JRST	DONE		;End of IP changes.			[15]
+
+decnet:	MOVE	t1,[DN.FLS+<.DNSLS,,.DNSLN>]
+	MOVEM	t1,dnarg+.DNFFL
+	MOVSI	t1,-1
+	MOVEM	t1,dnarg+.DNJCN		;set job number -1
+dlupe:	MOVEI	t1,dnarg
+	DNET.	t1,
+	 MESSAGE(?,DNT,DNET. failed)
+	HLRZ	t1,dnarg+.DNJCN		;get DN.JOB part
+	CAIE	t1,-1			;still -1?
+	HRRZ	t2,t4			;get UDX
+	SUBI	t2,.UXTRM		;get line#
+	CAME	t2,dnarg+.DNMPR		;TTY number for channel?
+	 JRST	dlupe			;no
+	MOVEI	t1,t2
+	MOVE	t2,[.NSFAB,,2]
+	HRRZ	t3,dnarg+.DNJCN
+	NSP.	t1,
+	 MESSAGE(?,FOO,Couldn't disconnect DECnet terminal)
+	MESSAGE(?,BAR,Disconnected DECnet terminal failed to disconnect)
+
+
+NOARG:	JUMPGE	CJ,LEVEL	;Subjob of AMIS or some other program?
+	TXNE	JS,1B15		;Don't disconnect logged in terminal.
+	 MESSAGE(?,DCT,Won't disconnect controlling terminal of logged in job)
+	MOVX	T3,SIXBIT "TTY"
+	JRST	LASTS
+
+LEVEL:	HRRZI	T1,'POP'	;Put "POP" code in right halfword,
+	HRL	T1,CJ		; and job number in left.
+	PIJBI.	T1,		;Interrupt the controlling job.
+	 MESSAGE(?,POP,Couldn't pop command level)
+
+ZZZZZ:	MOVX	T1,HB.RTC+HB.RWJ+HB.SWP+^D60*^D1000
+	HIBER	T1,		;Sleep for one minute or until typein.
+	 MESSAGE(?,HIB,Couldn't hibernate)
+	TXNN	JS,1B15		;Don't check anything and don't loop
+	 MONRT.			; if not logged in.
+	SKPINC			;Terminal activity?
+	 SKIPE	WAKFLG		; ...or recieved a wake up interrupt?
+	  SKIPA
+	  JRST	ZZZZZ		;  No, loop back.
+	MESSAGE([,BTJ,Back to job ,<
+		PJOB	T1,
+		PUSHJ	P,OUTDEC
+		OUTCHR[	EXP	"]"]>)
+SUBTTL	All the stupid "DISCO ..." commands.
+
+FREAK:	MESSAGE(?,FRK,Freaks are not allowed)
+
+FEVER:	MESSAGE(?,39C,39 degrees centigrade)
+
+QUACK:	MESSAGE(?,QCK,Quack quack)
+SUBTTL	Pop command level and interrupt routines.
+
+CROSS:	HRRZI	T1,'BYE'
+	HRL	T1,CJ
+	CAMN	T1,VECJBI+.PSVIS;Controlling job and "BYE" code?
+	 JRST	LGOUT
+	HRRI	T1,'WAK'
+	CAMN	T1,VECJBI+.PSVIS;Controlling job and "WAK" code?
+	 SETOM	WAKFLG		; Yes, set wake up flag
+	JRST	DEBRK
+
+LGOUT:	TXNN	JS,1B15		;Come here to detach and log out.
+	 MONRT.			;Just log out if not logged in.
+	MOVSI	T1,-1		;Detach the job.
+	ATTACH	T1,
+	 JFCL			;Ignore error.				[15]
+;	 MESSAGE(?,DET,Couldn't detach)
+	HRRZI	T1,[		;Run SYS:LOGOUT/PHYSICAL.
+		SIXBIT	'SYS'
+		SIXBIT	'LOGOUT'
+		EXP	0,0,0,0]
+	RUN	T1,UU.PHY
+	 MESSAGE(?,RUN,Couldn't run SYS:LOGOUT)
+
+LGOUT1:	MOVNI	T1,1		;[13] Come here on a detach/attach interrupt
+	TRMNO.	T1,		;[13] Get terminal, the only error reason
+	 JRST	LGOUT		;[13]  is that I am detached, then run LOGOUT!
+DONE:	MOVEI	T1,1
+	SLEEP	T1,
+	MONRT.
+	JRST	START
+
+DEBRK:	DEBRK.
+	 JFCL
+	MESSAGE(?,DBK,Couldn't debreak from interrupt)
+
+OUTDEC:	IDIVI	T1,^D10		;Subroutine to output job number.	[16]
+	JUMPE	T1,OUTDIG
+	HRLM	T2,(P)
+	PUSHJ	P,OUTDEC
+	HLR	T2,(P)
+OUTDIG:	ADDI	T2,"0"
+	OUTCHR	T2
+	POPJ	P,
+SUBTTL	The not so empty low segment.
+
+XLIST
+LIT
+LIST
+RELOC
+
+dnarg:	BLOCK	.DNSLN		;<14> DNET. argument block
+VECTOR:
+VECTLE:	BLOCK	4
+VECJBI:	BLOCK	4
+VECDAT:	BLOCK	4
+WAKFLG:	BLOCK	1		;Wake up flag, what did U think?
+IMPBLK:	BLOCK	.IBSIZ		;IMPUUO argument block.			[15]
+STKBLK:	BLOCK	<STKLEN==100>	;Stack.					[16]
+BUFFER:
+
+	END	START

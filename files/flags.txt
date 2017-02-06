@@ -1,0 +1,40 @@
+
+                What flags are to be implemented:
+                         (* means done)
+
+Flag:                  Pos:     Values/Interpretation:
+-----                  ----     ----------------------
+
+Conformance:            1 *     'E' ==> Emacs style.
+                                'G' ==> Gnumacs style.
+
+Display nulls:          2       '+' ==> Show null as ^@ on screen.
+                                '-' ==> Do not show nulls on screen.
+
+Display Linefeed as EOL:3       '+' ==> Interpret line feed as EOL.
+                                '-' ==> View line feed as ^J.
+
+Display Escape as $:    4 *     '-' ==> View escape as ^[.
+                                '+' ==> View escape as $.
+
+Eight-bit alphabet:     5       '1' ==> ISO Latin 1.
+			        '2' ==> ISO Latin 2.
+			        '3' ==> ISO Latin 3.
+			        '4' ==> ISO Latin 4.
+
+Mode Line Inverse:      6       '-' ==> Normal video.
+                                '+' ==> Inverse video.
+
+Truncate long lines:    7       '-' ==> Wrap lines on screen.
+                                '+' ==> Truncate lines on screen.
+
+Case sensitive search:  8 *     '-' ==> Upper and lower case match.
+                                '+' ==> Upper and lower case distinct.
+
+Beep style:             9 *     'A' ==> Always beep.
+                                'N' ==> Never beep.
+                                'V' ==> Use Visibell if present, else beep.
+
+Indent tabs mode:      10 *     '+' ==> Use tabs for indentation.
+                                '-' ==> Use spaces for indentation.
+

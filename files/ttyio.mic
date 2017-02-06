@@ -1,0 +1,7 @@
+.r macro
+*ttyio.rel=dsk:ttyio.mac
+*ttyiot.rel=tty:,dsk:ttyio.mac
+*f$dbug==-1
+=^Z
+=^Z
+=^Z

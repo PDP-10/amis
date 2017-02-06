@@ -1,0 +1,11 @@
+;DSKB:UTILIT.PAS<10,335,AMIS,SOURCE>
+    66	procedure ReMap(var c: char; searching: boolean); external;
+   365	    ReMap(c, false);
+   397	      Pos := Pos - 1;		(* Sigh... remap for DOCTLW *)
+;DSKB:MAIN.PAS<10,335,AMIS,SOURCE>
+  2945	procedure ReMap(var c: char; search: boolean);
+  3240	    ReMap(c, false);
+;DSKB:SEARCH.PAS<10,335,AMIS,SOURCE>
+    92	procedure ReMap(var c: char; searching: boolean); external;
+   237	      ReMap(c, true);
+   428		ReMap(c, true);
