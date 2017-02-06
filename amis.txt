@@ -1,6 +1,3 @@
-[MC: Ursprungligen skriven någon gång under 80-talet i AMIS i swascii
-med CRLF-radbrytningar. Konverterad av mig till Latin 1.]
-
                       Sagan om AMIS
                           eller
                Hur man utvecklar en editor
@@ -10,285 +7,285 @@ med CRLF-radbrytningar. Konverterad av mig till Latin 1.]
                    Per "TMP" Lindberg
 
 
-Detta är berättelsen om sju hackers som ville göra en editor. Alla här
-förekommande personnamn är fullständigt ofingerade, och rejält
-insyltade. Berättelsen är f.ö. skriven med AMIS själv, så allt du
-läser är sant!
+Detta Ã¤r berÃ¤ttelsen om sju hackers som ville gÃ¶ra en editor. Alla hÃ¤r
+fÃ¶rekommande personnamn Ã¤r fullstÃ¤ndigt ofingerade, och rejÃ¤lt
+insyltade. BerÃ¤ttelsen Ã¤r f.Ã¶. skriven med AMIS sjÃ¤lv, sÃ¥ allt du
+lÃ¤ser Ã¤r sant!
 
-Det hela började en gång för länge, länge sedan, i datorernas barndom.
-Någon hade kommit på att man kunde redigera sina källprogram direkt på
-datorn (eller "elektronhjärnan", som man sa på den tiden). Han skrev
-sig ett program, med vars hjälp han kunde redigera ett stycke text,
-vilket som helst, innan han körde det genom kompilatorn, eller vad han
-nu ville göra med det han skrev. "En strålande ide!", sade alla hans
+Det hela bÃ¶rjade en gÃ¥ng fÃ¶r lÃ¤nge, lÃ¤nge sedan, i datorernas barndom.
+NÃ¥gon hade kommit pÃ¥ att man kunde redigera sina kÃ¤llprogram direkt pÃ¥
+datorn (eller "elektronhjÃ¤rnan", som man sa pÃ¥ den tiden). Han skrev
+sig ett program, med vars hjÃ¤lp han kunde redigera ett stycke text,
+vilket som helst, innan han kÃ¶rde det genom kompilatorn, eller vad han
+nu ville gÃ¶ra med det han skrev. "En strÃ¥lande ide!", sade alla hans
 kollegor, och stal den meddetsamma. Alla hade naturligtvis sina egna
-ideer om hur EDITORn, som programmet kallades, skulle fungera. Så de
-skrev om och la till, kopierade, plagierade och gjorde om. Och på så
-sätt kom iden om en editor att göra sitt segertåg världen över. När
-datorerna blev allt bättre och bättre, kom även editorerna att
-förbättras, och redan innan BILDSKÄRMSTERMINALERNA gjort den sista
-SKRIVANDE PAPPERTERMINALEN arbetslös, kom någon på att man borde göra
-en editor som höll en del av texten konstant uppritad på skärmen, så
-att man kunde åka omkring i texten och redigera. Den första
-SKÄRMEDITORN var född. Precis som när den första editorn kom till
-världen, spred sig iden som en löpeld, och alla försökte göra en egen
-skärmeditor.
+ideer om hur EDITORn, som programmet kallades, skulle fungera. SÃ¥ de
+skrev om och la till, kopierade, plagierade och gjorde om. Och pÃ¥ sÃ¥
+sÃ¤tt kom iden om en editor att gÃ¶ra sitt segertÃ¥g vÃ¤rlden Ã¶ver. NÃ¤r
+datorerna blev allt bÃ¤ttre och bÃ¤ttre, kom Ã¤ven editorerna att
+fÃ¶rbÃ¤ttras, och redan innan BILDSKÃ„RMSTERMINALERNA gjort den sista
+SKRIVANDE PAPPERTERMINALEN arbetslÃ¶s, kom nÃ¥gon pÃ¥ att man borde gÃ¶ra
+en editor som hÃ¶ll en del av texten konstant uppritad pÃ¥ skÃ¤rmen, sÃ¥
+att man kunde Ã¥ka omkring i texten och redigera. Den fÃ¶rsta
+SKÃ„RMEDITORN var fÃ¶dd. Precis som nÃ¤r den fÃ¶rsta editorn kom till
+vÃ¤rlden, spred sig iden som en lÃ¶peld, och alla fÃ¶rsÃ¶kte gÃ¶ra en egen
+skÃ¤rmeditor.
 
-Och sådan var situationen för ungefär ett år sedan, när Lars-Henrik
-försökte planka den nya fantastiska super-editorn EMACS. Denna EMACS
-var större, snabbare, bättre och gladare än någon annan hittills
-existerande skärmeditor. EMACS kom från datorernas Mecka, USA, och
-inte nog med det, utan till och med från detta Meckas Kaba, MIT! Till
-Lars-Henriks förtvivlan fanns inte EMACS tillgänglig på våran dator,
-NADJA. (Få av oss andra hade vid den tiden hört talas om EMACS, än
+Och sÃ¥dan var situationen fÃ¶r ungefÃ¤r ett Ã¥r sedan, nÃ¤r Lars-Henrik
+fÃ¶rsÃ¶kte planka den nya fantastiska super-editorn EMACS. Denna EMACS
+var stÃ¶rre, snabbare, bÃ¤ttre och gladare Ã¤n nÃ¥gon annan hittills
+existerande skÃ¤rmeditor. EMACS kom frÃ¥n datorernas Mecka, USA, och
+inte nog med det, utan till och med frÃ¥n detta Meckas Kaba, MIT! Till
+Lars-Henriks fÃ¶rtvivlan fanns inte EMACS tillgÃ¤nglig pÃ¥ vÃ¥ran dator,
+NADJA. (FÃ¥ av oss andra hade vid den tiden hÃ¶rt talas om EMACS, Ã¤n
 mindre provat den). Men Lars-Henrik, eller KRSNA som vi kallade honom,
-var frälst, och ville göra en EMACS som gick att köra på Nadja.
+var frÃ¤lst, och ville gÃ¶ra en EMACS som gick att kÃ¶ra pÃ¥ Nadja.
 
-Så småningom fick han ihop något som likande en editor.
-Skärmuppdateringen var av en ny och revolutionerande typ: Han skrev om
-HELA SKÄRMEN varje gång något enstaka tecken hade blivit förändrat. I
+SÃ¥ smÃ¥ningom fick han ihop nÃ¥got som likande en editor.
+SkÃ¤rmuppdateringen var av en ny och revolutionerande typ: Han skrev om
+HELA SKÃ„RMEN varje gÃ¥ng nÃ¥got enstaka tecken hade blivit fÃ¶rÃ¤ndrat. I
 1200 baud. Men den fungerade, och vi andra samlades runt Krsnas
-terminal och skrattade rått.
+terminal och skrattade rÃ¥tt.
 
-Men nu hade vi blivit nyfikna, och ville lära oss vad det var för
-något fantastiskt som Krsna hade försökt göra. Så vi samlades tidigt en
-söndagmorgon och åkte i ett par bilar till Uppsala, där den dator på
-vilken Krsna hade lärt sig EMACS stod. (För att förstå vår entusiasm
-bör poängteras att det var något alledeles enastående att se detta
-gäng vaket så tidigt -- och på en söndag, dessutom!) Den officiella
-anledningen var dock att vi skulle köra INTERLISP och det nya CFS
+Men nu hade vi blivit nyfikna, och ville lÃ¤ra oss vad det var fÃ¶r
+nÃ¥got fantastiskt som Krsna hade fÃ¶rsÃ¶kt gÃ¶ra. SÃ¥ vi samlades tidigt en
+sÃ¶ndagmorgon och Ã¥kte i ett par bilar till Uppsala, dÃ¤r den dator pÃ¥
+vilken Krsna hade lÃ¤rt sig EMACS stod. (FÃ¶r att fÃ¶rstÃ¥ vÃ¥r entusiasm
+bÃ¶r poÃ¤ngteras att det var nÃ¥got alledeles enastÃ¥ende att se detta
+gÃ¤ng vaket sÃ¥ tidigt -- och pÃ¥ en sÃ¶ndag, dessutom!) Den officiella
+anledningen var dock att vi skulle kÃ¶ra INTERLISP och det nya CFS
 (Computer Fantasy Simulation)-spelet ZORK. EMACS, INTERLISP, och ZORK
-kunde nämligen bara köras under operativsystemet TOPS-20, och på Nadja
-fanns bara TOPS-10. Inom kort var vi alla övertygade om att EMACS nog
-var rätt bra, och något som vi ville kunna köra även på NADJA. Så gick
-några veckor, och vi gick och trånade, och längtade tills nästa gång
-vi skulle åka till Uppsala.
+kunde nÃ¤mligen bara kÃ¶ras under operativsystemet TOPS-20, och pÃ¥ Nadja
+fanns bara TOPS-10. Inom kort var vi alla Ã¶vertygade om att EMACS nog
+var rÃ¤tt bra, och nÃ¥got som vi ville kunna kÃ¶ra Ã¤ven pÃ¥ NADJA. SÃ¥ gick
+nÃ¥gra veckor, och vi gick och trÃ¥nade, och lÃ¤ngtade tills nÃ¤sta gÃ¥ng
+vi skulle Ã¥ka till Uppsala.
 
-Under tiden hade något annat fantastiskt hänt: ett program som heter
-KOM hade blivit tillgängligt på Nadja. KOM är ett
-"telekonferenssystem", det vill säga att i KOM kan man skriva brev
-till varandra, och inte nog med det, man kan ha "konferenser" där man
-gör "inlägg" och "kommentarer". Det hela fungerar ungefär som en
-insändarspalt, där alla som är "medlem" i en viss konferens kan läsa
-vad andra skrivit, kommentera, och själv skriva inlägg. Nu började vi
-alla med stor entusiasm köra KOM minst 2 gånger om dagen, och
-producera en astronomisk mängd totalt onyttiga nonsensinlägg.
+Under tiden hade nÃ¥got annat fantastiskt hÃ¤nt: ett program som heter
+KOM hade blivit tillgÃ¤ngligt pÃ¥ Nadja. KOM Ã¤r ett
+"telekonferenssystem", det vill sÃ¤ga att i KOM kan man skriva brev
+till varandra, och inte nog med det, man kan ha "konferenser" dÃ¤r man
+gÃ¶r "inlÃ¤gg" och "kommentarer". Det hela fungerar ungefÃ¤r som en
+insÃ¤ndarspalt, dÃ¤r alla som Ã¤r "medlem" i en viss konferens kan lÃ¤sa
+vad andra skrivit, kommentera, och sjÃ¤lv skriva inlÃ¤gg. Nu bÃ¶rjade vi
+alla med stor entusiasm kÃ¶ra KOM minst 2 gÃ¥nger om dagen, och
+producera en astronomisk mÃ¤ngd totalt onyttiga nonsensinlÃ¤gg.
 
-Men så en dag skrev Krsna ett ilsket inlägg där han förklarade att han
-var utled på att inte ha en bra skärmeditor på Nadja! Vi skulle skriva
-en egen EMACS!! Om det bara samlades ett gäng hackers vid Nadja nästa
-söndag och hackade frenetiskt några timmar, borde vi kunna länka ihop
-våra moduler någon gång vid midnatt, och en första testversion av vår
+Men sÃ¥ en dag skrev Krsna ett ilsket inlÃ¤gg dÃ¤r han fÃ¶rklarade att han
+var utled pÃ¥ att inte ha en bra skÃ¤rmeditor pÃ¥ Nadja! Vi skulle skriva
+en egen EMACS!! Om det bara samlades ett gÃ¤ng hackers vid Nadja nÃ¤sta
+sÃ¶ndag och hackade frenetiskt nÃ¥gra timmar, borde vi kunna lÃ¤nka ihop
+vÃ¥ra moduler nÃ¥gon gÃ¥ng vid midnatt, och en fÃ¶rsta testversion av vÃ¥r
 egen EMACS vara ett faktum! Allt skulle skrivas i Pascal och lite
 assembler. Samling klockan 12!
 
-En total entusiasm utbröt, och eftersom det var ett par dagar kvar
-till söndag ägnade vi våra KOM-inlägg åt att smida planer. Hur skulle
+En total entusiasm utbrÃ¶t, och eftersom det var ett par dagar kvar
+till sÃ¶ndag Ã¤gnade vi vÃ¥ra KOM-inlÃ¤gg Ã¥t att smida planer. Hur skulle
 vi dela upp projektet mellan oss? Vad ska editorn heta? Skulle den
-vara en trogen EMACS-kopia, eller skulle vi göra en egen, och kanske
-ännu bättre editor? Eftersom vi via KOM hade kontakt med ett gäng
-likasinnade i Linköping, fick vi tillskott av en kille till som var
-intresserad av att skriva en editor, Anders Ström, av alla kallad
-ASTROM eftersom han inte använde Ö utan O i sitt user-namn när han
-körde på TOPS-20 i Linköping. (Han hade allstå också kört EMACS, och
-insett att allt annat är skräp).
+vara en trogen EMACS-kopia, eller skulle vi gÃ¶ra en egen, och kanske
+Ã¤nnu bÃ¤ttre editor? Eftersom vi via KOM hade kontakt med ett gÃ¤ng
+likasinnade i LinkÃ¶ping, fick vi tillskott av en kille till som var
+intresserad av att skriva en editor, Anders StrÃ¶m, av alla kallad
+ASTROM eftersom han inte anvÃ¤nde Ã– utan O i sitt user-namn nÃ¤r han
+kÃ¶rde pÃ¥ TOPS-20 i LinkÃ¶ping. (Han hade allstÃ¥ ocksÃ¥ kÃ¶rt EMACS, och
+insett att allt annat Ã¤r skrÃ¤p).
 
-Några förberedelser inför Den Stora Dagen gjordes. Bl.a. fick vi av
+NÃ¥gra fÃ¶rberedelser infÃ¶r Den Stora Dagen gjordes. Bl.a. fick vi av
 NADA (Numerisk Analys och DAtalogi, institutionen som har hand om
-datorn Nadja) ett PPN (konto) på Nadja där vi kunde arbeta och lägga
-upp våra filer. Det beslöts att projektet skulle utföras i STACKENs
-regi. (Stacken är datorföreningen på KTH.)
+datorn Nadja) ett PPN (konto) pÃ¥ Nadja dÃ¤r vi kunde arbeta och lÃ¤gga
+upp vÃ¥ra filer. Det beslÃ¶ts att projektet skulle utfÃ¶ras i STACKENs
+regi. (Stacken Ã¤r datorfÃ¶reningen pÃ¥ KTH.)
 
-Så blev då klockan 12 denna efterlängtade söndag. Efter n (ett stort
+SÃ¥ blev dÃ¥ klockan 12 denna efterlÃ¤ngtade sÃ¶ndag. Efter n (ett stort
 heltal) antal akademiska kvartar, var vi sju stycken hackers samlade:
-Lars-Henrik "Krsna" Eriksson, bröderna Per och Björn Danielsson, Erik
-"Captain Zilog" Forsberg, Johnny Eriksson, Anders "Astrom" Ström
-(upprest från Linköping enkom för detta), och jag själv, Per Lindberg
+Lars-Henrik "Krsna" Eriksson, brÃ¶derna Per och BjÃ¶rn Danielsson, Erik
+"Captain Zilog" Forsberg, Johnny Eriksson, Anders "Astrom" StrÃ¶m
+(upprest frÃ¥n LinkÃ¶ping enkom fÃ¶r detta), och jag sjÃ¤lv, Per Lindberg
 (kallad TMPSA eller TMP, efter min ovana att signera mina program "The
-Mad Programmer Strikes Again"). Och nu bröt en vild diskussion ut! En
-av de första allvarliga frågorna som raskt avhandlades, var när och
-var vi skulle äta middag. Den lokala kineskrogen "Minus Ett" sattes
-som default, tillsammans med ett klockslag. Så småningom enades vi
+Mad Programmer Strikes Again"). Och nu brÃ¶t en vild diskussion ut! En
+av de fÃ¶rsta allvarliga frÃ¥gorna som raskt avhandlades, var nÃ¤r och
+var vi skulle Ã¤ta middag. Den lokala kineskrogen "Minus Ett" sattes
+som default, tillsammans med ett klockslag. SÃ¥ smÃ¥ningom enades vi
 efter mycket vilda (och stundom handgripliga) diskussioner om ett par
 punkter:
 
-1. Editorn skulle vara en trogen delmängd av EMACS.
-   Inga egna påhitt.
-2. Ordförande och projektledare Krsna må, om så krävs, använda
-   livremmen för att få dom andra att hålla klaffen.
-3. En skärmuppdateringsmodul skulle anropa en logisk
-   skärmhanterare som i sin tur anropar en fysisk dito.
-4. Erik håller klaffen, och slutar prata om ovidkommande saker.
+1. Editorn skulle vara en trogen delmÃ¤ngd av EMACS.
+   Inga egna pÃ¥hitt.
+2. OrdfÃ¶rande och projektledare Krsna mÃ¥, om sÃ¥ krÃ¤vs, anvÃ¤nda
+   livremmen fÃ¶r att fÃ¥ dom andra att hÃ¥lla klaffen.
+3. En skÃ¤rmuppdateringsmodul skulle anropa en logisk
+   skÃ¤rmhanterare som i sin tur anropar en fysisk dito.
+4. Erik hÃ¥ller klaffen, och slutar prata om ovidkommande saker.
 5. Ett subset EMACS-kommandon valdes ut.
-6. Övriga moduler utkristalliserades och delades ut.
+6. Ã–vriga moduler utkristalliserades och delades ut.
 
 Efter  en  stormig middag, satte sig Krnsa vid en terminal, och,
-ivrigt påhejad av oss andra, skrev en lista på vilka rutiner som
+ivrigt pÃ¥hejad av oss andra, skrev en lista pÃ¥ vilka rutiner som
 skulle finnas i respektive modul.
 
-Nu hade klockan blivit så mycket att Astrom måste åka med sista tåget
-tillbaka till Linköping, och vi andra satte oss utmattade framför var
-sin terminal och läste dagens KOM-inlägg. Klockan blev midnatt, och
-någon editor hade det inte blivit. Det var nog inte så lätt att göra
+Nu hade klockan blivit sÃ¥ mycket att Astrom mÃ¥ste Ã¥ka med sista tÃ¥get
+tillbaka till LinkÃ¶ping, och vi andra satte oss utmattade framfÃ¶r var
+sin terminal och lÃ¤ste dagens KOM-inlÃ¤gg. Klockan blev midnatt, och
+nÃ¥gon editor hade det inte blivit. Det var nog inte sÃ¥ lÃ¤tt att gÃ¶ra
 en editor, iallafall.
 
-Veckan som följde började vi skriva våra moduler och vilt diskutera
-vårt projekt i KOM. I KOM löste vi namnfrågan, som efter omröstning (I
-KOM, såklart!) blev mitt eget förslag: AMIS efter Anti-MISär, ett
-symboliskt namn på vårt hopp om en bättre framtid. "Editor X" var
-visserligen ett invant namn, men, trots häftigt motstånd från Björn,
-ströks det från listan på möjliga namn på editorn. Per Danielsson
-kontrade dock med en alternativ utläsning av AMIS: "Anti - Mung
+Veckan som fÃ¶ljde bÃ¶rjade vi skriva vÃ¥ra moduler och vilt diskutera
+vÃ¥rt projekt i KOM. I KOM lÃ¶ste vi namnfrÃ¥gan, som efter omrÃ¶stning (I
+KOM, sÃ¥klart!) blev mitt eget fÃ¶rslag: AMIS efter Anti-MISÃ¤r, ett
+symboliskt namn pÃ¥ vÃ¥rt hopp om en bÃ¤ttre framtid. "Editor X" var
+visserligen ett invant namn, men, trots hÃ¤ftigt motstÃ¥nd frÃ¥n BjÃ¶rn,
+strÃ¶ks det frÃ¥n listan pÃ¥ mÃ¶jliga namn pÃ¥ editorn. Per Danielsson
+kontrade dock med en alternativ utlÃ¤sning av AMIS: "Anti - Mung
 Interface for Suckers". Krsna ville kalla den TMACS eller TEMACS (ur
-Tiny EMACS) eller XEDIT. Det senare förslaget visade sig redan vara
-upptaget av en hemsk editor på CDC-datorerna. Återstod så bara att få
+Tiny EMACS) eller XEDIT. Det senare fÃ¶rslaget visade sig redan vara
+upptaget av en hemsk editor pÃ¥ CDC-datorerna. Ã…terstod sÃ¥ bara att fÃ¥
 honom att ge upp TMACS, vilket lyckades efter en smula elak
-övertalning. För att ytterligare öka förvirringen kom någon med en ny
+Ã¶vertalning. FÃ¶r att ytterligare Ã¶ka fÃ¶rvirringen kom nÃ¥gon med en ny
 uttolkning av AMIS: "A Major Innovation In Software".
 
-Så blev det söndag igen, och alla samlades för att gå igenom och
-revidera våra moduler. Inte heller nu blev vi färdiga, men kinesmaten
-var lika god som förra gången. Söndagarna passerade revy.
+SÃ¥ blev det sÃ¶ndag igen, och alla samlades fÃ¶r att gÃ¥ igenom och
+revidera vÃ¥ra moduler. Inte heller nu blev vi fÃ¤rdiga, men kinesmaten
+var lika god som fÃ¶rra gÃ¥ngen. SÃ¶ndagarna passerade revy.
 
-Krnsa hade under denna period börjat få för sig att man även kan äta
-vårrullen med pinnar, och gjorde tafatta försök att skära upp den i
-små bitar med sina chopsticks. (Han är numera proffs på detta trick!)
-Ett annat inside-grepp var att man skulle lägga maten i risskålen, och
-äta med pinnarna i ena handen, och risskålen i andra, nära munnen. Det
-var under denna period som jag slutade fumla med pinnarna och började
-använda dom som om det vore den naturligaste sak i världen.
+Krnsa hade under denna period bÃ¶rjat fÃ¥ fÃ¶r sig att man Ã¤ven kan Ã¤ta
+vÃ¥rrullen med pinnar, och gjorde tafatta fÃ¶rsÃ¶k att skÃ¤ra upp den i
+smÃ¥ bitar med sina chopsticks. (Han Ã¤r numera proffs pÃ¥ detta trick!)
+Ett annat inside-grepp var att man skulle lÃ¤gga maten i risskÃ¥len, och
+Ã¤ta med pinnarna i ena handen, och risskÃ¥len i andra, nÃ¤ra munnen. Det
+var under denna period som jag slutade fumla med pinnarna och bÃ¶rjade
+anvÃ¤nda dom som om det vore den naturligaste sak i vÃ¤rlden.
 
-Så en mörk natt när jag satt hemma vid min skärm och körde KOM via
-telefonlinjen, fick jag syn på ett inlägg av Per Danielsson, som
-hackade DISKIO, det vill säga den modul som skötte in- och utmatningen
-på fil. "Break-even point nådd!" För första gången hade en modul i
-AMIS editerats med AMIS själv. Entusiasmen, som aldrig varit särskilt
-låg, steg nu, och jag själv började faktiskt tro att AMIS skulle bli
-något användbart. Det var ungefär vid denna tidpunkt som åtminstone
-jag började inse att vad som sagts från några i Linköping (som inte
-var med i AMIS-projektet) om Astrom, var sant. Nämligen att han hade 2
-st. Lysares kapacitet när det gällde att skriva program. (LYSATOR är
-datorföreningen i Linköping). Hans modul, den som sköter
-skärmuppdateringen, visade sig nämligen vara i stånd till de mest
-vansinniga trix: den skrev t.ex. ALDRIG om någon del av skärmen där
-det (av en ren tillfällighet) redan stod vad som skulle vara där.
+SÃ¥ en mÃ¶rk natt nÃ¤r jag satt hemma vid min skÃ¤rm och kÃ¶rde KOM via
+telefonlinjen, fick jag syn pÃ¥ ett inlÃ¤gg av Per Danielsson, som
+hackade DISKIO, det vill sÃ¤ga den modul som skÃ¶tte in- och utmatningen
+pÃ¥ fil. "Break-even point nÃ¥dd!" FÃ¶r fÃ¶rsta gÃ¥ngen hade en modul i
+AMIS editerats med AMIS sjÃ¤lv. Entusiasmen, som aldrig varit sÃ¤rskilt
+lÃ¥g, steg nu, och jag sjÃ¤lv bÃ¶rjade faktiskt tro att AMIS skulle bli
+nÃ¥got anvÃ¤ndbart. Det var ungefÃ¤r vid denna tidpunkt som Ã¥tminstone
+jag bÃ¶rjade inse att vad som sagts frÃ¥n nÃ¥gra i LinkÃ¶ping (som inte
+var med i AMIS-projektet) om Astrom, var sant. NÃ¤mligen att han hade 2
+st. Lysares kapacitet nÃ¤r det gÃ¤llde att skriva program. (LYSATOR Ã¤r
+datorfÃ¶reningen i LinkÃ¶ping). Hans modul, den som skÃ¶ter
+skÃ¤rmuppdateringen, visade sig nÃ¤mligen vara i stÃ¥nd till de mest
+vansinniga trix: den skrev t.ex. ALDRIG om nÃ¥gon del av skÃ¤rmen dÃ¤r
+det (av en ren tillfÃ¤llighet) redan stod vad som skulle vara dÃ¤r.
 
 Andra finesser och featuers diskuterades: bl.a. vad "kill-bufferten"
-skulle innehålla innan man själv tagit bort någon text? Ett tag
-innehöll denna buffer (som går att återkalla, därigenom kan man alltså
-flytta omkring textbitar) innan man tagit bort något innehålla "The
-Gettysburg Adress", ett känt amerikanskt tal från nationens barndom.
-Efter en hetsig debatt beslöts att den skulle bort, det skulle bara
-vara förvirrande för nybörjarna som ville lära sig AMIS. (Vi tänkte
-naturligtvis att alla elever på NADA skulle läras AMIS som första
+skulle innehÃ¥lla innan man sjÃ¤lv tagit bort nÃ¥gon text? Ett tag
+innehÃ¶ll denna buffer (som gÃ¥r att Ã¥terkalla, dÃ¤rigenom kan man alltsÃ¥
+flytta omkring textbitar) innan man tagit bort nÃ¥got innehÃ¥lla "The
+Gettysburg Adress", ett kÃ¤nt amerikanskt tal frÃ¥n nationens barndom.
+Efter en hetsig debatt beslÃ¶ts att den skulle bort, det skulle bara
+vara fÃ¶rvirrande fÃ¶r nybÃ¶rjarna som ville lÃ¤ra sig AMIS. (Vi tÃ¤nkte
+naturligtvis att alla elever pÃ¥ NADA skulle lÃ¤ras AMIS som fÃ¶rsta
 editor, en profetia som faktiskt delvis slog in.)
-Ett nytt talesätt myntades: "--Därför att EMACS gör så!!!!!!" Denna
-dräpande replik visade sig vara ytterst användbar i alla diskussioner
-om AMIS, och avslutade snabbt varje dispyt som kunde uppstå. Uttrycket
-blev så spritt (framförallt i KOM) att det till sist kom att användas
-i en vidare mening, där varken AMIS eller EMACS behövde vara med.
+Ett nytt talesÃ¤tt myntades: "--DÃ¤rfÃ¶r att EMACS gÃ¶r sÃ¥!!!!!!" Denna
+drÃ¤pande replik visade sig vara ytterst anvÃ¤ndbar i alla diskussioner
+om AMIS, och avslutade snabbt varje dispyt som kunde uppstÃ¥. Uttrycket
+blev sÃ¥ spritt (framfÃ¶rallt i KOM) att det till sist kom att anvÃ¤ndas
+i en vidare mening, dÃ¤r varken AMIS eller EMACS behÃ¶vde vara med.
 Johnny tillverkade en skylt med de bevingade orden, och satte upp till
-allmän munterhet.
+allmÃ¤n munterhet.
 
-Projektgruppen hade också fått tillökning i personalen: Jan Michael
-Rynning, kallad JMR, och Örjan Ekeberg, kallad Örjan. JMR tyckte att
-vi var lite söliga med att skriva sökrutinerna så han hackade snabbt
-ihop en egen modul innehållande sökrutiner till AMIS. Örjan kunde inte
-heller hålla fingrarna i styr, utan hjälpte till med att göra en
-lathund och hackade också in förkortning av s.k. "Meta-X" - kommandon.
-Numera är JMR fullt insyltad i projektet, och Örjan är vår
-femte-kolonnare på NADA.
+Projektgruppen hade ocksÃ¥ fÃ¥tt tillÃ¶kning i personalen: Jan Michael
+Rynning, kallad JMR, och Ã–rjan Ekeberg, kallad Ã–rjan. JMR tyckte att
+vi var lite sÃ¶liga med att skriva sÃ¶krutinerna sÃ¥ han hackade snabbt
+ihop en egen modul innehÃ¥llande sÃ¶krutiner till AMIS. Ã–rjan kunde inte
+heller hÃ¥lla fingrarna i styr, utan hjÃ¤lpte till med att gÃ¶ra en
+lathund och hackade ocksÃ¥ in fÃ¶rkortning av s.k. "Meta-X" - kommandon.
+Numera Ã¤r JMR fullt insyltad i projektet, och Ã–rjan Ã¤r vÃ¥r
+femte-kolonnare pÃ¥ NADA.
 
-Nu hade vi en editor som gick att använda, även om mycket återstod att
-göra. Riktigt HUR mycket hade vi väl inte riktigt klart för oss vid
-den tiden, annars skulle nog många av oss tappat sugen totalt. Det var
-nämligen nu som dom VERKLIGA problemen började. Ryktet om AMIS hade
-spritt sig rejält, och nu ville alla titta på den lustiga lilla apan.
-Det var alltså dags för en RELEASE!
+Nu hade vi en editor som gick att anvÃ¤nda, Ã¤ven om mycket Ã¥terstod att
+gÃ¶ra. Riktigt HUR mycket hade vi vÃ¤l inte riktigt klart fÃ¶r oss vid
+den tiden, annars skulle nog mÃ¥nga av oss tappat sugen totalt. Det var
+nÃ¤mligen nu som dom VERKLIGA problemen bÃ¶rjade. Ryktet om AMIS hade
+spritt sig rejÃ¤lt, och nu ville alla titta pÃ¥ den lustiga lilla apan.
+Det var alltsÃ¥ dags fÃ¶r en RELEASE!
 
-Den Stora Dagen var som sig bör en söndag, och vi samlades rätt
+Den Stora Dagen var som sig bÃ¶r en sÃ¶ndag, och vi samlades rÃ¤tt
 tidigt, vill jag minnas. En ryslig sak slog oss: vi hade ingen MANUAL.
-Snabbt kasta ihop en sådan, alltså. En total genomgång av samtliga
-moduler visade att några behövde avlusas lite. Den fruktade "sista
-buggen" skulle bort innan vi vågade visa upp något. (Fotnot: den sista
-buggen definieras i hacker-kretsar som den bugg man tar bort före den
+Snabbt kasta ihop en sÃ¥dan, alltsÃ¥. En total genomgÃ¥ng av samtliga
+moduler visade att nÃ¥gra behÃ¶vde avlusas lite. Den fruktade "sista
+buggen" skulle bort innan vi vÃ¥gade visa upp nÃ¥got. (Fotnot: den sista
+buggen definieras i hacker-kretsar som den bugg man tar bort fÃ¶re den
 sista buggen...) Klockan gick, och vi slet med manual och buggar.
-Dessutom uppstod vissa organisatoriska problem: vi behövde en speciell
-version av ALLTING som skulle sparas som en särskild "release-version",
-och en speciell area att lägga dessa på. Klockan blev midnatt, och
-mycket återstod att göra. Så småningom kunde vi ändå vara ense om en
-relativ bugfrihet, och började sammanställa de färdiga modulerna, och
-kompilera dessa. I den allmänna röran (vi hade börjat bli lite sömniga
-allihop) uppstod diverse missförstånd, och klockan gick. När det
-började ljusna över taken (det var mitt i vintern då!!) kunde vi till
-sist meddela Tommy Ericsson som satt som systemprogrammerare på QZ,
+Dessutom uppstod vissa organisatoriska problem: vi behÃ¶vde en speciell
+version av ALLTING som skulle sparas som en sÃ¤rskild "release-version",
+och en speciell area att lÃ¤gga dessa pÃ¥. Klockan blev midnatt, och
+mycket Ã¥terstod att gÃ¶ra. SÃ¥ smÃ¥ningom kunde vi Ã¤ndÃ¥ vara ense om en
+relativ bugfrihet, och bÃ¶rjade sammanstÃ¤lla de fÃ¤rdiga modulerna, och
+kompilera dessa. I den allmÃ¤nna rÃ¶ran (vi hade bÃ¶rjat bli lite sÃ¶mniga
+allihop) uppstod diverse missfÃ¶rstÃ¥nd, och klockan gick. NÃ¤r det
+bÃ¶rjade ljusna Ã¶ver taken (det var mitt i vintern dÃ¥!!) kunde vi till
+sist meddela Tommy Ericsson som satt som systemprogrammerare pÃ¥ QZ,
 Stockholms Datorcentral, att han kunde kopiera rubbet. Ytterligare
-missförstånd: Manualen var skriven med svensk teckenstandard, och alla
+missfÃ¶rstÃ¥nd: Manualen var skriven med svensk teckenstandard, och alla
 HELP-filer o.dyl. skulle vara konverterade till "QZ-standard", vilket
-innebar att vi (d.v.s. de få av oss som var kvar och hållit oss vakna)
-fick köra dem igenom diverse konverteringsprogram. (Denna konvertering
-är nu avskaffad på Nadja, och senare fick vi vi konvertera
-tillbaka...) Efter ett antal försök lyckades vi, och releasen var ett
-faktum. Hem och kasta sig på sängen! Naturligtvis var det inte riktigt
-rätt nu heller, och under måndagen som följde krävdes ytterligare
-räddningsaktioner för att ställa saker till rätta.
+innebar att vi (d.v.s. de fÃ¥ av oss som var kvar och hÃ¥llit oss vakna)
+fick kÃ¶ra dem igenom diverse konverteringsprogram. (Denna konvertering
+Ã¤r nu avskaffad pÃ¥ Nadja, och senare fick vi vi konvertera
+tillbaka...) Efter ett antal fÃ¶rsÃ¶k lyckades vi, och releasen var ett
+faktum. Hem och kasta sig pÃ¥ sÃ¤ngen! Naturligtvis var det inte riktigt
+rÃ¤tt nu heller, och under mÃ¥ndagen som fÃ¶ljde krÃ¤vdes ytterligare
+rÃ¤ddningsaktioner fÃ¶r att stÃ¤lla saker till rÃ¤tta.
 
-Och nu började cirkusen ta fart på riktigt! En massa synpunkter och
-felrapporter började strömma in, och ett speciellt möte i KOM
-skapades, där synpunkter framfördes och kommenterades. (Ännu i dag
+Och nu bÃ¶rjade cirkusen ta fart pÃ¥ riktigt! En massa synpunkter och
+felrapporter bÃ¶rjade strÃ¶mma in, och ett speciellt mÃ¶te i KOM
+skapades, dÃ¤r synpunkter framfÃ¶rdes och kommenterades. (Ã„nnu i dag
 diskuteras olika finesser livligt i KOM.) Det gamla tillhygget
-"--Därför att EMACS gör så!!!!!!" användes flitigt. AMIS spreds med
-ljusets hastighet på det nät av DEC-maskiner som Nadja hänger på,
-ANF-10. Nu hade dessutom flera fått upp ögonen för att något var i
-görningen. Grabbarna på ELVIRA, undervisningsdatorn vid E-sekt. på
-KTH, en PDP-11, var snabbt på plats, och ville få en kopia av
-källkoden på AMIS för att kompilera med sin egen Pascal. Rapporter om
-inkompatibiliteter mellan våra olika Pascaler började hagla. Meningen
-var ju från början att vi skulle skriva Editor X i Pascal för att 1.
-få den någorlunda snabb, och 2. för att få den flyttbar till andra
-system. Nu visade det sig att vi utnyttjat saker i vår Pascal som inte
-är standard. Mer problem. Och sedan ville Jan Åman och dom andra på
-Fysikums VAX-11 göra sammaledes. Samma problem igen. Dessa klarades
-dock upp efter några möten med alla inblandade.
+"--DÃ¤rfÃ¶r att EMACS gÃ¶r sÃ¥!!!!!!" anvÃ¤ndes flitigt. AMIS spreds med
+ljusets hastighet pÃ¥ det nÃ¤t av DEC-maskiner som Nadja hÃ¤nger pÃ¥,
+ANF-10. Nu hade dessutom flera fÃ¥tt upp Ã¶gonen fÃ¶r att nÃ¥got var i
+gÃ¶rningen. Grabbarna pÃ¥ ELVIRA, undervisningsdatorn vid E-sekt. pÃ¥
+KTH, en PDP-11, var snabbt pÃ¥ plats, och ville fÃ¥ en kopia av
+kÃ¤llkoden pÃ¥ AMIS fÃ¶r att kompilera med sin egen Pascal. Rapporter om
+inkompatibiliteter mellan vÃ¥ra olika Pascaler bÃ¶rjade hagla. Meningen
+var ju frÃ¥n bÃ¶rjan att vi skulle skriva Editor X i Pascal fÃ¶r att 1.
+fÃ¥ den nÃ¥gorlunda snabb, och 2. fÃ¶r att fÃ¥ den flyttbar till andra
+system. Nu visade det sig att vi utnyttjat saker i vÃ¥r Pascal som inte
+Ã¤r standard. Mer problem. Och sedan ville Jan Ã…man och dom andra pÃ¥
+Fysikums VAX-11 gÃ¶ra sammaledes. Samma problem igen. Dessa klarades
+dock upp efter nÃ¥gra mÃ¶ten med alla inblandade.
 
-Föga anade vi vid denna tid vilka prövningar vi hade framför oss. I så
-fall hade det nog aldrig blivit någon editor, vilket ju vore synd.
-Den stora smällen kom när vi skulle SÄLJA editorn.
+FÃ¶ga anade vi vid denna tid vilka prÃ¶vningar vi hade framfÃ¶r oss. I sÃ¥
+fall hade det nog aldrig blivit nÃ¥gon editor, vilket ju vore synd.
+Den stora smÃ¤llen kom nÃ¤r vi skulle SÃ„LJA editorn.
 
-Jodå, efter inte fullt ett års hackande kom det besked från en firma
-med anknytningar till KTH: "Hur mycket vill ni ha för AMIS?" Vi kände
-oss visserligen smickrade, men såg framför oss ändlösa diskussioner
-med advokater som med hjälp av finstilta kontrakt på någon pervers
-avart av svenska kräver att vi ska supporta COBOL-mode åt någon
-bokföringsfirma. Vi började försiktigt fråga höga vederbörande på NADA
-om vi egentligen fick sälja vår editor, och efter en del funderingar
-kom vi fram till att vi inte kunde ta emot pengar för AMIS, eftersom
-vi gjort utvecklingen med gratis maskintid som inte var tänkt till
-kommersiell användning. Men någon fann på råd: STACKEN, som är en
-ideell förening kunde sälja AMIS. Sagt och gjort, snart började vi
-använda vår hemhackade editor till att författa kontrakt -- en
-användning som vi aldrig i våra vildaste drömmar tänkt på.
+JodÃ¥, efter inte fullt ett Ã¥rs hackande kom det besked frÃ¥n en firma
+med anknytningar till KTH: "Hur mycket vill ni ha fÃ¶r AMIS?" Vi kÃ¤nde
+oss visserligen smickrade, men sÃ¥g framfÃ¶r oss Ã¤ndlÃ¶sa diskussioner
+med advokater som med hjÃ¤lp av finstilta kontrakt pÃ¥ nÃ¥gon pervers
+avart av svenska krÃ¤ver att vi ska supporta COBOL-mode Ã¥t nÃ¥gon
+bokfÃ¶ringsfirma. Vi bÃ¶rjade fÃ¶rsiktigt frÃ¥ga hÃ¶ga vederbÃ¶rande pÃ¥ NADA
+om vi egentligen fick sÃ¤lja vÃ¥r editor, och efter en del funderingar
+kom vi fram till att vi inte kunde ta emot pengar fÃ¶r AMIS, eftersom
+vi gjort utvecklingen med gratis maskintid som inte var tÃ¤nkt till
+kommersiell anvÃ¤ndning. Men nÃ¥gon fann pÃ¥ rÃ¥d: STACKEN, som Ã¤r en
+ideell fÃ¶rening kunde sÃ¤lja AMIS. Sagt och gjort, snart bÃ¶rjade vi
+anvÃ¤nda vÃ¥r hemhackade editor till att fÃ¶rfatta kontrakt -- en
+anvÃ¤ndning som vi aldrig i vÃ¥ra vildaste drÃ¶mmar tÃ¤nkt pÃ¥.
 
-Det var nu som stämningen började bli lite otrevlig. Så länge alla
-jobbar gratis för sitt höga nöjes skull, är allt frid och fröjd. Men
-när det finns en stor summa PENGAR att slåss om -- akta er! Alla hade
-förstås synpunkter, och några tog t.o.m. till skällsord. Efter
-oändliga manglingar kunde vi till sist sätta våra namn på en utskrift
-av den 4711:e versionen av kontraktet, som dessutom fått ett "barn" i
-form av tilläggskontrakt för VAX-versionen. Ett fridfullt lugn
-lägrades över alla inblandade. Och Stacken tackade för tillskottet i
+Det var nu som stÃ¤mningen bÃ¶rjade bli lite otrevlig. SÃ¥ lÃ¤nge alla
+jobbar gratis fÃ¶r sitt hÃ¶ga nÃ¶jes skull, Ã¤r allt frid och frÃ¶jd. Men
+nÃ¤r det finns en stor summa PENGAR att slÃ¥ss om -- akta er! Alla hade
+fÃ¶rstÃ¥s synpunkter, och nÃ¥gra tog t.o.m. till skÃ¤llsord. Efter
+oÃ¤ndliga manglingar kunde vi till sist sÃ¤tta vÃ¥ra namn pÃ¥ en utskrift
+av den 4711:e versionen av kontraktet, som dessutom fÃ¥tt ett "barn" i
+form av tillÃ¤ggskontrakt fÃ¶r VAX-versionen. Ett fridfullt lugn
+lÃ¤grades Ã¶ver alla inblandade. Och Stacken tackade fÃ¶r tillskottet i
 klubbkassan med en brakmiddag som saknade like! Per Danielsson gav sig
-inte förrän han fått en fjärde efterrätt.
+inte fÃ¶rrÃ¤n han fÃ¥tt en fjÃ¤rde efterrÃ¤tt.
 
-Men Sagan om AMIS är inte slut ännu! Fler installationer har frågat
-efter (och fått) AMIS. Den första internationella ordern kom (via
-diverse datornät) från Knut Smaaland på UiO (Universitetet i Oslo:s
-DEC-10), och ryktet har t.o.m. sipprat ut på det berömda ARPA-nätet i
-USA. Ett flertal företag som vill skaffa en skärmeditor har frågat
-efter AMIS. (Iden med skärmeditorer har först efter ett tag spridits
+Men Sagan om AMIS Ã¤r inte slut Ã¤nnu! Fler installationer har frÃ¥gat
+efter (och fÃ¥tt) AMIS. Den fÃ¶rsta internationella ordern kom (via
+diverse datornÃ¤t) frÃ¥n Knut Smaaland pÃ¥ UiO (Universitetet i Oslo:s
+DEC-10), och ryktet har t.o.m. sipprat ut pÃ¥ det berÃ¶mda ARPA-nÃ¤tet i
+USA. Ett flertal fÃ¶retag som vill skaffa en skÃ¤rmeditor har frÃ¥gat
+efter AMIS. (Iden med skÃ¤rmeditorer har fÃ¶rst efter ett tag spridits
 till Verkligheten, alias industrin.) Alla som har en
-bildskärmsterminal, vill naturligtvis ha AMIS modifierad så att den
-även går att köra på just hans terminalmodell. Och mitt upp i alltihop
-sitter en liten grupp hackers och hackar förtvivlat på nästa version
-av AMIS, som ska innehålla ytterligare en delmängd av pappa EMACS. Den
-färdiga versionen är fortfarande lika avlägsen...
+bildskÃ¤rmsterminal, vill naturligtvis ha AMIS modifierad sÃ¥ att den
+Ã¤ven gÃ¥r att kÃ¶ra pÃ¥ just hans terminalmodell. Och mitt upp i alltihop
+sitter en liten grupp hackers och hackar fÃ¶rtvivlat pÃ¥ nÃ¤sta version
+av AMIS, som ska innehÃ¥lla ytterligare en delmÃ¤ngd av pappa EMACS. Den
+fÃ¤rdiga versionen Ã¤r fortfarande lika avlÃ¤gsen...
